@@ -1,4 +1,5 @@
 packaging==21.0
-Pillow==9.0.0
-scipy==1.7.0
+Pillow==9.2.0
+scipy==1.10.0rc1
 uvloop==0.15.2
+numpy>=1.22.2 # not directly required, pinned by Snyk to avoid a vulnerability

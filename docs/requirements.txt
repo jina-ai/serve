@@ -5,10 +5,13 @@ sphinx-autodoc-typehints==1.12.0
 sphinx_markdown_tables==0.0.15
 sphinx_copybutton==0.4.0
 sphinx-notfound-page==0.7.1
-gitpython==3.1.13
+gitpython==3.1.35
 sphinx-sitemap==2.2.0
 sphinxext-opengraph
 furo
 myst-parser==0.15.1
 sphinx-design
 sphinx-inline-tabs
+markdown-it-py>=2.2.0 # not directly required, pinned by Snyk to avoid a vulnerability
+numpy>=1.22.2 # not directly required, pinned by Snyk to avoid a vulnerability
+pillow>=10.0.1 # not directly required, pinned by Snyk to avoid a vulnerability

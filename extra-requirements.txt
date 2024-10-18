@@ -27,9 +27,9 @@
 
 numpy:                      core
 protobuf>=3.19.0:           core
-grpcio>=1.46.0,<=1.57.0:    core
-grpcio-reflection>=1.46.0,<=1.57.0:  core
-grpcio-health-checking>=1.46.0,<=1.57.0:  core
+grpcio>=1.46.0,<=1.59.3:    core
+grpcio-reflection>=1.46.0,<=1.59.3:  core
+grpcio-health-checking>=1.46.0,<=1.59.3:  core
 pyyaml>=5.3.1:              core
 packaging>=20.0:            core
 docarray>=0.16.4:           core

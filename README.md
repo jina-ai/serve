@@ -644,4 +644,8 @@ The capital of France is Paris.
 
 Jina is backed by [Jina AI](https://jina.ai) and licensed under [Apache-2.0](./LICENSE).
 
-<!-- end support-pitch -->
+<!-- end support-pitch --> 
+
+
+
+this file is edited by rishabh 

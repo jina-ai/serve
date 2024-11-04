@@ -1776,10 +1776,8 @@ class Flow(
             op_flow._deployment_nodes[GATEWAY_NAME].args.graph_description = json.dumps(
                 op_flow._get_graph_representation()
             )
-            op_flow._deployment_nodes[
-                GATEWAY_NAME
-            ].args.deployments_addresses = json.dumps(
-                op_flow._get_deployments_addresses()
+            op_flow._deployment_nodes[GATEWAY_NAME].args.deployments_addresses = (
+                json.dumps(op_flow._get_deployments_addresses())
             )
 
             op_flow._deployment_nodes[GATEWAY_NAME].update_pod_args()

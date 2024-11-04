@@ -401,10 +401,10 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         self._init_monitoring()
         self._init_workspace = workspace
         if __dry_run_endpoint__ not in self.requests:
-            self.requests[
-                __dry_run_endpoint__
-            ] = _FunctionWithSchema.get_function_with_schema(
-                self.__class__._dry_run_func
+            self.requests[__dry_run_endpoint__] = (
+                _FunctionWithSchema.get_function_with_schema(
+                    self.__class__._dry_run_func
+                )
             )
         else:
             self.logger.warning(
@@ -412,10 +412,10 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
                 f' So it is recommended not to expose this endpoint. '
             )
         if type(self) == BaseExecutor:
-            self.requests[
-                __default_endpoint__
-            ] = _FunctionWithSchema.get_function_with_schema(
-                self.__class__._dry_run_func
+            self.requests[__default_endpoint__] = (
+                _FunctionWithSchema.get_function_with_schema(
+                    self.__class__._dry_run_func
+                )
             )
 
         self._lock = contextlib.AsyncExitStack()
@@ -595,14 +595,14 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
                 _func = getattr(self.__class__, func)
                 if callable(_func):
                     # the target function is not decorated with `@requests` yet
-                    self.requests[
-                        endpoint
-                    ] = _FunctionWithSchema.get_function_with_schema(_func)
+                    self.requests[endpoint] = (
+                        _FunctionWithSchema.get_function_with_schema(_func)
+                    )
                 elif typename(_func) == 'jina.executors.decorators.FunctionMapper':
                     # the target function is already decorated with `@requests`, need unwrap with `.fn`
-                    self.requests[
-                        endpoint
-                    ] = _FunctionWithSchema.get_function_with_schema(_func.fn)
+                    self.requests[endpoint] = (
+                        _FunctionWithSchema.get_function_with_schema(_func.fn)
+                    )
                 else:
                     raise TypeError(
                         f'expect {typename(self)}.{func} to be a function, but receiving {typename(_func)}'

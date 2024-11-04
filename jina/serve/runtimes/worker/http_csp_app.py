@@ -182,13 +182,14 @@ def get_fastapi_app(
                         # Handle list of nested models
                         elif get_origin(field_type) is list:
                             list_item_type = get_args(field_type)[0]
-                            parsed_list = json.loads(field_str)
-                            if issubclass(list_item_type, BaseModel):
-                                parsed_fields[field_name] = parse_obj_as(
-                                    List[list_item_type], parsed_list
-                                )
-                            else:
-                                parsed_fields[field_name] = parsed_list
+                            if field_str:
+                                parsed_list = json.loads(field_str)
+                                if issubclass(list_item_type, BaseModel):
+                                    parsed_fields[field_name] = parse_obj_as(
+                                        List[list_item_type], parsed_list
+                                    )
+                                else:
+                                    parsed_fields[field_name] = parsed_list
                         # General parsing attempt for other types
                         else:
                             if field_str:

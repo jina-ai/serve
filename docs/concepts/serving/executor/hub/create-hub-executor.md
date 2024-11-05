@@ -49,9 +49,9 @@ In the `jina hub new` wizard you can choose from four Dockerfile templates: `cpu
 ```
 
 
-* If you push your Executor to the [Executor Hub](https://cloud.jina.ai/executors), you don't need to bump the Jina version
+* If you push your Executor to the [Executor Hub](https://cloud.jina.ai/executors), you don't need to bump the Jina-serve version
 
-  Hub Executors are version-agnostic. When you pull an Executor from Executor Hub, it will select the right Jina version for you. You don't need to upgrade your version of Jina.
+  Hub Executors are version-agnostic. When you pull an Executor from Executor Hub, it will select the right Jina-serve version for you. You don't need to upgrade your version of Jina-serve.
 
 
 * Fill in metadata of your Executor correctly

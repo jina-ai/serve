@@ -6,7 +6,7 @@ Let's see the [Hub portal](https://cloud.jina.ai) in detail.
 
 ## Catalog page
 
-The main page contains a list of all Executors created by Jina developers all over the world. You can see the Editor's Pick at the top of the list, which shows Executors highlighted by the Jina team. 
+The main page contains a list of all Executors created by Jina-serve developers all over the world. You can see the Editor's Pick at the top of the list, which shows Executors highlighted by the Jina-serve team. 
 
 ```{figure} ../../../../../.github/hub-website-list.png
 :align: center

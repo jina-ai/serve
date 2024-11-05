@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -13,6 +13,8 @@ class TextAndImageDoc(BaseDoc):
     text: Optional[str] = None
     url: Optional[AnyUrl] = None
     bytes: Optional[ImageBytes] = None
+    num_tokens: Optional[int] = None
+    input_ids: Optional[List[int]] = None
 
 
 class EmbeddingResponseModel(TextAndImageDoc):

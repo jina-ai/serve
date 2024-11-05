@@ -6,7 +6,7 @@ Our universal Docker image is ready-to-use on linux/amd64 and linux/arm64. The D
 jinaai/jina:{version}{python_version}{extra}
 ```
 
-- `{version}`: The version of Jina. Possible values:
+- `{version}`: The version of Jina-serve. Possible values:
     - `latest`: the last release;
     - `master`: the master branch of `jina-ai/jina` repository;
     - `x.y.z`: the release of a particular version;
@@ -15,7 +15,7 @@ jinaai/jina:{version}{python_version}{extra}
     - ` `, `-py37`: Python 3.7;
     - `-py38` for Python 3.8;
     - `-py39` for Python 3.9;
-- `{extra}`: the extra dependency installed along with Jina. Possible values:
+- `{extra}`: the extra dependency installed along with Jina-serve. Possible values:
     - ` `: Jina is installed inside the image with minimum dependencies `pip install jina`;
     - `-perf`: Jina is installed inside the image via `pip install jina`. It includes all performance dependencies; 
     - `-standard`: Jina is installed inside the image via `pip install jina`. It includes all recommended dependencies;  

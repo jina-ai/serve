@@ -1,7 +1,7 @@
 import os
+import platform
 import subprocess
 import sys
-import platform
 from os import path
 
 from setuptools import Extension, find_packages, setup
@@ -14,7 +14,7 @@ AUTHOR_EMAIL = 'hello@jina.ai'
 LICENSE = 'Apache 2.0'
 GITHUB_REPO = 'https://github.com/jina-ai/jina/'
 DOWNLOAD_URL = 'https://github.com/jina-ai/jina/tags'
-DOCUMENTATION = 'https://docs.jina.ai'
+DOCUMENTATION = 'https://jina.ai/serve'
 TRACKER = 'https://github.com/jina-ai/jina/issues'
 
 if sys.version_info < (3, 7, 0):
@@ -144,10 +144,19 @@ perf_deps = all_deps['perf'].union(core_deps)
 standard_deps = all_deps['standard'].union(core_deps).union(perf_deps)
 
 # uvloop is not supported on windows
-perf_deps = {i + ";platform_system!='Windows'" if i.startswith('uvloop') else i for i in perf_deps}
-standard_deps = {i + ";platform_system!='Windows'" if i.startswith('uvloop') else i for i in standard_deps}
+perf_deps = {
+    i + ";platform_system!='Windows'" if i.startswith('uvloop') else i
+    for i in perf_deps
+}
+standard_deps = {
+    i + ";platform_system!='Windows'" if i.startswith('uvloop') else i
+    for i in standard_deps
+}
 for k in ['all', 'devel', 'cicd']:
-    all_deps[k] = {i + ";platform_system!='Windows'" if i.startswith('uvloop') else i for i in all_deps[k]}
+    all_deps[k] = {
+        i + ";platform_system!='Windows'" if i.startswith('uvloop') else i
+        for i in all_deps[k]
+    }
 
 # by default, final deps is the standard deps, unless specified by env otherwise
 final_deps = standard_deps
@@ -244,6 +253,6 @@ setup(
         'Tracker': TRACKER,
     },
     keywords='jina cloud-native cross-modal multimodal neural-search query search index elastic neural-network encoding '
-             'embedding serving docker container image video audio deep-learning mlops',
+    'embedding serving docker container image video audio deep-learning mlops',
     **extra_golang_kw,
 )

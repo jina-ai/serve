@@ -183,7 +183,7 @@ recipe_object = {
         'license_family': 'Apache',
         'license_file': 'LICENSE',
         'summary': 'Build multimodal AI services via cloud native technologies · Neural Search · Generative AI · Cloud Native',
-        'doc_url': 'https://docs.jina.ai',
+        'doc_url': 'https://jina.ai/serve',
     },
     'extra': {
         'recipe-maintainers': ['JoanFM', 'nan-wang', 'hanxiao'],

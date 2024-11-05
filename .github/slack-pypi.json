@@ -16,7 +16,7 @@
       },
       "accessory": {
         "type": "image",
-        "image_url": "https://docs.jina.ai/_static/favicon.png",
+        "image_url": "https://jina.ai/serve/_static/favicon.png",
         "alt_text": "cute cat"
       }
     },

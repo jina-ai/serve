@@ -1,8 +1,8 @@
 (install)=
 # {octicon}`desktop-download` Install
 
-Jina comes with multiple installation options, enabling different feature sets.
-Standard install enables all major features of Jina and is the recommended installation for most users.
+Jina-serve comes with multiple installation options, enabling different feature sets.
+Standard install enables all major features of Jina-serve and is the recommended installation for most users.
 
 ````{tab} via PyPI
 ```shell
@@ -26,7 +26,7 @@ Version identifiers [are explained here](https://github.com/jina-ai/jina/blob/ma
 
 ### Minimum
 
-Minimum install enables basic features of Jina, but without support for HTTP, WebSocket, Docker and Hub.
+Minimum install enables basic features of Jina-serve, but without support for HTTP, WebSocket, Docker and Hub.
 
 Minimum install is often used when building and deploying an Executor.
 
@@ -89,7 +89,7 @@ docker run jinaai/jina:latest-perf
 
 ### Full development dependencies
 
-This installs additional dependencies, useful for developing Jina itself. This includes Pytest, CI components etc.
+This installs additional dependencies, useful for developing Jina-serve itself. This includes Pytest, CI components etc.
 
 
 ````{tab} via PyPI
@@ -112,7 +112,7 @@ docker run jinaai/jina:latest-devel
 
 ### Prerelease
 
-Prerelease is the version always synced with the `master` branch of Jina's GitHub repository.
+Prerelease is the version always synced with the `master` branch of Jina-serve's GitHub repository.
 
 ````{tab} via PyPI
 

@@ -13,12 +13,12 @@ reducing response latency by anything from 5 to 100 times, depending on the mode
 This tutorial assumes familiarity with basic Jina concepts, such as Document, [Executor](../concepts/executor/index), and [Deployment](../concepts/deployment/index). Some knowledge of [Executor Hub](../concepts/executor/hub/index) is also needed for the last part of the tutorial.
 ```
 
-## Jina and GPUs in a nutshell
+## Jina-serve and GPUs in a nutshell
 
 For a thorough walkthrough of using GPU resources in your code, check the full tutorial in the {ref}`next section <gpu-prerequisites>`.
 
 If you already know how to use your GPU, just proceed like you usually would in your machine learning framework of choice.
-Jina lets you use GPUs like you would in a Python script or Docker 
+Jina-serve lets you use GPUs like you would in a Python script or Docker 
 container, without imposing additional requirements or configuration.
 
 Here's a minimal working example, written in PyTorch:
@@ -131,7 +131,7 @@ the deep learning framework that you use, that might be required (for local exec
 For the Docker part of the tutorial you will also need to have [Docker](https://docs.docker.com/get-docker/) and 
 [nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed.
 
-To run Python scripts you need a virtual environment (for example [venv](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment) or [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-environments)), and install Jina inside it using:
+To run Python scripts you need a virtual environment (for example [venv](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment) or [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-environments)), and install Jina-serve inside it using:
 
 ```bash
 pip install jina
@@ -148,7 +148,7 @@ Executor inside a Docker container, or (if you so choose) to publish it to Execu
 ```
 
 We'll create a simple sentence encoder, and start by creating the Executor 
-"skeleton" using Jina's CLI:
+"skeleton" using Jina-serve's CLI:
 
 ```bash
 jina hub new

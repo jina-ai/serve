@@ -3,12 +3,12 @@
 
 ```{admonition} Deprecated
 :class: caution
-The Prometheus-only based feature will soon be deprecated in favor of the OpenTelemetry Setup. Refer to {ref}`OpenTelemetry Setup <opentelemetry>` for the details on OpenTelemetry setup for Jina.
+The Prometheus-only based feature will soon be deprecated in favor of the OpenTelemetry Setup. Refer to {ref}`OpenTelemetry Setup <opentelemetry>` for the details on OpenTelemetry setup for Jina-serve.
 
 Refer to the {ref}`OpenTelemetry migration guide <opentelemetry-migration>` for updating your existing Prometheus and Grafana configurations.
 ```
 
-We recommend the Prometheus/Grafana stack to leverage the metrics exposed by Jina. In this setup, Jina exposes different metrics, and Prometheus scrapes these endpoints, as well as
+We recommend the Prometheus/Grafana stack to leverage the metrics exposed by Jina-serve. In this setup, Jina-serve exposes different metrics, and Prometheus scrapes these endpoints, as well as
 collecting, aggregating, and storing the metrics. 
 
 External entities (like Grafana) can access these aggregated metrics via the query language [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) and let users visualize the metrics with dashboards.
@@ -28,7 +28,7 @@ In this guide, we deploy the Prometheus/Grafana stack and use it to monitor a Fl
 One challenge of monitoring a {class}`~jina.Flow` is communicating its different metrics endpoints to Prometheus.
 Fortunately, the [Prometheus operator for Kubernetes](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md) makes this fairly easy because it can automatically discover new metrics endpoints to scrape.
 
-We recommend deploying your Jina Flow on Kubernetes to leverage the full potential of the monitoring feature because:
+We recommend deploying your Jina-serve Flow on Kubernetes to leverage the full potential of the monitoring feature because:
 * The Prometheus operator can automatically discover new endpoints to scrape.
 * You can extend monitoring with the rich built-in Kubernetes metrics.
 

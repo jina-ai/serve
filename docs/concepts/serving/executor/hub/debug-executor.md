@@ -34,7 +34,7 @@ Executor.from_hub('jinaai://jina-ai/Hello')
 
 ## Set breakpoints
 
-In the `~/.jina/hub-package` directory there is one subdirectory for each Executor that you pulled, named by the Executor ID. You can find the Executor's source files in this directory.
+In the `~/.jina-serve/hub-package` directory there is one subdirectory for each Executor that you pulled, named by the Executor ID. You can find the Executor's source files in this directory.
 
 Once you locate the source, you can set the breakpoints as you always do.
 

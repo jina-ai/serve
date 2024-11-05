@@ -292,15 +292,18 @@ class WorkerRequestHandler:
                 func.fn.__name__: [] for func in self._executor.requests.values()
             }
             for endpoint, func in self._executor.requests.items():
-                func_endpoints[func.fn.__name__].append(endpoint)
+                if func.fn.__name__ in func_endpoints:
+                    # For SageMaker, not all endpoints are there
+                    func_endpoints[func.fn.__name__].append(endpoint)
             for func_name, dbatch_config in dbatch_functions:
-                for endpoint in func_endpoints[func_name]:
-                    if endpoint not in self._batchqueue_config:
-                        self._batchqueue_config[endpoint] = dbatch_config
-                    else:
-                        # we need to eventually copy the `custom_metric`
-                        if dbatch_config.get('custom_metric', None) is not None:
-                            self._batchqueue_config[endpoint]['custom_metric'] = dbatch_config.get('custom_metric')
+                if func_name in func_endpoints: # For SageMaker, not all endpoints are there
+                    for endpoint in func_endpoints[func_name]:
+                        if endpoint not in self._batchqueue_config:
+                            self._batchqueue_config[endpoint] = dbatch_config
+                        else:
+                            # we need to eventually copy the `custom_metric`
+                            if dbatch_config.get('custom_metric', None) is not None:
+                                self._batchqueue_config[endpoint]['custom_metric'] = dbatch_config.get('custom_metric')
 
             keys_to_remove = []
             for k, batch_config in self._batchqueue_config.items():

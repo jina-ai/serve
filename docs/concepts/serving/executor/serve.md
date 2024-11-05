@@ -144,7 +144,7 @@ py_modules:
   - executor.py
 ```
 
-This simply points Jina to our file and Executor class. Now we can run the command:
+This simply points Jina-serve to our file and Executor class. Now we can run the command:
 
 ```bash
 jina executor --uses my-exec.yml --port 12345

@@ -147,7 +147,7 @@ about:
   license_family: Apache
   license_file: LICENSE
   summary: "Build multimodal AI services via cloud native technologies \xB7 Neural Search \xB7 Generative AI \xB7 Cloud Native"
-  doc_url: https://docs.jina.ai
+  doc_url: https://jina.ai/serve
 
 extra:
   recipe-maintainers:

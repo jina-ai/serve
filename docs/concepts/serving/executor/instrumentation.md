@@ -23,7 +23,7 @@ default tracing span for the defined operation. In addition, the operation span 
 is propagated to the method for creating further user-defined child spans within the 
 method.
 
-You can create custom spans to observe the operation's individual steps or record details and attributes with finer granularity. When tracing is enabled, Jina provides the OpenTelemetry Tracer implementation as an Executor class attribute that you can use to create new child spans. The `tracing_context` method argument contains the parent span context using which a new span can be created to trace the desired operation in the method.
+You can create custom spans to observe the operation's individual steps or record details and attributes with finer granularity. When tracing is enabled, Jina-serve provides the OpenTelemetry Tracer implementation as an Executor class attribute that you can use to create new child spans. The `tracing_context` method argument contains the parent span context using which a new span can be created to trace the desired operation in the method.
 
 If tracing is enabled, each Executor exports its traces to the configured exporter host via the [Span Exporter](https://opentelemetry.io/docs/reference/specification/trace/sdk/#span-exporter). The backend combines these traces for visualization and alerting.
 
@@ -67,7 +67,7 @@ The above pieces of instrumentation generate three spans:
 
 
 ```{admonition} 
-The Python OpenTelemetry API provides a global tracer via the `opentelemetry.trace.tracer()` method which is not set or used directly in Jina. The class attribute `self.tracer` is used for the default `@requests` method tracing and must also be used as much as possible within the method for creating child spans.
+The Python OpenTelemetry API provides a global tracer via the `opentelemetry.trace.tracer()` method which is not set or used directly in Jina-serve. The class attribute `self.tracer` is used for the default `@requests` method tracing and must also be used as much as possible within the method for creating child spans.
 
 However within a span context, the `opentelemetry.trace.get_current_span()` method returns the span created inside the context.
 ```
@@ -276,6 +276,6 @@ class MyExecutor(Executor):
 ## See also
 
 - {ref}`List of available metrics <instrumenting-flow>`
-- {ref}`How to deploy and use OpenTelemetry in Jina <opentelemetry>`
+- {ref}`How to deploy and use OpenTelemetry in Jina-serve <opentelemetry>`
 - [Tracing in OpenTelemetry](https://opentelemetry.io/docs/concepts/signals/traces/)
 - [Metrics in OpenTelemetry](https://opentelemetry.io/docs/concepts/signals/metrics/)

@@ -43,7 +43,7 @@ False
 ```
 ````
 
-## Via Jina Client
+## Via Jina-serve Client
 
 <!-- start ready-from-client -->
 
@@ -103,24 +103,24 @@ with dep:
     dep.block()
 ```
 ```bash
-jina ping executor grpc://localhost:12345
+jina-serve ping executor grpc://localhost:12345
 ```
 
 ````{tab} Success
 ```text
-INFO   JINA@92877 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:58:13]
-INFO   JINA@92877 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.04s)
-INFO   JINA@92877 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:58:14]
-INFO   JINA@92877 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
-INFO   JINA@92877 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:58:15]
-INFO   JINA@92877 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.01s)
-INFO   JINA@92877 avg. latency: 24 ms                                                                                                                    [09/08/22 12:58:16]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:58:13]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.04s)
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:58:14]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:58:15]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92877 avg. latency: 24 ms                                                                                                                    [09/08/22 12:58:16]
 ```
 ````
 
 ````{tab} Failure
 ```text
-INFO   JINA@92986 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:59:00]
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:59:00]
 ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcError of RPC that terminated with:                                          [09/08/22 12:59:00]
                status = StatusCode.UNAVAILABLE
                details = "failed to connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused"
@@ -128,9 +128,9 @@ ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcErr
        connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused {grpc_status:14,
        created_time:"2022-09-08T12:59:00.518706+02:00"}]}"
        >
-WARNI… JINA@92986 not responding, retry (1/3) in 1s
-INFO   JINA@92986 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.01s)
-INFO   JINA@92986 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:59:01]
+WARNI… Jina-serve@92986 not responding, retry (1/3) in 1s
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:59:01]
 ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcError of RPC that terminated with:                                          [09/08/22 12:59:01]
                status = StatusCode.UNAVAILABLE
                details = "failed to connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused"
@@ -138,9 +138,9 @@ ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcErr
        connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused {grpc_status:14,
        created_time:"2022-09-08T12:59:01.537291+02:00"}]}"
        >
-WARNI… JINA@92986 not responding, retry (2/3) in 1s
-INFO   JINA@92986 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
-INFO   JINA@92986 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:59:02]
+WARNI… Jina-serve@92986 not responding, retry (2/3) in 1s
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:59:02]
 ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcError of RPC that terminated with:                                          [09/08/22 12:59:02]
                status = StatusCode.UNAVAILABLE
                details = "failed to connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused"
@@ -148,9 +148,9 @@ ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcErr
        connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused {grpc_status:14,
        created_time:"2022-09-08T12:59:02.557193+02:00"}]}"
        >
-WARNI… JINA@92986 not responding, retry (3/3) in 1s
-INFO   JINA@92986 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.02s)
-WARNI… JINA@92986 message lost 100% (3/3)
+WARNI… Jina-serve@92986 not responding, retry (3/3) in 1s
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.02s)
+WARNI… Jina-serve@92986 message lost 100% (3/3)
 ```
 ````
 `````
@@ -164,24 +164,24 @@ with f:
     f.block()
 ```
 ```bash
-jina ping flow grpc://localhost:12345
+jina-serve ping flow grpc://localhost:12345
 ```
 
 ````{tab} Success
 ```text
-INFO   JINA@92877 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:58:13]
-INFO   JINA@92877 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.04s)
-INFO   JINA@92877 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:58:14]
-INFO   JINA@92877 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
-INFO   JINA@92877 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:58:15]
-INFO   JINA@92877 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.01s)
-INFO   JINA@92877 avg. latency: 24 ms                                                                                                                    [09/08/22 12:58:16]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:58:13]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.04s)
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:58:14]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:58:15]
+INFO   Jina-serve@92877 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92877 avg. latency: 24 ms                                                                                                                    [09/08/22 12:58:16]
 ```
 ````
 
 ````{tab} Failure
 ```text
-INFO   JINA@92986 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:59:00]
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 0 round...                                                                                              [09/08/22 12:59:00]
 ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcError of RPC that terminated with:                                          [09/08/22 12:59:00]
                status = StatusCode.UNAVAILABLE
                details = "failed to connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused"
@@ -189,9 +189,9 @@ ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcErr
        connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused {grpc_status:14,
        created_time:"2022-09-08T12:59:00.518706+02:00"}]}"
        >
-WARNI… JINA@92986 not responding, retry (1/3) in 1s
-INFO   JINA@92986 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.01s)
-INFO   JINA@92986 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:59:01]
+WARNI… Jina-serve@92986 not responding, retry (1/3) in 1s
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 0 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 1 round...                                                                                              [09/08/22 12:59:01]
 ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcError of RPC that terminated with:                                          [09/08/22 12:59:01]
                status = StatusCode.UNAVAILABLE
                details = "failed to connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused"
@@ -199,9 +199,9 @@ ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcErr
        connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused {grpc_status:14,
        created_time:"2022-09-08T12:59:01.537291+02:00"}]}"
        >
-WARNI… JINA@92986 not responding, retry (2/3) in 1s
-INFO   JINA@92986 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
-INFO   JINA@92986 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:59:02]
+WARNI… Jina-serve@92986 not responding, retry (2/3) in 1s
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 1 round takes 0 seconds (0.01s)
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 2 round...                                                                                              [09/08/22 12:59:02]
 ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcError of RPC that terminated with:                                          [09/08/22 12:59:02]
                status = StatusCode.UNAVAILABLE
                details = "failed to connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused"
@@ -209,16 +209,16 @@ ERROR  GRPCClient@92986 Error while getting response from grpc server <AioRpcErr
        connect to all addresses; last error: UNKNOWN: Failed to connect to remote host: Connection refused {grpc_status:14,
        created_time:"2022-09-08T12:59:02.557193+02:00"}]}"
        >
-WARNI… JINA@92986 not responding, retry (3/3) in 1s
-INFO   JINA@92986 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.02s)
-WARNI… JINA@92986 message lost 100% (3/3)
+WARNI… Jina-serve@92986 not responding, retry (3/3) in 1s
+INFO   Jina-serve@92986 ping grpc://localhost:12345 at 2 round takes 0 seconds (0.02s)
+WARNI… Jina-serve@92986 message lost 100% (3/3)
 ```
 ````
 `````
 
 ## Readiness check via third-party clients
 
-You can check the status of a Flow using any gRPC/HTTP/WebSockets client, not just via Jina Client.
+You can check the status of a Flow using any gRPC/HTTP/WebSockets client, not just via Jina-serve Client.
 
 To see how this works, first instantiate the Flow with its corresponding protocol and block it for serving:
 

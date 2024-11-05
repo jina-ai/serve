@@ -19,7 +19,7 @@ After log in you can see your name and avatar in the top-right corner.
 
 ### Token Management
 
-You can follow the GUI to create/delete personal access tokens for your Jina applications.
+You can follow the GUI to create/delete personal access tokens for your Jina-serve applications.
 
 ```{figure} pat.png
 ```
@@ -69,7 +69,7 @@ jina auth token delete <name of PAT>
 
 ## via Python API
 
-Installed along with Jina, you can leverage the `hubble` package to manage login from Python
+Installed along with Jina-serve, you can leverage the `hubble` package to manage login from Python
 
 ### Login
 

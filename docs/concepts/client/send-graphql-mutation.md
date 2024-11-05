@@ -1,6 +1,6 @@
 # Send GraphQL Mutation
 
-If the Flow is configured with GraphQL endpoint, then you can use Jina {class}`~jina.Client` {meth}`~jina.clients.mixin.MutateMixin.mutate` to fetch data via GraphQL mutations:
+If the Flow is configured with GraphQL endpoint, then you can use Jina-serve {class}`~jina.Client` {meth}`~jina.clients.mixin.MutateMixin.mutate` to fetch data via GraphQL mutations:
 
 ````{admonition} Only available for docarray<0.30
 :class: note

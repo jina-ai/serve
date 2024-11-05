@@ -1,6 +1,6 @@
 # On Apple Silicon
 
-If you own a macOS device with an Apple Silicon M1/M2 chip, you can run Jina **natively** on it (instead of running under Rosetta) and enjoy up to 10x faster performance. This chapter summarizes how to install Jina.
+If you own a macOS device with an Apple Silicon M1/M2 chip, you can run Jina-serve **natively** on it (instead of running under Rosetta) and enjoy up to 10x faster performance. This chapter summarizes how to install Jina-serve.
 
 ## Check terminal and device
 
@@ -72,15 +72,15 @@ Ensure you note down where `python` and `pip` are installed. In this example, th
 
 ## Install dependencies wheels
 
-There are some core dependencies that Jina needs to run, whose wheels are not available on PyPI but fortunately are available as wheels. To install them, run:
+There are some core dependencies that Jina-serve needs to run, whose wheels are not available on PyPI but fortunately are available as wheels. To install them, run:
 
 ```bash
 brew install protobuf numpy
 ```
 
-## Install Jina
+## Install Jina-serve
 
-Now we can install Jina via `pip`. Ensure you use the correct `pip`:
+Now we can install Jina-serve via `pip`. Ensure you use the correct `pip`:
 
 ```bash
 /opt/homebrew/opt/python@3.10/libexec/bin/pip install jina
@@ -95,7 +95,7 @@ export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
 ```
 
-After all the dependencies are installed, you can run Jina CLI and check the system information.
+After all the dependencies are installed, you can run Jina-serve CLI and check the system information.
 
 ```bash
 jina -vf
@@ -144,7 +144,7 @@ emphasize-lines: 13-15
 ```
 
 
-Congratulations! You have successfully installed Jina on Apple Silicon.
+Congratulations! You have successfully installed Jina-serve on Apple Silicon.
 
 
 ````{tip}

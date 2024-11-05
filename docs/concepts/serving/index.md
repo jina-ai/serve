@@ -1,7 +1,7 @@
 (serving)=
 # {fas}`gears` Serving
 
-As seen in the {ref}`architecture overview <architecture-overview>`, Jina is organized in different layers.
+As seen in the {ref}`architecture overview <architecture-overview>`, Jina-serve is organized in different layers.
 
 The Serving layer is composed of concepts that allow developers to write their logic to be served by the objects in {ref}`orchestration <orchestration>` layer.
 

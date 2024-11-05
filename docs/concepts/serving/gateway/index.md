@@ -190,7 +190,7 @@ In case you want to serve a Flow using multiple protocols, make sure to specify 
 
 ## Enable TLS for client traffics
 
-You can enable TLS encryption between your Gateway and Clients, for any of the protocols supported by Jina (HTTP, gRPC,
+You can enable TLS encryption between your Gateway and Clients, for any of the protocols supported by Jina-serve (HTTP, gRPC,
 and WebSocket).
 
 ````{admonition} Caution
@@ -244,7 +244,7 @@ It is a dict-like structure with the following keys:
 
 - `jina`: A dictionary containing information about the system and the versions of several packages including jina
   package itself
-- `envs`: A dictionary containing all the values if set of the {ref}`environment variables used in Jina <jina-env-vars>`
+- `envs`: A dictionary containing all the values if set of the {ref}`environment variables used in Jina-serve <jina-serve-env-vars>`
 
 ### Use gRPC
 
@@ -355,7 +355,7 @@ Refer to the {ref}`Configure Executor gRPC options <executor-grpc-channel-option
 
 ### Use HTTP/WebSocket
 
-When using HTTP or WebSocket as the Gateway protocol, you can use curl to target the `/status` endpoint and get the Jina
+When using HTTP or WebSocket as the Gateway protocol, you can use curl to target the `/status` endpoint and get the Jina-serve
 info.
 
 ```shell

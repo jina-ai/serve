@@ -11,7 +11,7 @@ We provide a [JSON Schema](https://json-schema.org/) for your IDE to enable code
 
 1. Click menu `Preferences` -> `JSON Schema mappings`;
 2. Add a new schema, in the `Schema File or URL` write `https://schemas.jina.ai/schemas/latest.json`; select `JSON Schema Version 7`;
-3. Add a file path pattern and link it to `*.jaml` or `*.jina.yml` or any suffix you commonly used for Jina Flow's YAML.
+3. Add a file path pattern and link it to `*.jaml` or `*.jina.yml` or any suffix you commonly used for Jina-serve Flow's YAML.
 
 ### VSCode users
 
@@ -24,7 +24,7 @@ We provide a [JSON Schema](https://json-schema.org/) for your IDE to enable code
 }
 ```
 
-You can bind Schema to any file suffix you commonly used for Jina Flow's YAML.
+You can bind Schema to any file suffix you commonly used for Jina-serve Flow's YAML.
 
 ## Example YAML
 

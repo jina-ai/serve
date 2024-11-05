@@ -3,8 +3,8 @@
 
 This chapter introduces the basic terminology and concepts you will encounter in the docs. But first, look at the code below:
 
-In this code, we are going to use Jina to serve simple logic with one Deployment, or a combination of two services with a Flow.
-We are also going to see how we can query these services with Jina's client.
+In this code, we are going to use Jina-serve to serve simple logic with one Deployment, or a combination of two services with a Flow.
+We are also going to see how we can query these services with Jina-serve's client.
 
 (dummy-example)=
 ````{tab} Deployment
@@ -101,14 +101,14 @@ gRPC, WebSocket and HTTP are network protocols for transmitting data. gRPC is al
 TLS is a security protocol to facilitate privacy and data security for communications over the Internet. The communication between {term}`Client` and {term}`Gateway` is protected by TLS.
 ```
 
-Jina is an MLOPs serving framework that is structured in two main layers. These layers work with DocArray's data structure and Jina's Python Client to complete the framework. All of these are covered in the user guide
+Jina-serve is an MLOPs serving framework that is structured in two main layers. These layers work with DocArray's data structure and Jina-serve's Python Client to complete the framework. All of these are covered in the user guide
 and contains the following concepts:
 
 ```{glossary}
 
 **DocArray data structure**
 
-Data structures coming from [docarray](https://docs.docarray.org/) are the basic fundamental data structure in Jina.
+Data structures coming from [docarray](https://docs.docarray.org/) are the basic fundamental data structure in Jina-serve.
 
 
 - **BaseDoc**
@@ -117,13 +117,13 @@ Data structures coming from [docarray](https://docs.docarray.org/) are the basic
 - **DocList**
     DocList is a list-like container of multiple Documents. More information can be found in [DocArray's Docs](https://docs.docarray.org/user_guide/representing/array/).
 
-All the components in Jina use `BaseDoc` and/or `DocList` as the main data format for communication, making use of the different 
+All the components in Jina-serve use `BaseDoc` and/or `DocList` as the main data format for communication, making use of the different 
 serialization capabilities of these structures.
 
 **Serving**
 
 This layer contains all the objects and concepts that are used to actually serve the logic and receive and respond to queries. These components are designed to be used as microservices ready to be containerized. 
-These components can be orchestrated by Jina's {term}`orchestration` layer or by other container orchestration frameworks such as Kubernetes or Docker Compose.
+These components can be orchestrated by Jina-serve's {term}`orchestration` layer or by other container orchestration frameworks such as Kubernetes or Docker Compose.
  
 
 - **Executor**

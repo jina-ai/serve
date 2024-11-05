@@ -1,7 +1,7 @@
 (yaml-spec)=
 # {octicon}`file-code` YAML Specification
 
-YAML is widely used in Jina to define an Executor, Flow. This page helps you quickly navigate different YAML specifications.
+YAML is widely used in Jina-serve to define an Executor, Flow. This page helps you quickly navigate different YAML specifications.
 
 ## Executor-level YAML
 
@@ -49,7 +49,7 @@ Gateway specification is nested under the Flow YAML via `with:` keywords.
 :link: concepts/jcloud/yaml-spec
 :link-type: doc
 
-Define the resources and autoscaling settings on Jina Cloud
+Define the resources and autoscaling settings on Jina-serve Cloud
 
 +++
 JCloud specification is nested under the Flow YAML via `jcloud:` keywords.

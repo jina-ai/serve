@@ -12,11 +12,11 @@ monitoring
 Prometheus-only based metrics collection will soon be deprecated. Refer to {ref}`Monitor with Prometheus and Grafana <monitoring>` for the old setup.
 ```
 
-There are two major setups required to visualize/monitor your application's signals using [OpenTelemetry](https://opentelemetry.io). The first setup is covered by Jina which integrates the [OpenTelemetry API and SDK](https://opentelemetry-python.readthedocs.io/en/stable/api/index.html) at the application level. The {ref}`Flow Instrumentation <instrumenting-flow>` page covers in detail the steps required to enable OpenTelemetry in a Flow. A {class}`~jina.Client` can also be instrumented which is documented in the {ref}`Client Instrumentation <instrumenting-client>` section.
+There are two major setups required to visualize/monitor your application's signals using [OpenTelemetry](https://opentelemetry.io). The first setup is covered by Jina-serve which integrates the [OpenTelemetry API and SDK](https://opentelemetry-python.readthedocs.io/en/stable/api/index.html) at the application level. The {ref}`Flow Instrumentation <instrumenting-flow>` page covers in detail the steps required to enable OpenTelemetry in a Flow. A {class}`~jina.Client` can also be instrumented which is documented in the {ref}`Client Instrumentation <instrumenting-client>` section.
 
 This section covers the OpenTelemetry infrastructure setup required to collect, store and visualize the traces and metrics data exported by the Pods. This setup is the user's responsibility, and this section only serves as the initial/introductory guide to running OpenTelemetry infrastructure components.
 
-Since OpenTelemetry is open source and is mostly responsible for the API standards and specification, various providers implement the specification. This section follows the default recommendations from the OpenTelemetry documentation that also fits into the Jina implementations.
+Since OpenTelemetry is open source and is mostly responsible for the API standards and specification, various providers implement the specification. This section follows the default recommendations from the OpenTelemetry documentation that also fits into the Jina-serve implementations.
 
 ## Exporting traces and metrics data
 
@@ -26,12 +26,12 @@ The push/export-based mechanism also allows the application to start pushing dat
 
 You can configure the exporter backend host and port using the `traces_exporter_host`, `traces_exporter_port`, `metrics_exporter_host` and `metrics_exporter_port`. Even though the Collector is metric data-type agnostic (it accepts any type of OpenTelemetry API data model), we provide separate configuration for Tracing and Metrics to give you more flexibility in choosing infrastructure components.
 
-Jina's default exporter implementation is  `OTLPSpanExporter` and `OTLPMetricExporter`. The exporters also use the gRPC data transfer protocol. The following environment variables can be used to further configure the exporter client based on your requirements. The full list of exporter related environment variables are documented by the [PythonSDK library](https://opentelemetry-python.readthedocs.io/en/latest/exporter/otlp/otlp.html). Apart from `OTEL_EXPORTER_OTLP_PROTOCOL` and `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`, you can use all other library version specific environment variables to configure the exporter clients.
+Jina-serve's default exporter implementation is  `OTLPSpanExporter` and `OTLPMetricExporter`. The exporters also use the gRPC data transfer protocol. The following environment variables can be used to further configure the exporter client based on your requirements. The full list of exporter related environment variables are documented by the [PythonSDK library](https://opentelemetry-python.readthedocs.io/en/latest/exporter/otlp/otlp.html). Apart from `OTEL_EXPORTER_OTLP_PROTOCOL` and `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`, you can use all other library version specific environment variables to configure the exporter clients.
 
 
 ## Collector
 
-The [Collector](https://opentelemetry.io/docs/collector/) is a huge ecosystem of components that support features like scraping, collecting, processing and further exporting data to storage backends. The collector itself can also expose endpoints to allow scraping data. We recommend reading the official documentation to understand the the full set of features and configuration required to run a Collector. Read the below section to understand the minimum number of components and the respective configuration required for operating with Jina.
+The [Collector](https://opentelemetry.io/docs/collector/) is a huge ecosystem of components that support features like scraping, collecting, processing and further exporting data to storage backends. The collector itself can also expose endpoints to allow scraping data. We recommend reading the official documentation to understand the the full set of features and configuration required to run a Collector. Read the below section to understand the minimum number of components and the respective configuration required for operating with Jina-serve.
 
 We recommend using the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) from the contrib repository. We also use:
 - [Jaeger](https://www.jaegertracing.io) for collecting traces, visualizing tracing data and alerting based on tracing data.

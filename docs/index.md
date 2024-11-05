@@ -1,4 +1,4 @@
-# Welcome to Jina!
+# Welcome to Jina-serve!
 
 ```{admonition} Survey
 :class: tip
@@ -28,7 +28,7 @@ conda install jina -c conda-forge
 (build-ai-services)=
 (build-a-pipeline)=
 ## Getting Started
-Jina supports developers in building AI services and pipelines:
+Jina-serve supports developers in building AI services and pipelines:
 
 ````{tab} Build AI Services
 ```{include} ../README.md
@@ -101,7 +101,7 @@ Executor Hub allows you to containerize, share, explore and make Executors ready
 :link-type: doc
 :class-card: color-gradient-card-2
 
-Jina AI Cloud is the MLOps platform for hosting Jina projects.
+Jina AI Cloud is the MLOps platform for hosting Jina-serve projects.
 ::::
 
 

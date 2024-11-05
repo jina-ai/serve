@@ -55,5 +55,5 @@ You can find more about instrumentation from the resources below:
 
 - [Tracing in OpenTelemetry](https://opentelemetry.io/docs/concepts/signals/traces/)
 - {ref}`Instrumenting a Flow <instrumenting-flow>`
-- {ref}`Deploying and using OpenTelemetry in Jina <opentelemetry>`
+- {ref}`Deploying and using OpenTelemetry in Jina-serve <opentelemetry>`
 

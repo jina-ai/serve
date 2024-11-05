@@ -1,7 +1,7 @@
 (jina-hub)=
 # Executor Hub
 
-Now that you understand that {class}`~jina.Executor` is a building block in Jina, you may also wonder:
+Now that you understand that {class}`~jina.Executor` is a building block in Jina-serve, you may also wonder:
 
 - Can I streamline the process of containerizing my {class}`~jina.Executor`?
 - Can I reuse my Executor in another project?

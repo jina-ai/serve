@@ -3,7 +3,7 @@
 
 After performing {meth}`~jina.clients.mixin.PostMixin.post`, you may want to further process the obtained results.
 
-For this purpose, Jina implements a promise-like interface, letting you specify three kinds of callback functions:
+For this purpose, Jina-serve implements a promise-like interface, letting you specify three kinds of callback functions:
 
 - `on_done` is executed while streaming, after successful completion of each request
 - `on_error` is executed while streaming, whenever an error occurs in each request
@@ -17,12 +17,12 @@ For example, a `SIGKILL` from the client OS during the handling of the request, 
 will not trigger the callback.
 
 
-Callback functions in Jina expect a `Response` of the type {class}`~jina.types.request.data.DataRequest`, which contains resulting Documents,
+Callback functions in Jina-serve expect a `Response` of the type {class}`~jina.types.request.data.DataRequest`, which contains resulting Documents,
 parameters, and other information.
 
 ## Handle DataRequest in callbacks
 
-`DataRequest`s are objects that are sent by Jina internally. Callback functions process DataRequests, and `client.post()`
+`DataRequest`s are objects that are sent by Jina-serve internally. Callback functions process DataRequests, and `client.post()`
 can return DataRequests.
 
 `DataRequest` objects can be seen as a container for data relevant for a given request, it contains the following fields:

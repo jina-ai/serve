@@ -179,7 +179,7 @@ with f:
 ```
 ````
 
-````{tab} Jina CLI entrypoint
+````{tab} Jina-serve CLI entrypoint
 ```bash
 jina flow --uses flow.yml
 ```
@@ -303,7 +303,7 @@ Please follow the walkthrough and enjoy the free GPU/TPU!
 
 
 ```{tip}
-Hosing services on Google Colab is not recommended if your server aims to be long-lived or permanent. It is often used for quick experiments, demonstrations or leveraging its free GPU/TPU. For stable, secure and free hosting of your Flow, check out [JCloud](https://docs.jina.ai/concepts/jcloud/).
+Hosing services on Google Colab is not recommended if your server aims to be long-lived or permanent. It is often used for quick experiments, demonstrations or leveraging its free GPU/TPU. For stable, secure and free hosting of your Flow, check out [JCloud](https://jina.ai/serve/concepts/jcloud/).
 ```
 
 ## Export
@@ -353,12 +353,12 @@ The generated folder can be used directly with `kubectl` to deploy the Flow to a
 For advanced utilisation of Kubernetes with Jina please refer to {ref}`How to <kubernetes>` 
 
 ```{tip}
-Based on your local Jina version, Executor Hub may rebuild the Docker image during the YAML generation process.
+Based on your local Jina-serve version, Executor Hub may rebuild the Docker image during the YAML generation process.
 If you do not wish to rebuild the image, set the environment variable `JINA_HUB_NO_IMAGE_REBUILD`.
 ```
 
 ```{tip}
-If an Executor requires volumes to be mapped to persist data, Jina will create a StatefulSet for that Executor instead of a Deployment.
+If an Executor requires volumes to be mapped to persist data, Jina-serve will create a StatefulSet for that Executor instead of a Deployment.
 You can control the access mode, storage class name and capacity of the attached Persistent Volume Claim by using {ref}`Jina environment variables <jina-env-vars>`  
 `JINA_K8S_ACCESS_MODES`, `JINA_K8S_STORAGE_CLASS_NAME` and `JINA_K8S_STORAGE_CAPACITY`. Only the first volume will be considered to be mounted.
 ```

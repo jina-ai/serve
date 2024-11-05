@@ -3,11 +3,12 @@ from datetime import datetime
 from enum import Enum
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from pydantic import BaseConfig, BaseModel, Field, create_model, root_validator
 
-from jina.proto.jina_pb2 import DataRequestProto, JinaInfoProto, RouteProto, StatusProto
 from jina._docarray import docarray_v2
+from jina.proto.jina_pb2 import DataRequestProto, JinaInfoProto, RouteProto, StatusProto
 
 if TYPE_CHECKING:  # pragma: no cover
     from google.protobuf.pyext.cpp_message import GeneratedProtocolMessageType
@@ -249,7 +250,7 @@ if not docarray_v2:
             None,
             example=[
                 {'text': 'hello, world!'},
-                {'uri': 'https://docs.jina.ai/_static/logo-light.svg'},
+                {'uri': 'https://jina.ai/serve/_static/logo-light.svg'},
             ],
             description=DESCRIPTION_DATA,
         )

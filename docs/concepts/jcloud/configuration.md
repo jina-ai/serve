@@ -1,7 +1,7 @@
 (jcloud-configuration)=
 # {octicon}`file-code` Configuration
 
-JCloud extends Jina's {ref}`Flow YAML specification<flow-yaml-spec>` by introducing the special field `jcloud`. This lets you define resources and scaling policies for each Executor and Gateway.
+JCloud extends Jina-serve's {ref}`Flow YAML specification<flow-yaml-spec>` by introducing the special field `jcloud`. This lets you define resources and scaling policies for each Executor and Gateway.
 
 Here's a Flow with two Executors that have specific resource needs: `indexer` requires a 10 GB `ebs` disk, whereas `encoder` requires a G4 instance, which implies that two cores and 4 GB RAM are used. See the below sections for further information about instance types.
 
@@ -180,7 +180,7 @@ If shards/replicas are used, we will multiply credits further by the number of s
 
 ## Scale out Executors
 
-On JCloud, demand-based autoscaling functionality is naturally offered thanks to the underlying Kubernetes architecture. This means that you can maintain [serverless](https://en.wikipedia.org/wiki/Serverless_computing) deployments in a cost-effective way with no headache of setting the [right number of replicas](https://docs.jina.ai/how-to/scale-out/#scale-out-your-executor) anymore!
+On JCloud, demand-based autoscaling functionality is naturally offered thanks to the underlying Kubernetes architecture. This means that you can maintain [serverless](https://en.wikipedia.org/wiki/Serverless_computing) deployments in a cost-effective way with no headache of setting the [right number of replicas](https://jina.ai/serve/how-to/scale-out/#scale-out-your-executor) anymore!
 
 
 ### Autoscaling with `jinaai+serverless://` 
@@ -266,8 +266,8 @@ The JCloud parameters `minAvailable` and `maxUnavailable` ensure that Executors 
 
 | Name             | Default |                                          Allowed                                          | Description                                              |
 | :--------------- | :-----: | :---------------------------------------------------------------------------------------: | :------------------------------------------------------- |
-| `minAvailable`   |   N/A   | Lower than number of [replicas](https://docs.jina.ai/concepts/flow/scale-out/#scale-out)  | Minimum number of replicas available during disruption   |
-| `maxUnavailable` |   N/A   | Lower than numbers of [replicas](https://docs.jina.ai/concepts/flow/scale-out/#scale-out) | Maximum number of replicas unavailable during disruption |
+| `minAvailable`   |   N/A   | Lower than number of [replicas](https://jina.ai/serve/concepts/flow/scale-out/#scale-out)  | Minimum number of replicas available during disruption   |
+| `maxUnavailable` |   N/A   | Lower than numbers of [replicas](https://jina.ai/serve/concepts/flow/scale-out/#scale-out) | Maximum number of replicas unavailable during disruption |
 
 ```{code-block} yaml
 ---
@@ -459,7 +459,7 @@ Keys in `labels` have the following restrictions:
 
 ### Monitoring
 
-To enable [tracing support](https://docs.jina.ai/cloud-nativeness/opentelemetry/) in Flows, you can pass `enable: true` argument in the Flow YAML. (Tracing support is not enabled by default in JCloud)
+To enable [tracing support](https://jina.ai/serve/cloud-nativeness/opentelemetry/) in Flows, you can pass `enable: true` argument in the Flow YAML. (Tracing support is not enabled by default in JCloud)
 
 ```{code-block} yaml
 ---

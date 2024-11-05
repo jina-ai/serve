@@ -7,29 +7,29 @@ This page is about accessing the Flow with other clients, e.g. `curl`, or progra
 :class: note
 
 Note that most of these clients have been developed for versions of Jina compatible with `docarray<0.30.0`. This means, they will only be able to communicate with services
-using Jina with docarray<0.30.0
+using Jina-serve with docarray<0.30.0
 
 ````
 
 
 ## Golang
 
-Our [Go Client](https://github.com/jina-ai/client-go) supports gRPC, HTTP and WebSocket protocols, allowing you to connect to Jina from your Go applications.
+Our [Go Client](https://github.com/jina-ai/client-go) supports gRPC, HTTP and WebSocket protocols, allowing you to connect to Jina-serve from your Go applications.
 
 ## PHP
 
-A big thanks to our community member [Jonathan Rowley](https://jina-ai.slack.com/team/U03973EA7BN) for developing a [PHP client](https://github.com/Dco-ai/php-jina) for Jina!
+A big thanks to our community member [Jonathan Rowley](https://jina-ai.slack.com/team/U03973EA7BN) for developing a [PHP client](https://github.com/Dco-ai/php-jina) for Jina-serve!
 
 ## Kotlin
 
-A big thanks to our community member [Peter Willemsen](https://jina-ai.slack.com/team/U03R0KNBK98) for developing a [Kotlin client](https://github.com/peterwilli/JinaKotlin) for Jina!
+A big thanks to our community member [Peter Willemsen](https://jina-ai.slack.com/team/U03R0KNBK98) for developing a [Kotlin client](https://github.com/peterwilli/JinaKotlin) for Jina-serve!
 
 (http-interface)=
 ## HTTP
 
 ```{admonition} Available Protocols
 :class: caution
-Jina Flows can use one of {ref}`three protocols <flow-protocol>`: gRPC, HTTP, or WebSocket. 
+Jina-serve Flows can use one of {ref}`three protocols <flow-protocol>`: gRPC, HTTP, or WebSocket. 
 Only Flows that use HTTP can be accessed via the methods described below.
 ```
 
@@ -271,7 +271,7 @@ You should finally be able to communicate with your Flow using the gRPC protocol
 
 This article does not serve as the introduction to GraphQL.
 If you are not already familiar with GraphQL, we recommend you learn more about GraphQL from the [official documentation](https://graphql.org/learn/).
-You may also want to learn about [Strawberry](https://strawberry.rocks/), the library that powers Jina's GraphQL support.
+You may also want to learn about [Strawberry](https://strawberry.rocks/), the library that powers Jina-serve's GraphQL support.
 ````
 Jina Flows that use the HTTP protocol can also provide a GraphQL API, which is located behind the `/graphql` endpoint.
 GraphQL has the advantage of letting you define your own response schema, which means that only the fields you require
@@ -305,7 +305,7 @@ While you can always use the Python client to stream requests like any other pro
 You can use the same set of arguments as {ref}`HTTP <http-arguments>` in the payload.
 
 We use [subprotocols](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#subprotocols) to separate streaming JSON vs bytes. 
-The Flow defaults to `json` if you don't specify a sub-protocol while establishing the connection (Our Python client uses `bytes` streaming by using [jina.proto](../../proto/docs.md) definition).
+The Flow defaults to `json` if you don't specify a sub-protocol while establishing the connection (Our Python client uses `bytes` streaming by using [jina-serve.proto](../../proto/docs.md) definition).
 
 
 ````{Hint}

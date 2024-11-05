@@ -2,7 +2,6 @@ import random
 from pathlib import Path
 from typing import Callable, Dict, Tuple
 
-import opentelemetry.sdk.metrics.export
 import opentelemetry.sdk.metrics.view
 import pytest
 from opentelemetry.sdk.metrics.export import (
@@ -76,10 +75,10 @@ def monkeypatch_metric_exporter(
         f.write('0')
 
     def collect_metrics():
-        with open(tick_counter_filename, 'r', encoding='utf-8') as f:
-            tick_counter = int(f.read())
-        with open(tick_counter_filename, 'w', encoding='utf-8') as f:
-            f.write(str(tick_counter + 1))
+        with open(tick_counter_filename, 'r', encoding='utf-8') as ft:
+            tick_counter = int(ft.read())
+        with open(tick_counter_filename, 'w', encoding='utf-8') as ft2:
+            ft2.write(str(tick_counter + 1))
         time.sleep(2)
 
     def _get_service_name(otel_measurement):
@@ -89,8 +88,10 @@ def monkeypatch_metric_exporter(
 
     def read_metrics():
         def read_metric_file(filename):
-            with open(filename, 'r', encoding='utf-8') as f:
-                return json.loads(f.read())
+            with open(filename, 'r', encoding='utf-8') as fr:
+                r = fr.read()
+                print(f'READ {r}')
+                return json.loads(r)
 
         return {
             _get_service_name(i): i

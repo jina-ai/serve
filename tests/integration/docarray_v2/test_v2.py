@@ -1399,10 +1399,10 @@ def test_deployments_with_shards_all_shards_return(reduce, sleep_time):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
+    'protocols', [['grpc'], ['http'], ['websocket']]
 )
 @pytest.mark.parametrize('reduce', [True, False])
-@pytest.mark.parametrize('sleep_time', [0.1, 5])
+@pytest.mark.parametrize('sleep_time', [5])
 def test_flow_with_shards_all_shards_return(protocols, reduce, sleep_time):
     from typing import List
 

@@ -25,6 +25,141 @@ from jina.helper import random_port
 
 
 @pytest.mark.parametrize(
+    'protocols', [['grpc', 'http', 'websocket']]
+)
+@pytest.mark.parametrize('reduce', [False, True])
+@pytest.mark.parametrize('sleep_time', [5])
+def test_flow_with_shards_all_shards_return(protocols, reduce, sleep_time):
+    from typing import List
+
+    from docarray import BaseDoc, DocList
+    from docarray.documents import TextDoc
+
+    class TextDocWithId(TextDoc):
+        id: str
+        l: List[int] = []
+
+    class ResultTestDoc(BaseDoc):
+        price: int = '2'
+        l: List[int] = [3]
+        matches: DocList[TextDocWithId]
+
+    class SimilarityTestIndexer(Executor):
+        """Simulates an indexer where no shard would fail, they all pass results"""
+
+        def __init__(self, sleep_time=0.1, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._docs = DocList[TextDocWithId]()
+            time.sleep(sleep_time)
+
+        @requests(on=['/index'])
+        def index(
+                self, docs: DocList[TextDocWithId], **kwargs
+        ) -> DocList[TextDocWithId]:
+            for doc in docs:
+                self._docs.append(doc)
+
+        @requests(on=['/search'])
+        def search(
+                self, docs: DocList[TextDocWithId], **kwargs
+        ) -> DocList[ResultTestDoc]:
+            resp = DocList[ResultTestDoc]()
+            for q in docs:
+                res = ResultTestDoc(id=q.id, matches=self._docs[0:3])
+                resp.append(res)
+            return resp
+
+    ports = [random_port() for _ in protocols]
+    with Flow(protocol=protocols, port=ports).add(
+            uses=SimilarityTestIndexer,
+            uses_with={'sleep_time': sleep_time},
+            shards=2,
+            reduce=reduce,
+    ):
+        time.sleep(5)
+        for port, protocol in zip(ports, protocols):
+            c = Client(port=port, protocol=protocol)
+            index_da = DocList[TextDocWithId](
+                [TextDocWithId(id=f'{i}', text=f'ID {i}') for i in range(10)]
+            )
+            c.index(inputs=index_da, request_size=1, return_type=DocList[TextDocWithId])
+
+            responses = c.search(
+                inputs=index_da[0:1], request_size=1, return_type=DocList[ResultTestDoc]
+            )
+            assert len(responses) == 1 if reduce else 2
+            for r in responses:
+                assert r.l[0] == 3
+                assert len(r.matches) == 6
+                for match in r.matches:
+                    assert 'ID' in match.text
+
+
+@pytest.mark.parametrize('reduce', [True, False])
+@pytest.mark.parametrize('sleep_time', [5])
+def test_deployments_with_shards_all_shards_return(reduce, sleep_time):
+    from typing import List
+
+    from docarray import BaseDoc, DocList
+    from docarray.documents import TextDoc
+
+    class TextDocWithId(TextDoc):
+        id: str
+        l: List[int] = []
+
+    class ResultTestDoc(BaseDoc):
+        price: int = '2'
+        l: List[int] = [3]
+        matches: DocList[TextDocWithId]
+
+    class SimilarityTestIndexer(Executor):
+        """Simulates an indexer where no shard would fail, they all pass results"""
+
+        def __init__(self, sleep_time=0.1, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._docs = DocList[TextDocWithId]()
+            time.sleep(sleep_time)
+
+        @requests(on=['/index'])
+        def index(
+                self, docs: DocList[TextDocWithId], **kwargs
+        ) -> DocList[TextDocWithId]:
+            for doc in docs:
+                self._docs.append(doc)
+
+        @requests(on=['/search'])
+        def search(
+                self, docs: DocList[TextDocWithId], **kwargs
+        ) -> DocList[ResultTestDoc]:
+            resp = DocList[ResultTestDoc]()
+            for q in docs:
+                res = ResultTestDoc(id=q.id, matches=self._docs[0:3])
+                resp.append(res)
+            return resp
+
+    with Deployment(
+            uses=SimilarityTestIndexer,
+            uses_with={'sleep_time': sleep_time},
+            shards=2,
+            reduce=reduce,
+    ) as dep:
+        time.sleep(5)
+        index_da = DocList[TextDocWithId](
+            [TextDocWithId(id=f'{i}', text=f'ID {i}') for i in range(10)]
+        )
+        dep.index(inputs=index_da, request_size=1, return_type=DocList[TextDocWithId])
+        responses = dep.search(
+            inputs=index_da[0:1], request_size=1, return_type=DocList[ResultTestDoc]
+        )
+        assert len(responses) == 1 if reduce else 2
+        for r in responses:
+            assert r.l[0] == 3
+            assert len(r.matches) == 6
+            for match in r.matches:
+                assert 'ID' in match.text
+
+
+@pytest.mark.parametrize(
     'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
 )
 @pytest.mark.parametrize('replicas', [1, 3])
@@ -46,6 +181,7 @@ def test_different_document_schema(protocols, replicas):
 
     ports = [random_port() for _ in protocols]
     with Flow(port=ports, protocol=protocols, replicas=replicas).add(uses=MyExecDifSchema) as f:
+        time.sleep(5)
         for port, protocol in zip(ports, protocols):
             c = Client(port=port, protocol=protocol)
             docs = c.post(
@@ -1333,138 +1469,6 @@ def test_deployments_with_shards_one_shard_fails():
         )
         for q, r in zip(index_da, responses):
             assert q.text == r.text
-
-
-@pytest.mark.parametrize('reduce', [True, False])
-@pytest.mark.parametrize('sleep_time', [0.1, 5])
-def test_deployments_with_shards_all_shards_return(reduce, sleep_time):
-    from typing import List
-
-    from docarray import BaseDoc, DocList
-    from docarray.documents import TextDoc
-
-    class TextDocWithId(TextDoc):
-        id: str
-        l: List[int] = []
-
-    class ResultTestDoc(BaseDoc):
-        price: int = '2'
-        l: List[int] = [3]
-        matches: DocList[TextDocWithId]
-
-    class SimilarityTestIndexer(Executor):
-        """Simulates an indexer where no shard would fail, they all pass results"""
-
-        def __init__(self, sleep_time=0.1, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self._docs = DocList[TextDocWithId]()
-            time.sleep(sleep_time)
-
-        @requests(on=['/index'])
-        def index(
-                self, docs: DocList[TextDocWithId], **kwargs
-        ) -> DocList[TextDocWithId]:
-            for doc in docs:
-                self._docs.append(doc)
-
-        @requests(on=['/search'])
-        def search(
-                self, docs: DocList[TextDocWithId], **kwargs
-        ) -> DocList[ResultTestDoc]:
-            resp = DocList[ResultTestDoc]()
-            for q in docs:
-                res = ResultTestDoc(id=q.id, matches=self._docs[0:3])
-                resp.append(res)
-            return resp
-
-    with Deployment(
-            uses=SimilarityTestIndexer,
-            uses_with={'sleep_time': sleep_time},
-            shards=2,
-            reduce=reduce,
-    ) as dep:
-        index_da = DocList[TextDocWithId](
-            [TextDocWithId(id=f'{i}', text=f'ID {i}') for i in range(10)]
-        )
-        dep.index(inputs=index_da, request_size=1, return_type=DocList[TextDocWithId])
-        responses = dep.search(
-            inputs=index_da[0:1], request_size=1, return_type=DocList[ResultTestDoc]
-        )
-        assert len(responses) == 1 if reduce else 2
-        for r in responses:
-            assert r.l[0] == 3
-            assert len(r.matches) == 6
-            for match in r.matches:
-                assert 'ID' in match.text
-
-
-@pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket']]
-)
-@pytest.mark.parametrize('reduce', [True, False])
-@pytest.mark.parametrize('sleep_time', [5])
-def test_flow_with_shards_all_shards_return(protocols, reduce, sleep_time):
-    from typing import List
-
-    from docarray import BaseDoc, DocList
-    from docarray.documents import TextDoc
-
-    class TextDocWithId(TextDoc):
-        id: str
-        l: List[int] = []
-
-    class ResultTestDoc(BaseDoc):
-        price: int = '2'
-        l: List[int] = [3]
-        matches: DocList[TextDocWithId]
-
-    class SimilarityTestIndexer(Executor):
-        """Simulates an indexer where no shard would fail, they all pass results"""
-
-        def __init__(self, sleep_time=0.1, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self._docs = DocList[TextDocWithId]()
-            time.sleep(sleep_time)
-
-        @requests(on=['/index'])
-        def index(
-                self, docs: DocList[TextDocWithId], **kwargs
-        ) -> DocList[TextDocWithId]:
-            for doc in docs:
-                self._docs.append(doc)
-
-        @requests(on=['/search'])
-        def search(
-                self, docs: DocList[TextDocWithId], **kwargs
-        ) -> DocList[ResultTestDoc]:
-            resp = DocList[ResultTestDoc]()
-            for q in docs:
-                res = ResultTestDoc(id=q.id, matches=self._docs[0:3])
-                resp.append(res)
-            return resp
-
-    ports = [random_port() for _ in protocols]
-    with Flow(protocol=protocols, port=ports).add(
-            uses=SimilarityTestIndexer,
-            uses_with={'sleep_time': sleep_time},
-            shards=2,
-            reduce=reduce,
-    ):
-        for port, protocol in zip(ports, protocols):
-            c = Client(port=port, protocol=protocol)
-            index_da = DocList[TextDocWithId](
-                [TextDocWithId(id=f'{i}', text=f'ID {i}') for i in range(10)]
-            )
-            c.index(inputs=index_da, request_size=1, return_type=DocList[TextDocWithId])
-            responses = c.search(
-                inputs=index_da[0:1], request_size=1, return_type=DocList[ResultTestDoc]
-            )
-            assert len(responses) == 1 if reduce else 2
-            for r in responses:
-                assert r.l[0] == 3
-                assert len(r.matches) == 6
-                for match in r.matches:
-                    assert 'ID' in match.text
 
 
 def test_issue_shards_missmatch_endpoint_and_shard_with_lists():

@@ -45,6 +45,9 @@ async def test_flow_resource_labeling(
         'svc/gateway', NAMESPACE, svc_port=8080
     ) as gateway_port:
         from jina import Client
+        res = []
+        async for docs in Client(port=gateway_port, asyncio=True).post("/"):
+            res.extend(docs)
 
         [docs async for docs in Client(port=gateway_port, asyncio=True).post("/")]
 

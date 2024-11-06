@@ -136,6 +136,7 @@ async def test_runtimes_reconnect(port_generator, protocol, fail_endpoint_discov
             ctrl_address=f'0.0.0.0:{worker_port}',
             ready_or_shutdown_event=multiprocessing.Event(),
         ), "The BaseServer wait_for_ready_or_shutdown for worker_port failed"
+        time.sleep(3)
 
         p = multiprocessing.Process(target=_send_request, args=(gateway_port, protocol))
         p.start()
@@ -152,6 +153,8 @@ async def test_runtimes_reconnect(port_generator, protocol, fail_endpoint_discov
         assert p.exitcode != 0, f"The _send_request #2 Process exited with exitcode {p.exitcode}"  # The request will not fail and rais
 
         worker_process = _create_worker(worker_port)
+
+        time.sleep(3)
 
         assert BaseServer.wait_for_ready_or_shutdown(
             timeout=5.0,

@@ -36,6 +36,7 @@ docarray>=0.16.4:           core
 jina-hubble-sdk>=0.30.4:    core
 jcloud>=0.0.35:             core
 opentelemetry-api>=1.12.0:  core
+gradio:                     core
 opentelemetry-instrumentation-grpc>=0.35b0:  core 
 uvloop:                     perf,standard,devel
 prometheus_client>=0.12.0:  perf,standard,devel

@@ -33,7 +33,7 @@ def get_fastapi_app(
     :return: fastapi app
     """
     with ImportExtensions(required=True):
-        from fastapi import FastAPI, Response, HTTPException
+        from fastapi import FastAPI, Response, HTTPException, status as http_status
         import pydantic
         from fastapi.middleware.cors import CORSMiddleware
     import os
@@ -116,7 +116,7 @@ def get_fastapi_app(
             status = resp.header.status
 
             if status.code == jina_pb2.StatusProto.ERROR:
-                raise HTTPException(status_code=499, detail=status.description)
+                raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail=status.description)
             else:
                 if not docarray_v2:
                     docs_response = resp.docs.to_dict()

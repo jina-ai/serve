@@ -1079,7 +1079,6 @@ class WorkerRequestHandler:
     ) -> Optional['Context']:
         if self.tracer:
             from opentelemetry.propagate import extract
-
             context = extract(dict(metadata))
             return context
 
@@ -1116,7 +1115,7 @@ class WorkerRequestHandler:
 
                 if is_generator:
                     result = await self.handle_generator(
-                        requests=requests,tracing_context=tracing_context
+                        requests=requests, tracing_context=tracing_context
                     )
                 else:
                     result = await self.handle(

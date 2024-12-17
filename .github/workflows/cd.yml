@@ -282,9 +282,6 @@ jobs:
         include:
           # linux
           - os: ubuntu-latest
-            python: '3.7'
-            python-manylinux-tag: "cp37-cp37m"
-          - os: ubuntu-latest
             python: '3.8'
             python-manylinux-tag: "cp38-cp38"
           - os: ubuntu-latest
@@ -451,7 +448,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: [3.10]
         test-path: ${{fromJson(needs.prep-testbed.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2.5.0
@@ -503,7 +500,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -587,10 +584,10 @@ jobs:
       #        with:
       #          access_token: ${{ github.token }}
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Test hubapp with hubpods
         run: |
           ./tests/jinahub/test_integration.sh
@@ -604,10 +601,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -634,7 +631,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -646,10 +643,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -676,7 +673,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -688,10 +685,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -718,7 +715,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -730,10 +727,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -761,7 +758,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -773,10 +770,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -801,7 +798,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -813,10 +810,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -839,7 +836,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov

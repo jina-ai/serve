@@ -30,7 +30,7 @@ def get_fastapi_app(
     """
     with ImportExtensions(required=True):
         import pydantic
-        from fastapi import FastAPI, HTTPException, Request
+        from fastapi import FastAPI, HTTPException, Request, status as http_status
         from fastapi.middleware.cors import CORSMiddleware
         from pydantic import BaseModel, Field
         from pydantic.config import BaseConfig, inherit_config
@@ -131,7 +131,7 @@ def get_fastapi_app(
             status = resp.header.status
 
             if status.code == jina_pb2.StatusProto.ERROR:
-                raise HTTPException(status_code=499, detail=status.description)
+                raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail=status.description)
             else:
                 return output_model(data=resp.docs, parameters=resp.parameters)
 

@@ -41,7 +41,7 @@ def get_fastapi_app(
     if expose_graphql_endpoint:
         logger.error(f' GraphQL endpoint is not enabled when using docarray >0.30')
     with ImportExtensions(required=True):
-        from fastapi import FastAPI, Response, HTTPException
+        from fastapi import FastAPI, Response, HTTPException, status as http_status
         from fastapi.middleware.cors import CORSMiddleware
         import pydantic
         from pydantic import Field
@@ -216,7 +216,7 @@ def get_fastapi_app(
                     status = resp.header.status
 
                     if status.code == jina_pb2.StatusProto.ERROR:
-                        raise HTTPException(status_code=499, detail=status.description)
+                        raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail=status.description)
                     else:
                         result_dict = resp.to_dict()
                         return result_dict

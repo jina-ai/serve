@@ -1,5 +1,5 @@
 # !!! An ARG declared before a FROM is outside of a build stage, so it can’t be used in any instruction after a FROM
-ARG PY_VERSION=3.7
+ARG PY_VERSION=3.10
 
 FROM python:${PY_VERSION}-slim AS jina_dep
 

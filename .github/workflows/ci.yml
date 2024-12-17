@@ -439,7 +439,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.10]
+        python-version: ["3.10"]
         protobuf-version: ['==3.19.6', '']
     steps:
       - uses: actions/checkout@v2.5.0
@@ -461,7 +461,7 @@ jobs:
 
       - name: Build wheels with setuptools-golang-build-manylinux-wheel
         run: |
-          setuptools-golang-build-manylinux-wheels --pythons cp38-cp38
+          setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
           docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -515,7 +515,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.10]
+        python-version: ["3.10"]
         protobuf-version: ['==3.19.6', '']
     steps:
       - uses: actions/checkout@v2.5.0
@@ -537,7 +537,7 @@ jobs:
 
       - name: Build wheels with setuptools-golang-build-manylinux-wheel
         run: |
-          setuptools-golang-build-manylinux-wheels --pythons cp38-cp38
+          setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
           docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -700,7 +700,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.10]
+        python-version: ["3.10"]
         test-path: ${{fromJson(needs.prep-testbed.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2.5.0
@@ -722,7 +722,7 @@ jobs:
 
       - name: Build wheels with setuptools-golang-build-manylinux-wheel
         run: |
-          setuptools-golang-build-manylinux-wheels --pythons cp38-cp38
+          setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .

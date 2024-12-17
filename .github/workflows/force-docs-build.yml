@@ -80,7 +80,6 @@ jobs:
         run: |
           touch /tmp/gen-html/.nojekyll
           cp ./docs/_versions.json /tmp/gen-html/_versions.json
-          cp ./docs/CNAME /tmp/gen-html/CNAME
           cp /tmp/gen-html/404/index.html /tmp/gen-html/404.html
           sed -i 's/href="\.\./href="/' /tmp/gen-html/404.html # fix asset urls that needs to be updated in 404.html
       - name: Moving old doc versions

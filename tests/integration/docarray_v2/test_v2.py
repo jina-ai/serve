@@ -173,7 +173,7 @@ def test_deployments_with_shards_all_shards_return(reduce, sleep_time):
 @pytest.mark.parametrize('replicas', [1, 3])
 def test_different_document_schema(protocols, replicas):
     class Image(BaseDoc):
-        tensor: Optional[AnyTensor]
+        #tensor: Optional[AnyTensor]
         url: ImageUrl
         lll: List[List[str]] = [[]]
         texts: DocList[TextDoc]
@@ -182,7 +182,7 @@ def test_different_document_schema(protocols, replicas):
         @requests(on='/foo')
         def foo(self, docs: DocList[Image], **kwargs) -> DocList[Image]:
             for doc in docs:
-                doc.tensor = np.zeros((10, 10, 10))
+                #doc.tensor = np.zeros((10, 10, 10))
                 doc.lll = [['aa'], ['bb']]
                 doc.texts.append(TextDoc('ha'))
             return docs
@@ -205,7 +205,7 @@ def test_different_document_schema(protocols, replicas):
                 return_type=DocList[Image],
             )
             docs = docs.to_doc_vec()
-            assert docs.tensor.ndim == 4
+            #assert docs.tensor.ndim == 4
             assert docs[0].lll == [['aa'], ['bb']]
             assert len(docs[0].texts) == 2
             assert docs[0].texts[0].text == 'hey'

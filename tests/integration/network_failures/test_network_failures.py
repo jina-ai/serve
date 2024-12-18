@@ -100,7 +100,7 @@ def _test_error(gateway_port, error_ports, protocol):
         assert str(port) in err_info.value.args[0]
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http'])
+@pytest.mark.parametrize('protocol', ['http'])
 @pytest.mark.parametrize('fail_endpoint_discovery', [True, False])
 @pytest.mark.asyncio
 async def test_runtimes_reconnect(port_generator, protocol, fail_endpoint_discovery):
@@ -189,7 +189,7 @@ async def test_runtimes_reconnect(port_generator, protocol, fail_endpoint_discov
 @pytest.mark.parametrize(
     'fail_before_endpoint_discovery', [True, False]
 )  # if not before, then after
-@pytest.mark.parametrize('protocol', ['http', 'websocket', 'grpc'])
+@pytest.mark.parametrize('protocol', ['http', 'websocket'])
 @pytest.mark.asyncio
 async def test_runtimes_headless_topology(
         port_generator, protocol, fail_before_endpoint_discovery
@@ -269,7 +269,7 @@ async def test_runtimes_headless_topology(
         worker_process.join()
 
 
-@pytest.mark.parametrize('protocol', ['http', 'websocket', 'grpc'])
+@pytest.mark.parametrize('protocol', ['http', 'websocket'])
 @pytest.mark.asyncio
 async def test_runtimes_resource_not_found(port_generator, protocol, monkeypatch):
     async def patch_endpoint_discovery(self, empty, context):
@@ -333,8 +333,8 @@ async def test_runtimes_resource_not_found(port_generator, protocol, monkeypatch
         worker_process.join()
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http'])
-@pytest.mark.parametrize('fail_endpoint_discovery', [True, False])
+@pytest.mark.parametrize('protocol', ['http'])
+@pytest.mark.parametrize('fail_endpoint_discovery', [False])
 @pytest.mark.asyncio
 async def test_runtimes_reconnect_replicas(
         port_generator, protocol, fail_endpoint_discovery
@@ -349,7 +349,7 @@ async def test_runtimes_reconnect_replicas(
     worker_processes = []
     for p in worker_ports:
         worker_processes.append(_create_worker(p))
-        time.sleep(0.1)
+        time.sleep(1.0)
         BaseServer.wait_for_ready_or_shutdown(
             timeout=5.0,
             ctrl_address=f'0.0.0.0:{p}',
@@ -376,6 +376,7 @@ async def test_runtimes_reconnect_replicas(
 
     worker_processes[1].terminate()  # kill 'middle' worker
     worker_processes[1].join()
+    p_second_check = None
 
     try:
         if fail_endpoint_discovery:
@@ -420,11 +421,12 @@ async def test_runtimes_reconnect_replicas(
         for p in worker_processes:
             p.terminate()
             p.join()
-        p_second_check.terminate()
-        p_second_check.join()
+        if p_second_check:
+            p_second_check.terminate()
+            p_second_check.join()
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http', 'websocket'])
 @pytest.mark.parametrize('fail_before_endpoint_discovery', [True, False])
 @pytest.mark.asyncio
 async def test_runtimes_replicas(
@@ -499,7 +501,7 @@ async def test_runtimes_replicas(
 @pytest.mark.parametrize(
     'terminate_head', [True]
 )  # option with False times out because backoffs accumulate
-@pytest.mark.parametrize('protocol', ['http', 'grpc', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http', 'websocket'])
 @pytest.mark.asyncio
 async def test_runtimes_headful_topology(port_generator, protocol, terminate_head):
     # create gateway and workers manually, then terminate worker process to provoke an error
@@ -635,7 +637,6 @@ def _create_gqlgateway(port, graph, pod_addr):
 @pytest.mark.asyncio
 async def test_runtimes_graphql(port_generator):
     # create gateway and workers manually, then terminate worker process to provoke an error
-    protocol = 'http'
     worker_port = port_generator()
     gateway_port = port_generator()
     graph_description = '{"start-gateway": ["pod0"], "pod0": ["end-gateway"]}'

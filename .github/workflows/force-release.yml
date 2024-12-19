@@ -154,7 +154,7 @@ jobs:
 #          submodules: true
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: "3.10"
         # https://github.com/actions/checkout#fetch-all-tags
       - uses: actions/download-artifact@v3
         with:

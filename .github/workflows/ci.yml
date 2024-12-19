@@ -472,7 +472,7 @@ jobs:
           if [[ "${{ matrix.protobuf-version }}" == "==3.19.6" ]]; then
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.47.5 grpcio-reflection==1.47.5 grpcio-health-checking==1.47.5
           else
-            pip install -U protobuf${{ matrix.protobuf-version }}
+            pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
           jina
           export JINA_LOG_LEVEL="ERROR"
@@ -548,7 +548,7 @@ jobs:
           if [[ "${{ matrix.protobuf-version }}" == "==3.19.6" ]]; then
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.47.5 grpcio-reflection==1.47.5 grpcio-health-checking==1.47.5
           else
-            pip install -U protobuf${{ matrix.protobuf-version }}
+            pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
           jina
           export JINA_LOG_LEVEL="ERROR"
@@ -731,6 +731,7 @@ jobs:
           WHEEL_FILE=$(ls dist/*whl)
           pip install "$WHEEL_FILE[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           jina
           export JINA_LOG_LEVEL="ERROR"
       - name: Test

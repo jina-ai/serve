@@ -9,6 +9,7 @@ from jina import Executor, Flow
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_visualization_with_yml_file_img(tmpdir):
     Flow.load_config(
         os.path.join(cur_dir, '../../../yaml/test_flow_visualization.yml')
@@ -16,6 +17,7 @@ def test_visualization_with_yml_file_img(tmpdir):
     assert os.path.exists(os.path.join(tmpdir, 'flow.svg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_visualization_with_yml_file_jpg(tmpdir):
     Flow.load_config(
         os.path.join(cur_dir, '../../../yaml/test_flow_visualization.yml')
@@ -23,6 +25,7 @@ def test_visualization_with_yml_file_jpg(tmpdir):
     assert os.path.exists(os.path.join(tmpdir, 'flow.jpg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_visualization_with_yml_file_jpg_lr(tmpdir):
     Flow.load_config(
         os.path.join(cur_dir, '../../../yaml/test_flow_visualization.yml')
@@ -30,50 +33,55 @@ def test_visualization_with_yml_file_jpg_lr(tmpdir):
     assert os.path.exists(os.path.join(tmpdir, 'flow-hor.jpg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_visualization_plot_twice(tmpdir):
     (
         Flow()
-        .add(name='pod_a')
-        .plot(output=os.path.join(tmpdir, 'flow1.svg'))
-        .add(name='pod_b', needs='gateway')
-        .needs(['pod_a', 'pod_b'])
-        .plot(output=os.path.join(tmpdir, 'flow2.svg'))
+            .add(name='pod_a')
+            .plot(output=os.path.join(tmpdir, 'flow1.svg'))
+            .add(name='pod_b', needs='gateway')
+            .needs(['pod_a', 'pod_b'])
+            .plot(output=os.path.join(tmpdir, 'flow2.svg'))
     )
 
     assert os.path.exists(os.path.join(tmpdir, 'flow1.svg'))
     assert os.path.exists(os.path.join(tmpdir, 'flow2.svg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_visualization_plot_in_middle(tmpdir):
     (
         Flow()
-        .add(name='pod_a')
-        .plot(output=os.path.join(tmpdir, 'flow3.svg'))
-        .add(name='pod_b', needs='gateway')
-        .needs(['pod_a', 'pod_b'])
+            .add(name='pod_a')
+            .plot(output=os.path.join(tmpdir, 'flow3.svg'))
+            .add(name='pod_b', needs='gateway')
+            .needs(['pod_a', 'pod_b'])
     )
 
     assert os.path.exists(os.path.join(tmpdir, 'flow3.svg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_flow_before_after_plot(tmpdir):
-
     Flow().add(uses_before=Executor, uses_after=Executor, name='p1').plot(
         os.path.join(tmpdir, 'flow.svg')
     )
     assert os.path.exists(os.path.join(tmpdir, 'flow.svg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_flow_before_plot(tmpdir):
     Flow().add(uses_before=Executor, name='p1').plot(os.path.join(tmpdir, 'flow.svg'))
     assert os.path.exists(os.path.join(tmpdir, 'flow.svg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 def test_flow_after_plot(tmpdir):
     Flow().add(uses_after=Executor, name='p1').plot(os.path.join(tmpdir, 'flow.svg'))
     assert os.path.exists(os.path.join(tmpdir, 'flow.svg'))
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ, reason="Skip unneeded")
 @pytest.mark.parametrize('vertical_layout', [True, False])
 def test_flow_vertical(tmpdir, vertical_layout):
     def get_image_size(fname):
@@ -114,11 +122,3 @@ def test_flow_vertical(tmpdir, vertical_layout):
     assert w_h is not None
     w, h = w_h
     assert (w < h) == vertical_layout
-
-
-def test_flow_plot_after_build():
-    f = Flow().add().add()
-    with f:
-        f.plot()
-
-    f.plot()

@@ -35,9 +35,6 @@ jobs:
         include:
           # linux
           - os: ubuntu-latest
-            python: '3.7'
-            python-manylinux-tag: "cp37-cp37m"
-          - os: ubuntu-latest
             python: '3.8'
             python-manylinux-tag: "cp38-cp38"
           - os: ubuntu-latest

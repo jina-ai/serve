@@ -141,7 +141,7 @@ jobs:
         with:
           python-version: "3.10"
         # https://github.com/actions/checkout#fetch-all-tags
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: artifact
           path: dist

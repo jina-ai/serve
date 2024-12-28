@@ -82,7 +82,7 @@ html_extra_path = ['html_extra']
 html_css_files = [
     'main.css',
     'docbot.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 ]
 htmlhelp_basename = slug
 html_show_sourcelink = False

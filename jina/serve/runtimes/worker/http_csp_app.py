@@ -219,7 +219,11 @@ def get_fastapi_app(
                                             )
                                     else:
                                         # General case: try converting to the target type
-                                        parsed_fields[field_name] = field_type(field_str)
+                                        try:
+                                            parsed_fields[field_name] = field_type(field_str)
+                                        except (ValueError, TypeError):
+                                            # Fallback to parse_obj_as when type is more complex, e., AnyUrl or ImageBytes
+                                            parsed_fields[field_name] = parse_obj_as(field_type, field_str)
 
                         except Exception as e:
                             raise HTTPException(

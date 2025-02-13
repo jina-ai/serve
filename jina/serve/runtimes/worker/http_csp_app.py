@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union, Literal
 
 from jina._docarray import docarray_v2
 from jina.importer import ImportExtensions
@@ -74,7 +74,7 @@ def get_fastapi_app(
             input_model,
             output_model,
             input_doc_list_model=None,
-            output_doc_list_model=None,
+            parameters_model=None,
     ):
         import json
         from typing import List, Type, Union
@@ -154,50 +154,63 @@ def get_fastapi_app(
                         detail='Invalid CSV input. Please check your input.',
                     )
 
-                def construct_model_from_line(
-                        model: Type[BaseModel], line: List[str]
-                ) -> BaseModel:
+
+                def construct_model_from_line(model: Type[BaseModel], line: List[str]) -> BaseModel:
+                    origin = get_origin(model)
+                    # If the model is of type Optional[X], unwrap it to get X
+                    if origin is Union:
+                        # If the model is of type Optional[X], unwrap it to get X
+                        args = get_args(model)
+                        if type(None) in args:
+                            model = args[0]
+
                     parsed_fields = {}
-                    model_fields = model.__fields__
+                    model_fields = model.__annotations__  # Accessing model annotations dynamically
 
-                    for field_str, (field_name, field_info) in zip(
-                            line, model_fields.items()
-                    ):
-                        field_type = field_info.outer_type_
+                    for idx, (field_name, field_type) in enumerate(model_fields.items()):
+                        field_str = line[idx]  # Corresponding value from the row
 
-                        # Handle Union types by attempting to arse each potential type
-                        if get_origin(field_type) is Union:
-                            for possible_type in get_args(field_type):
-                                if possible_type is str:
-                                    parsed_fields[field_name] = field_str
-                                    break
-                                else:
-                                    try:
-                                        parsed_fields[field_name] = parse_obj_as(
-                                            possible_type, json.loads(field_str)
-                                        )
-                                        break
-                                    except (json.JSONDecodeError, ValidationError):
-                                        continue
-                        # Handle list of nested models
-                        elif get_origin(field_type) is list:
-                            list_item_type = get_args(field_type)[0]
-                            if field_str:
-                                parsed_list = json.loads(field_str)
-                                if issubclass(list_item_type, BaseModel):
-                                    parsed_fields[field_name] = parse_obj_as(
-                                        List[list_item_type], parsed_list
+                        try:
+                            # Handle Literal types (e.g., Optional[Literal["value1", "value2"]])
+                            origin = get_origin(field_type)
+                            if origin is Literal:
+                                literal_values = get_args(field_type)
+                                if field_str not in literal_values:
+                                    raise HTTPException(
+                                        status_code=400,
+                                        detail=f"Invalid value '{field_str}' for field '{field_name}'. Expected one of: {literal_values}"
                                     )
-                                else:
-                                    parsed_fields[field_name] = parsed_list
-                        # General parsing attempt for other types
-                        else:
-                            if field_str:
-                                try:
-                                    parsed_fields[field_name] = field_info.type_(field_str)
-                                except (ValueError, TypeError):
-                                    # Fallback to parse_obj_as when type is more complex, e., AnyUrl or ImageBytes
-                                    parsed_fields[field_name] = parse_obj_as(field_info.type_, field_str)
+                                parsed_fields[field_name] = field_str
+
+                            # Handle Union types (e.g., Optional[int, str])
+                            elif origin is Union:
+                                for possible_type in get_args(field_type):
+                                    try:
+                                        parsed_fields[field_name] = parse_obj_as(possible_type, field_str)
+                                        break
+                                    except (ValueError, TypeError, ValidationError):
+                                        continue
+
+                            # Handle list of nested models (e.g., List[Item])
+                            elif get_origin(field_type) is list:
+                                list_item_type = get_args(field_type)[0]
+                                if field_str:
+                                    parsed_list = json.loads(field_str)
+                                    if issubclass(list_item_type, BaseModel):
+                                        parsed_fields[field_name] = parse_obj_as(List[list_item_type], parsed_list)
+                                    else:
+                                        parsed_fields[field_name] = parsed_list
+
+                            # Handle other general types
+                            else:
+                                if field_str:
+                                    parsed_fields[field_name] = field_type(field_str)
+
+                        except Exception as e:
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f"Error parsing value '{field_str}' for field '{field_name}': {str(e)}"
+                            )
 
                     return model(**parsed_fields)
 
@@ -209,21 +222,37 @@ def get_fastapi_app(
                 # We also expect the csv file to have no quotes and use the escape char '\'
                 field_names = [f for f in input_doc_list_model.__fields__]
                 data = []
+                parameters = None
+                first_row = True
                 for line in csv.reader(
                         StringIO(csv_body),
                         delimiter=',',
                         quoting=csv.QUOTE_NONE,
                         escapechar='\\',
                 ):
-                    if len(line) != len(field_names):
-                        raise HTTPException(
-                            status_code=400,
-                            detail=f'Invalid CSV format. Line {line} doesn\'t match '
-                                   f'the expected field order {field_names}.',
-                        )
-                    data.append(construct_model_from_line(input_doc_list_model, line))
+                    if first_row:
+                        first_row = False
+                        if len(line) > 1 and line[1] == 'params_row':  # Check if it's a parameters row
+                            parameters = construct_model_from_line(parameters_model, line[2:])
+                        else:
+                            if len(line) != len(field_names):
+                                raise HTTPException(
+                                    status_code=400,
+                                    detail=f'Invalid CSV format. Line {line} doesn\'t match '
+                                        f'the expected field order {field_names}.',
+                                )
+                            data.append(construct_model_from_line(input_doc_list_model, line[1:]))
+                    else:
+                        # Treat it as normal data row
+                        if len(line) != len(field_names):
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f'Invalid CSV format. Line {line} doesn\'t match '
+                                    f'the expected field order {field_names}.',
+                            )
+                        data.append(construct_model_from_line(input_doc_list_model, line[1:]))
 
-                return await process(input_model(data=data))
+                return await process(input_model(data=data, parameters=parameters))
 
             else:
                 raise HTTPException(
@@ -273,7 +302,7 @@ def get_fastapi_app(
                 input_model=endpoint_input_model,
                 output_model=endpoint_output_model,
                 input_doc_list_model=input_doc_model,
-                output_doc_list_model=output_doc_model,
+                parameters_model=parameters_model,
             )
 
     from jina.serve.runtimes.gateway.health_model import JinaHealthModel

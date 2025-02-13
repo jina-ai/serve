@@ -188,6 +188,10 @@ def test_provider_sagemaker_pod_batch_transform_with_params_valid():
             assert d["text"] == texts[idx]
             assert len(d["embeddings"][0]) == 2
 
+        assert resp_json["parameters"]["late_chunking"] == False
+        assert resp_json["parameters"]["task"] == "retrieval.query"
+
+
 def test_provider_sagemaker_pod_batch_transform_invalid():
     args, _ = set_pod_parser().parse_known_args(
         [

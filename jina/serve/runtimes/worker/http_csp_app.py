@@ -251,7 +251,7 @@ def get_fastapi_app(
                 ):
                     if first_row:
                         first_row = False
-                        if len(line) > 1 and line[1] == 'params_row':  # Check if it's a parameters row
+                        if len(line) > 1 and line[1] == 'params_row':  # Check if it's a parameters row by examining the 2nd text in the first line
                             parameters = construct_model_from_line(parameters_model, line[2:])
                         else:
                             if len(line) != len(field_names):

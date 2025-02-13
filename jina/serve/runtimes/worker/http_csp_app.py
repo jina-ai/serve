@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union, Literal
+from typing import (TYPE_CHECKING, Callable, Dict, List, Literal, Optional,
+                    Union)
 
 from jina._docarray import docarray_v2
 from jina.importer import ImportExtensions
@@ -204,7 +205,20 @@ def get_fastapi_app(
                             # Handle other general types
                             else:
                                 if field_str:
-                                    parsed_fields[field_name] = field_type(field_str)
+                                    if field_type == bool:
+                                        # Special case: handle "false" and "true" as booleans
+                                        if field_str.lower() == "false":
+                                            parsed_fields[field_name] = False
+                                        elif field_str.lower() == "true":
+                                            parsed_fields[field_name] = True
+                                        else:
+                                            raise HTTPException(
+                                                status_code=400,
+                                                detail=f"Invalid value '{field_str}' for boolean field '{field_name}'. Expected 'true' or 'false'."
+                                            )
+                                    else:
+                                        # General case: try converting to the target type
+                                        parsed_fields[field_name] = field_type(field_str)
 
                         except Exception as e:
                             raise HTTPException(

@@ -166,9 +166,10 @@ def get_fastapi_app(
                             model = args[0]
 
                     parsed_fields = {}
-                    model_fields = model.__annotations__  # Accessing model annotations dynamically
+                    model_fields = model.__fields__
 
-                    for idx, (field_name, field_type) in enumerate(model_fields.items()):
+                    for idx, (field_name, field_info) in enumerate(model_fields.items()):
+                        field_type = field_info.type_
                         field_str = line[idx]  # Corresponding value from the row
 
                         try:
@@ -255,7 +256,7 @@ def get_fastapi_app(
                                     detail=f'Invalid CSV format. Line {line} doesn\'t match '
                                         f'the expected field order {field_names}.',
                                 )
-                            data.append(construct_model_from_line(input_doc_list_model, line[1:]))
+                            data.append(construct_model_from_line(input_doc_list_model, line))
                     else:
                         # Treat it as normal data row
                         if len(line) != len(field_names):
@@ -264,7 +265,7 @@ def get_fastapi_app(
                                 detail=f'Invalid CSV format. Line {line} doesn\'t match '
                                     f'the expected field order {field_names}.',
                             )
-                        data.append(construct_model_from_line(input_doc_list_model, line[1:]))
+                        data.append(construct_model_from_line(input_doc_list_model, line))
 
                 return await process(input_model(data=data, parameters=parameters))
 

@@ -151,7 +151,7 @@ def get_fastapi_app(
                 csv_body = bytes_body.decode('utf-8')
                 if not is_valid_csv(csv_body):
                     raise HTTPException(
-                        status_code=400,
+                        status_code=http_status.HTTP_400_BAD_REQUEST,
                         detail='Invalid CSV input. Please check your input.',
                     )
 
@@ -179,7 +179,7 @@ def get_fastapi_app(
                                 literal_values = get_args(field_type)
                                 if field_str not in literal_values:
                                     raise HTTPException(
-                                        status_code=400,
+                                        status_code=http_status.HTTP_400_BAD_REQUEST,
                                         detail=f"Invalid value '{field_str}' for field '{field_name}'. Expected one of: {literal_values}"
                                     )
                                 parsed_fields[field_name] = field_str
@@ -214,7 +214,7 @@ def get_fastapi_app(
                                             parsed_fields[field_name] = True
                                         else:
                                             raise HTTPException(
-                                                status_code=400,
+                                                status_code=http_status.HTTP_400_BAD_REQUEST,
                                                 detail=f"Invalid value '{field_str}' for boolean field '{field_name}'. Expected 'true' or 'false'."
                                             )
                                     else:
@@ -227,7 +227,7 @@ def get_fastapi_app(
 
                         except Exception as e:
                             raise HTTPException(
-                                status_code=400,
+                                status_code=http_status.HTTP_400_BAD_REQUEST,
                                 detail=f"Error parsing value '{field_str}' for field '{field_name}': {str(e)}"
                             )
 
@@ -256,7 +256,7 @@ def get_fastapi_app(
                         else:
                             if len(line) != len(field_names):
                                 raise HTTPException(
-                                    status_code=400,
+                                    status_code=http_status.HTTP_400_BAD_REQUEST,
                                     detail=f'Invalid CSV format. Line {line} doesn\'t match '
                                         f'the expected field order {field_names}.',
                                 )
@@ -265,7 +265,7 @@ def get_fastapi_app(
                         # Treat it as normal data row
                         if len(line) != len(field_names):
                             raise HTTPException(
-                                status_code=400,
+                                status_code=http_status.HTTP_400_BAD_REQUEST,
                                 detail=f'Invalid CSV format. Line {line} doesn\'t match '
                                     f'the expected field order {field_names}.',
                             )
@@ -275,7 +275,7 @@ def get_fastapi_app(
 
             else:
                 raise HTTPException(
-                    status_code=400,
+                    status_code=http_status.HTTP_400_BAD_REQUEST,
                     detail=f'Invalid content-type: {content_type}. '
                            f'Please use either application/json or text/csv.',
                 )

@@ -92,7 +92,7 @@ jobs:
           mv ./docs/_build/dirhtml ./${{ matrix.version }}
           zip -r /tmp/build.zip ./${{ matrix.version }}/*
       - name: Upload built html
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: ${{ matrix.version }}
             path: /tmp/build.zip

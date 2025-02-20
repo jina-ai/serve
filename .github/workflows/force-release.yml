@@ -126,6 +126,7 @@ jobs:
       - name: Upload wheels as artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: artifacts-${{ strategy.job-index }}
           path: dist/*.whl
 
   regular-release:
@@ -141,9 +142,10 @@ jobs:
         with:
           python-version: "3.10"
         # https://github.com/actions/checkout#fetch-all-tags
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: artifacts-*
+          merge-multiple: true
           path: dist
       - run: |
           git fetch --depth=200

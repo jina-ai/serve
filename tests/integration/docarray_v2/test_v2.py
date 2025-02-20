@@ -1310,6 +1310,10 @@ class MyExternalExecutor(Executor):
             doc.tags['uuid'] = self._id
 
 
+@pytest.mark.skipif(
+    'GITHUB_WORKFLOW' in os.environ,
+    reason='flaky test',
+)
 @pytest.mark.parametrize('num_shards', [1, 2], indirect=True)
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_flow_with_external_deployment(

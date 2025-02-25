@@ -2,7 +2,7 @@ import inspect
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from jina import Document, DocumentArray
-from jina._docarray import docarray_v2
+from jina._docarray import docarray_v2, is_pydantic_v2
 from jina.importer import ImportExtensions
 from jina.serve.networking.sse import EventSourceResponse
 from jina.types.request.data import DataRequest
@@ -39,7 +39,9 @@ def get_fastapi_app(
     import os
 
     from pydantic import BaseModel, Field
-    from pydantic.config import BaseConfig, inherit_config
+    from pydantic.config import BaseConfig
+    if not is_pydantic_v2:
+        from pydantic.config import inherit_config
 
     from jina.proto import jina_pb2
     from jina.serve.runtimes.gateway.models import _to_camel_case
@@ -180,7 +182,10 @@ def get_fastapi_app(
                 default_parameters = None
 
             if docarray_v2:
-                _config = inherit_config(InnerConfig, BaseDoc.__config__)
+                if not is_pydantic_v2:
+                    _config = inherit_config(InnerConfig, BaseDoc.__config__)
+                else:
+                    _config = InnerConfig
             else:
                 _config = input_doc_model.__config__
 

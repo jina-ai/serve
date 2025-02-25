@@ -1,7 +1,7 @@
 import copy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from jina._docarray import docarray_v2
+from jina._docarray import docarray_v2, is_pydantic_v2
 
 _SPECIFIC_EXECUTOR_SEPARATOR = '__'
 
@@ -79,7 +79,7 @@ def _parse_specific_params(parameters: Dict, executor_name: str):
     return parsed_params
 
 
-if docarray_v2:
+if docarray_v2 and not is_pydantic_v2:
     from docarray import BaseDoc, DocList
     from docarray.typing import AnyTensor
     from pydantic import create_model

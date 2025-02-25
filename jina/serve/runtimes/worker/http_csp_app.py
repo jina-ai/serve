@@ -1,7 +1,7 @@
 from typing import (TYPE_CHECKING, Callable, Dict, List, Literal, Optional,
                     Union)
 
-from jina._docarray import docarray_v2
+from jina._docarray import docarray_v2, is_pydantic_v2
 from jina.importer import ImportExtensions
 from jina.types.request.data import DataRequest
 
@@ -34,7 +34,9 @@ def get_fastapi_app(
         from fastapi import FastAPI, HTTPException, Request, status as http_status
         from fastapi.middleware.cors import CORSMiddleware
         from pydantic import BaseModel, Field
-        from pydantic.config import BaseConfig, inherit_config
+        from pydantic.config import BaseConfig
+        if not is_pydantic_v2:
+            from pydantic.config import inherit_config
 
     import os
 
@@ -300,7 +302,11 @@ def get_fastapi_app(
                 parameters_model = Optional[Dict]
                 default_parameters = None
 
-            _config = inherit_config(InnerConfig, BaseDoc.__config__)
+            if not is_pydantic_v2:
+                _config = inherit_config(InnerConfig, BaseDoc.__config__)
+            else:
+                _config = InnerConfig
+
             endpoint_input_model = pydantic.create_model(
                 f'{endpoint.strip("/")}_input_model',
                 data=(Union[List[input_doc_model], input_doc_model], ...),

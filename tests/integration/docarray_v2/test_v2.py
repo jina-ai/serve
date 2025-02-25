@@ -14,6 +14,7 @@ from typing import (
 
 import numpy as np
 import pytest
+from jina._docarray import is_pydantic_v2
 from docarray import BaseDoc, DocList
 from docarray.documents import ImageDoc, TextDoc
 from docarray.documents.legacy import LegacyDocument
@@ -496,10 +497,11 @@ def test_chain(protocols):
                 from jina.proto import jina_pb2
                 from jina.proto.jina_pb2_grpc import JinaDiscoverEndpointsRPCStub
                 from jina.serve.executors import __dry_run_endpoint__
-                from jina.serve.runtimes.helper import (
-                    _create_aux_model_doc_list_to_list,
-                    _create_pydantic_model_from_schema,
-                )
+                if not is_pydantic_v2:
+                    from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
+                    from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+                else:
+                    from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
 
                 channel = grpc.insecure_channel(f'0.0.0.0:{ports[0]}')
                 stub = JinaDiscoverEndpointsRPCStub(channel)
@@ -513,20 +515,20 @@ def test_chain(protocols):
                 assert v['output'] == LegacyDocument.schema()
                 v = schema_map['/bar']
                 assert (
-                        v['input']
-                        == _create_pydantic_model_from_schema(
-                    _create_aux_model_doc_list_to_list(Input1).schema(),
-                    'Input1',
-                    {},
-                ).schema()
+                    v['input']
+                    == create_base_doc_from_schema(
+                        create_pure_python_type_model(Input1).schema(),
+                        'Input1',
+                        {},
+                    ).schema()
                 )
                 assert (
-                        v['output']
-                        == _create_pydantic_model_from_schema(
-                    _create_aux_model_doc_list_to_list(Output2).schema(),
-                    'Output2',
-                    {},
-                ).schema()
+                    v['output']
+                    == create_base_doc_from_schema(
+                        create_pure_python_type_model(Output2).schema(),
+                        'Output2',
+                        {},
+                    ).schema()
                 )
 
 
@@ -584,10 +586,11 @@ def test_default_endpoint(protocols):
             from jina.proto import jina_pb2
             from jina.proto.jina_pb2_grpc import JinaDiscoverEndpointsRPCStub
             from jina.serve.executors import __default_endpoint__, __dry_run_endpoint__
-            from jina.serve.runtimes.helper import (
-                _create_aux_model_doc_list_to_list,
-                _create_pydantic_model_from_schema,
-            )
+            if not is_pydantic_v2:
+                from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
+                from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+            else:
+                from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
 
             channel = grpc.insecure_channel(f'0.0.0.0:{ports[0]}')
             stub = JinaDiscoverEndpointsRPCStub(channel)
@@ -604,16 +607,16 @@ def test_default_endpoint(protocols):
             assert v['output'] == LegacyDocument.schema()
             v = schema_map[__default_endpoint__]
             assert (
-                    v['input']
-                    == _create_pydantic_model_from_schema(
-                _create_aux_model_doc_list_to_list(Input1).schema(), 'Input1', {}
-            ).schema()
+                v['input']
+                == create_base_doc_from_schema(
+                    create_pure_python_type_model(Input1).schema(), 'Input1', {}
+                ).schema()
             )
             assert (
-                    v['output']
-                    == _create_pydantic_model_from_schema(
-                _create_aux_model_doc_list_to_list(Output2).schema(), 'Output2', {}
-            ).schema()
+                v['output']
+                == create_base_doc_from_schema(
+                    create_pure_python_type_model(Output2).schema(), 'Output2', {}
+                ).schema()
             )
 
 

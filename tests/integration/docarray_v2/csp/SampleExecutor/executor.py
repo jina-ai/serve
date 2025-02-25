@@ -2,6 +2,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.typing import NdArray
 from pydantic import Field, BaseModel
+from typing import Optional, Literal
 
 from jina import Executor, requests
 
@@ -20,7 +21,17 @@ class EmbeddingResponseModel(TextDoc):
 
 
 class Parameters(BaseModel):
-    emb_dim: int
+    task: Optional[
+        Literal[
+            "retrieval.query",
+            "retrieval.passage",
+            "text-matching",
+            "classification",
+            "separation",
+        ]
+    ] = None
+    late_chunking: bool = False
+    dimensions: Optional[int] = None
 
 
 
@@ -46,7 +57,7 @@ class SampleExecutor(Executor):
                 EmbeddingResponseModel(
                     id=doc.id,
                     text=doc.text,
-                    embeddings=np.random.random((1, parameters.emb_dim)),
+                    embeddings=np.random.random((1, parameters.dimensions)),
                 )
             )
         return DocList[EmbeddingResponseModel](ret)

@@ -89,7 +89,7 @@ def test_provider_sagemaker_pod_inference_parameters():
                     'data': [
                         {'text': 'hello world'},
                     ],
-                    'parameters': {'emb_dim': emb_dim}
+                    'parameters': {'dimensions': emb_dim}
                 },
             )
             assert resp.status_code == 200
@@ -146,6 +146,50 @@ def test_provider_sagemaker_pod_batch_transform_valid(filename):
         for idx, d in enumerate(resp_json["data"]):
             assert d["text"] == texts[idx]
             assert len(d["embeddings"][0]) == 64
+
+
+def test_provider_sagemaker_pod_batch_transform_with_params_valid():
+    args, _ = set_pod_parser().parse_known_args(
+        [
+            '--uses',
+            os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
+            '--provider',
+            'sagemaker',
+            "--provider-endpoint",
+            "encode_parameter",
+            'serve',  # This is added by sagemaker
+        ]
+    )
+    with Pod(args):
+        texts = []
+        with open(os.path.join(os.path.dirname(__file__), "valid_input_3.csv"), "r") as f:
+            csv_data = f.read()
+
+        csv_reader = csv.reader(io.StringIO(csv_data), delimiter=",", quoting=csv.QUOTE_NONE, escapechar="\\")
+
+        # Before comparison, remove the parameters row
+        next(csv_reader)
+
+        for line in csv_reader:
+            texts.append(line[1])
+
+        resp = requests.post(
+            f"http://localhost:{sagemaker_port}/invocations",
+            headers={
+                "accept": "application/json",
+                "content-type": "text/csv",
+            },
+            data=csv_data,
+        )
+        assert resp.status_code == 200
+        resp_json = resp.json()
+        assert len(resp_json["data"]) == 10
+        for idx, d in enumerate(resp_json["data"]):
+            assert d["text"] == texts[idx]
+            assert len(d["embeddings"][0]) == 2
+
+        assert resp_json["parameters"]["late_chunking"] == False
+        assert resp_json["parameters"]["task"] == "retrieval.query"
 
 
 def test_provider_sagemaker_pod_batch_transform_invalid():

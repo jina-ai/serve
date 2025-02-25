@@ -92,7 +92,7 @@ jobs:
           mv ./docs/_build/dirhtml ./${{ matrix.version }}
           zip -r /tmp/build.zip ./${{ matrix.version }}/*
       - name: Upload built html
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: ${{ matrix.version }}
             path: /tmp/build.zip
@@ -106,7 +106,7 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ inputs.pages_branch }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: /tmp/artifacts
       - name: Clear old builds

@@ -1,0 +1,8 @@
+jtype: SampleClipExecutor
+py_modules:
+  - executor.py
+metas:
+  name: SampleClipExecutor
+  description: 
+  url: 
+  keywords: []

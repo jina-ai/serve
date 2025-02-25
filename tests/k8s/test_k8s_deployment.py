@@ -8,7 +8,6 @@ from jina.serve.networking import GrpcConnectionPool
 from jina.serve.runtimes.servers import BaseServer
 
 from jina import Deployment, Client
-from jina.helper import random_port
 from tests.k8s.conftest import shell_portforward
 
 cluster.KIND_VERSION = 'v0.11.1'

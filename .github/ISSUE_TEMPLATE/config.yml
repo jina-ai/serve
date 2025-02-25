@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: "📚 Read docs"
-    url: https://docs.jina.ai/
+    url: https://jina.ai/serve/
     about: Find your solution from our documenations
   - name: "😊 Join us"
     url: https://career.jina.ai

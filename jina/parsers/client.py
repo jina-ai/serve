@@ -81,3 +81,9 @@ def mixin_client_features_parser(parser):
         default='default',
         help='The config name or the absolute path to the YAML config file of the logger used in this object.',
     )
+    parser.add_argument(
+        '--reuse-session',
+        action='store_true',
+        default=False,
+        help='True if HTTPClient should reuse ClientSession. If true, user will be responsible to close it',
+    )

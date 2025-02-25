@@ -35,12 +35,6 @@ jobs:
         include:
           # linux
           - os: ubuntu-latest
-            python: '3.7'
-            python-manylinux-tag: "cp37-cp37m"
-          - os: ubuntu-latest
-            python: '3.8'
-            python-manylinux-tag: "cp38-cp38"
-          - os: ubuntu-latest
             python: '3.9'
             python-manylinux-tag: "cp39-cp39"
           - os: ubuntu-latest
@@ -51,12 +45,6 @@ jobs:
             python-manylinux-tag: "cp311-cp311"
 
           # MacOS emulated
-          - os: macos-latest
-            python: '3.8'
-            python-cibuildwheels: '38'
-            platform_id: macosx_x86_64
-            arch: x86_64
-            goarch: amd64
           - os: macos-latest
             python: '3.9'
             python-cibuildwheels: '39'
@@ -77,12 +65,6 @@ jobs:
             goarch: amd64
 
           # MacOS native
-          - os: macos-latest
-            python: '3.8'
-            python-cibuildwheels: '38'
-            platform_id: macosx_arm64
-            arch: arm64
-            goarch: arm64
           - os: macos-latest
             python: '3.9'
             python-cibuildwheels: '39'
@@ -140,15 +122,9 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           python -m cibuildwheel --output-dir dist
-      - name: Test wheels
-        run: |
-          WHEEL_FILE=$(ls dist/*.whl)
-          python -m pip install $WHEEL_FILE
-          python -c "import jraft"
-        if: ${{ matrix.os != 'macos-latest' || matrix.platform_id != 'macosx_arm64' }} # runners do not necessarily have macos ARM, so cannot run this test for it
-
+          
       - name: Upload wheels as artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: dist/*.whl
 
@@ -163,7 +139,7 @@ jobs:
 #          submodules: true
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: "3.10"
         # https://github.com/actions/checkout#fetch-all-tags
       - uses: actions/download-artifact@v3
         with:

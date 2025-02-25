@@ -187,7 +187,7 @@ with dep:
 The statement `with dep:` starts the Deployment, and exiting the indented `with` block stops the Deployment, including its Executor.
 ````
 
-````{tab} Jina CLI entrypoint
+````{tab} Jina-serve CLI entrypoint
 ```bash
 jina deployment --uses deployment.yml
 ```
@@ -257,7 +257,7 @@ with dep:
 ````
 ````{tab} YAML
 ```shell
-jina deployment --uses deployment.yml
+jina-serve deployment --uses deployment.yml
 ```
 ````
 
@@ -309,13 +309,13 @@ dep.to_docker_compose_yaml()
 ````
 ````{tab} Terminal
 ```shell
-jina export docker-compose deployment.yml docker-compose.yml 
+jina-serve export docker-compose deployment.yml docker-compose.yml 
 ```
 ````
 
 This will generate a single `docker-compose.yml` file.
 
-For advanced utilization of Docker Compose with Jina, refer to {ref}`How to <docker-compose>` 
+For advanced utilization of Docker Compose with Jina-serve, refer to {ref}`How to <docker-compose>` 
 
 (deployment-kubernetes-export)=
 ### Kubernetes
@@ -330,13 +330,13 @@ dep.to_kubernetes_yaml('dep_k8s_configuration')
 ````
 ````{tab} Terminal
 ```shell
-jina export kubernetes deployment.yml ./my-k8s 
+jina-serve export kubernetes deployment.yml ./my-k8s 
 ```
 ````
 
 The generated folder can be used directly with `kubectl` to deploy the Deployment to an existing Kubernetes cluster.
 
-For advanced utilisation of Kubernetes with Jina please refer to {ref}`How to <kubernetes>` 
+For advanced utilisation of Kubernetes with Jina-serve please refer to {ref}`How to <kubernetes>` 
 
 ```{tip}
 Based on your local Jina version, Executor Hub may rebuild the Docker image during the YAML generation process.
@@ -345,7 +345,7 @@ If you do not wish to rebuild the image, set the environment variable `JINA_HUB_
 
 ```{tip}
 If an Executor requires volumes to be mapped to persist data, Jina will create a StatefulSet for that Executor instead of a Deployment.
-You can control the access mode, storage class name and capacity of the attached Persistent Volume Claim by using {ref}`Jina environment variables <jina-env-vars>`  
+You can control the access mode, storage class name and capacity of the attached Persistent Volume Claim by using {ref}`Jina environment variables <jina-serve-env-vars>`  
 `JINA_K8S_ACCESS_MODES`, `JINA_K8S_STORAGE_CLASS_NAME` and `JINA_K8S_STORAGE_CAPACITY`. Only the first volume will be considered to be mounted.
 ```
 
@@ -355,7 +355,7 @@ For more in-depth guides on deployment, check our how-tos for {ref}`Docker compo
 ```
 
 ```{caution}
-The port or ports arguments are ignored when calling the Kubernetes YAML, Jina will start the services binding to the ports 8080, except when multiple protocols
+The port or ports arguments are ignored when calling the Kubernetes YAML, Jina-serve will start the services binding to the ports 8080, except when multiple protocols
 need to be served when the consecutive ports (8081, ...) will be used. This is because the Kubernetes service will direct the traffic from you and it is irrelevant
 to the services around because in Kubernetes services communicate via the service names irrespective of the internal port.
 ```
@@ -363,7 +363,7 @@ to the services around because in Kubernetes services communicate via the servic
 (logging-configuration)=
 ## Logging
 
-The default {class}`jina.logging.logger.JinaLogger` uses rich console logging that writes to the system console. The `log_config` argument can be used to pass in a string of the pre-configured logging configuration names in Jina or the absolute YAML file path of the custom logging configuration. For most cases, the default logging configuration sufficiently covers local, Docker and Kubernetes environments.
+The default {class}`jina.logging.logger.JinaLogger` uses rich console logging that writes to the system console. The `log_config` argument can be used to pass in a string of the pre-configured logging configuration names in Jina-serve or the absolute YAML file path of the custom logging configuration. For most cases, the default logging configuration sufficiently covers local, Docker and Kubernetes environments.
 
 Custom logging handlers can be configured by following the Python official [Logging Cookbook](https://docs.python.org/3/howto/logging-cookbook.html#logging-cookbook) examples. An example custom logging configuration file defined in a YAML file `logging.json.yml` is:
 
@@ -470,5 +470,5 @@ The most important methods of the `Deployment` object are the following:
 | {meth}`~jina.clients.mixin.PostMixin.post()`                 | Sends requests to the Deployment API.                                                                                                                                                                                                                                                      |
 | {meth}`~jina.Deployment.block()`                                   | Blocks execution until the program is terminated. This is useful to keep the Deployment alive so it can be used from other places (clients, etc).                                                                                                                                          |
 | {meth}`~jina.Deployment.to_docker_compose_yaml()`                  | Generates a Docker-Compose file listing all Executors as services.                                                                                                                                                                                                                                                |
-| {meth}`~jina.Deployment.to_kubernetes_yaml()`                      | Generates Kubernetes configuration files in `<output_directory>`. Based on your local Jina version, Executor Hub may rebuild the Docker image during the YAML generation process. If you do not wish to rebuild the image, set the environment variable `JINA_HUB_NO_IMAGE_REBUILD`.                                                                                                                                   |
+| {meth}`~jina.Deployment.to_kubernetes_yaml()`                      | Generates Kubernetes configuration files in `<output_directory>`. Based on your local Jina-serve version, Executor Hub may rebuild the Docker image during the YAML generation process. If you do not wish to rebuild the image, set the environment variable `JINA_HUB_NO_IMAGE_REBUILD`.                                                                                                                                   |
 | {meth}`~jina.clients.mixin.HealthCheckMixin.is_deployment_ready()` | Check if the Deployment is ready to process requests. Returns a boolean indicating the readiness.                                                                                                                                                                                                                                                                                                                                 |

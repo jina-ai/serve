@@ -23,7 +23,7 @@ When you are working with multiple Python files, you should organize them as a *
 your repository (as you would normally do with Python packages). Specifically, you should do the following:
 
 - Put all Python files (as well as an `__init__.py`) inside a special folder (called `executor` by convention.)
-  - Because of how Jina registers Executors, ensure you import your Executor in this `__init__.py` (see the contents of `executor/__init__.py` in the example below).
+  - Because of how Jina-serve registers Executors, ensure you import your Executor in this `__init__.py` (see the contents of `executor/__init__.py` in the example below).
 - Use relative imports (`from .bar import foo`, and not `from bar import foo`) inside the Python modules in this folder.
 - Only list `executor/__init__.py` under `py_modules` in `config.yml` - this way Python knows that you are importing a package, and ensures that all relative imports within your package work properly.
 

@@ -35,6 +35,8 @@ def test_provider_sagemaker_pod_inference():
             os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
             '--provider',
             'sagemaker',
+            "--provider-endpoint",
+            "encode",
             'serve',  # This is added by sagemaker
         ]
     )
@@ -60,6 +62,43 @@ def test_provider_sagemaker_pod_inference():
         assert len(resp_json['data'][0]['embeddings'][0]) == 64
 
 
+def test_provider_sagemaker_pod_inference_parameters():
+    args, _ = set_pod_parser().parse_known_args(
+        [
+            '--uses',
+            os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
+            '--provider',
+            'sagemaker',
+            "--provider-endpoint",
+            "encode_parameter",
+            'serve',  # This is added by sagemaker
+        ]
+    )
+    with Pod(args):
+        # Test the `GET /ping` endpoint (added by jina for sagemaker)
+        resp = requests.get(f'http://localhost:{sagemaker_port}/ping')
+        assert resp.status_code == 200
+        assert resp.json() == {}
+        for emb_dim in {32, 64, 128}:
+
+            # Test the `POST /invocations` endpoint for inference
+            # Note: this endpoint is not implemented in the sample executor
+            resp = requests.post(
+                f'http://localhost:{sagemaker_port}/invocations',
+                json={
+                    'data': [
+                        {'text': 'hello world'},
+                    ],
+                    'parameters': {'emb_dim': emb_dim}
+                },
+            )
+            assert resp.status_code == 200
+            resp_json = resp.json()
+            assert len(resp_json['data']) == 1
+            assert len(resp_json['data'][0]['embeddings'][0]) == emb_dim
+
+
+
 @pytest.mark.parametrize(
     "filename",
     [
@@ -74,6 +113,8 @@ def test_provider_sagemaker_pod_batch_transform_valid(filename):
             os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
             '--provider',
             'sagemaker',
+            "--provider-endpoint",
+            "encode",
             'serve',  # This is added by sagemaker
         ]
     )
@@ -114,6 +155,8 @@ def test_provider_sagemaker_pod_batch_transform_invalid():
             os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
             '--provider',
             'sagemaker',
+            "--provider-endpoint",
+            "encode",
             'serve',  # This is added by sagemaker
         ]
     )
@@ -145,6 +188,7 @@ def test_provider_sagemaker_deployment_inference():
     with Deployment(
         uses=os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
         provider='sagemaker',
+        provider_endpoint='encode',
         port=dep_port,
     ):
         # Test the `GET /ping` endpoint (added by jina for sagemaker)
@@ -171,7 +215,7 @@ def test_provider_sagemaker_deployment_inference():
 def test_provider_sagemaker_deployment_inference_docker(replica_docker_image_built):
     dep_port = random_port()
     with Deployment(
-        uses='docker://sampler-executor', provider='sagemaker', port=dep_port
+        uses='docker://sampler-executor', provider='sagemaker', provider_endpoint='encode', port=dep_port
     ):
         # Test the `GET /ping` endpoint (added by jina for sagemaker)
         rsp = requests.get(f'http://localhost:{dep_port}/ping')
@@ -200,6 +244,7 @@ def test_provider_sagemaker_deployment_batch():
     with Deployment(
         uses=os.path.join(os.path.dirname(__file__), "SampleExecutor", "config.yml"),
         provider='sagemaker',
+        provider_endpoint='encode',
         port=dep_port,
     ):
         # Test the `POST /invocations` endpoint for batch-transform
@@ -230,6 +275,24 @@ def test_provider_sagemaker_deployment_wrong_port():
                 os.path.dirname(__file__), "SampleExecutor", "config.yml"
             ),
             provider='sagemaker',
+            provider_endpoint='encode',
             port=8080,
+        ):
+            pass
+
+
+def test_provider_sagemaker_deployment_wrong_dynamic_batching():
+    # Sagemaker executor would start on 8080.
+    # If we use the same port for deployment, it should raise an error.
+    from jina.excepts import RuntimeFailToStart
+
+    with pytest.raises(RuntimeFailToStart) as exc:
+        with Deployment(
+            uses=os.path.join(
+                os.path.dirname(__file__), "SampleExecutor", "config.yml"
+            ),
+            provider='sagemaker',
+            provider_endpoint='encode_parameter',
+            uses_dynamic_batching={'/encode_parameter': {'preferred_batch_size': 20, 'timeout': 50}},
         ):
             pass

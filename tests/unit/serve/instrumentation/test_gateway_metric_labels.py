@@ -26,7 +26,6 @@ def test_gateway_metric_labels(monkeypatch_metric_exporter):
         f.post('/')
         collect_metrics()
         metrics = read_metrics()
-        print(f' metrics {metrics.keys()}')
         gateway_metrics = metrics['gateway/rep-0']['resource_metrics'][0][
             'scope_metrics'
         ][0]['metrics']

@@ -9,6 +9,7 @@ from jina.clients.mixin import (
     PostMixin,
     ProfileMixin,
 )
+import asyncio
 
 
 class HTTPClient(
@@ -80,3 +81,8 @@ class AsyncHTTPClient(
             print(resp)
 
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._lock = asyncio.Lock()
+        self.reuse_session = self.args.reuse_session

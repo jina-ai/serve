@@ -1,8 +1,8 @@
 (custom-gateway)=
 # Customization
 
-Gateways are customizable in Jina. You can implement them in much the same way as an Executor.
-With customized Gateways, Jina gives you more power by letting you implement any server, protocol and 
+Gateways are customizable in Jina-serve. You can implement them in much the same way as an Executor.
+With customized Gateways, Jina-serve gives you more power by letting you implement any server, protocol and 
 interface at the Gateway level. This means you have more freedom to:
 
 * Define and expose your own API Gateway interface to clients. You can define your JSON schema or protos etc.
@@ -14,7 +14,7 @@ The next sections detail the steps to implement and use a custom Gateway.
 ## Implementing the custom Gateway
 
 Just like for Executors, you can implement a custom Gateway by inheriting from a base `Gateway` class.
-Jina will instantiate your implemented class, inject runtime arguments and user-defined arguments into it, 
+Jina-serve will instantiate your implemented class, inject runtime arguments and user-defined arguments into it, 
 run it, orchestrate it, and send it health-checks.
 
 There are two Gateway base classes for implementing a custom Gateway:
@@ -196,7 +196,7 @@ Use this object to send Documents to Executors in the Flow. A {class}`~jina.serv
 connects the custom Gateway with the rest of the Flow.
 
 You can get this object in 2 different ways:
-* A `streamer` object (instance of {class}`~jina.serve.streamer.GatewayStreamer`) is injected by Jina to your `Gateway` class.
+* A `streamer` object (instance of {class}`~jina.serve.streamer.GatewayStreamer`) is injected by Jina-serve to your `Gateway` class.
 * If your server logic cannot access the `Gateway` class (for instance separate script), you can still get a `streamer` 
 object using {meth}`~jina.serve.streamer.GatewayStreamer.get_streamer()`:
 
@@ -284,7 +284,7 @@ It is recommended to always pass the `return_type` parameter
 (executor-streamer)=
 ## Calling an individual Executor
 
-Jina injects an `executor` object into your Gateway class which lets you call individual Executors from the Gateway.
+Jina-serve injects an `executor` object into your Gateway class which lets you call individual Executors from the Gateway.
 
 After transforming requests that arrive to the Gateway server into Documents, you can call the Executor in your Python code using `self.executor['executor_name'].post(args)`.
 This method expects a DocList object and an endpoint exposed by the Executor (similar to {ref}`Jina Client <client>`). 
@@ -397,8 +397,8 @@ with Flow().config_gateway(uses=MyGateway, protocol='http').add(uses=FirstExec, 
 
 ### Runtime attributes
 
-Jina injects runtime attributes into the Gateway classes. You can use them to set up your custom gateway:
-* `logger`: Jina logger object.
+Jina-serve injects runtime attributes into the Gateway classes. You can use them to set up your custom gateway:
+* `logger`: Jina-serve logger object.
 * `streamer`: {class}`~jina.serve.streamer.GatewayStreamer`. Use this object to send Documents from the Gateway to Executors. Refer to {ref}`this section <gateway-streamer>` for more information.
 * `runtime_args`: `argparse.Namespace` object containing runtime arguments.
 * `port`: main port exposed by the Gateway.
@@ -440,8 +440,8 @@ Refer to the {ref}`Use Custom Gateway section <use-custom-gateway>` for more inf
 (custom-gateway-health-check)=
 ## Required health-checks
 
-Jina relies on health-checks to determine the health of the Gateway. In environments like Kubernetes, 
-Docker Compose and Jina Cloud, this information is crucial for orchestrating the Gateway.
+Jina-serve relies on health-checks to determine the health of the Gateway. In environments like Kubernetes, 
+Docker Compose and Jina-serve Cloud, this information is crucial for orchestrating the Gateway.
 Since you have full control over your custom gateways, you are always responsible for implementing health-check endpoints:
 * If the protocol used is gRPC, a health servicer (for instance `health.aio.HealthServicer()`) from `grpcio-health-checking` 
 is expected to be added to the gRPC server. Refer to {class}`~jina.serve.runtimes.gateway.grpc.gateway.GRPCGateway` as 
@@ -479,15 +479,15 @@ or Kubernetes.
 
 This assumes that you've already implemented a custom Gateway class and have defined a `config.yml` for it.
 In this case, dockerizing the Gateway is straightforward:
-* If you need dependencies other than Jina, make sure to add a `requirements.txt` file (for instance, you use a server library).
+* If you need dependencies other than Jina-serve, make sure to add a `requirements.txt` file (for instance, you use a server library).
 * Create a `Dockerfile` as follows:
-1. Use a [Jina based image](https://hub.docker.com/r/jinaai/jina) with the `standard` tag as the base image in your Dockerfile.
-This ensures that everything needed for Jina to run the Gateway is installed. Make sure the Jina version supports 
+1. Use a [Jina-serve based image](https://hub.docker.com/r/jinaai/jina) with the `standard` tag as the base image in your Dockerfile.
+This ensures that everything needed for Jina-serve to run the Gateway is installed. Make sure the Jina-serve version supports 
 custom Gateways:
 ```dockerfile
 FROM jinaai/jina:latest-py38-standard
 ```
-Alternatively, you can just install jina using `pip`:
+Alternatively, you can just install jina-serve using `pip`:
 ```dockerfile
 RUN pip install jina
 ```
@@ -525,7 +525,7 @@ docker build -t gateway-image
 ```
 (use-custom-gateway)=
 ## Use the Custom Gateway
-You can include the Custom Gateway in a Jina Flow in different formats: Python class, configuration YAML and Docker image:
+You can include the Custom Gateway in a Jina-serve Flow in different formats: Python class, configuration YAML and Docker image:
 
 ### Flow python API
 ````{tab} Python Class

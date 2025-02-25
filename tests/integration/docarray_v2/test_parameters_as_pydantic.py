@@ -23,7 +23,7 @@ def test_parameters_as_pydantic(protocol, ctxt_manager, parameters_in_client):
     class FooParameterExecutor(Executor):
         @requests(on='/hello')
         def foo(
-            self, docs: DocList[TextDoc], parameters: Parameters, **kwargs
+                self, docs: DocList[TextDoc], parameters: Parameters, **kwargs
         ) -> DocList[TextDoc]:
             for doc in docs:
                 doc.text += f'Processed by foo with param: {parameters.param} and num: {parameters.num}'
@@ -68,15 +68,15 @@ def test_parameters_as_pydantic(protocol, ctxt_manager, parameters_in_client):
                 resp = global_requests.post(url, json=myobj)
                 resp_json = resp.json()
                 assert (
-                    resp_json['data'][0]['text']
-                    == f'Processed by {processed_by} with param: value and num: 5'
+                        resp_json['data'][0]['text']
+                        == f'Processed by {processed_by} with param: value and num: 5'
                 )
                 myobj = {'data': [{'text': ''}], 'parameters': {'param': 'value'}}
                 resp = global_requests.post(url, json=myobj)
                 resp_json = resp.json()
                 assert (
-                    resp_json['data'][0]['text']
-                    == f'Processed by {processed_by} with param: value and num: 5'
+                        resp_json['data'][0]['text']
+                        == f'Processed by {processed_by} with param: value and num: 5'
                 )
 
 
@@ -94,7 +94,7 @@ def test_parameters_invalid(protocol, ctxt_manager):
     class FooInvalidParameterExecutor(Executor):
         @requests(on='/hello')
         def foo(
-            self, docs: DocList[TextDoc], parameters: Parameters, **kwargs
+                self, docs: DocList[TextDoc], parameters: Parameters, **kwargs
         ) -> DocList[TextDoc]:
             for doc in docs:
                 doc.text += f'Processed by foo with param: {parameters.param} and num: {parameters.num}'
@@ -131,7 +131,7 @@ def test_parameters_as_pydantic_in_flow_only_first(protocol):
     class Exec1Chain(Executor):
         @requests(on='/bar')
         def bar(
-            self, docs: DocList[Input1], parameters: ParametersFirst, **kwargs
+                self, docs: DocList[Input1], parameters: ParametersFirst, **kwargs
         ) -> DocList[Output1]:
             docs_return = DocList[Output1](
                 [Output1(price=5 * parameters.mult) for _ in range(len(docs))]
@@ -180,7 +180,7 @@ def test_parameters_as_pydantic_in_flow_second(protocol):
     class Exec2Chain(Executor):
         @requests(on='/bar')
         def bar(
-            self, docs: DocList[Output1], parameters: ParametersSecond, **kwargs
+                self, docs: DocList[Output1], parameters: ParametersSecond, **kwargs
         ) -> DocList[Output2]:
             docs_return = DocList[Output2](
                 [
@@ -231,7 +231,7 @@ def test_openai(ctxt_manager, include_gateway):
     class MyExecDocWithExample(Executor):
         @requests
         def foo(
-            self, docs: DocList[MyDocWithExample], parameters: MyConfigParam, **kwargs
+                self, docs: DocList[MyDocWithExample], parameters: MyConfigParam, **kwargs
         ) -> DocList[MyDocWithExample]:
             pass
 
@@ -261,3 +261,61 @@ def test_openai(ctxt_manager, include_gateway):
         assert 'Configuration for Executor endpoint' in resp_str
         assert 'batch size' in resp_str
         assert '256' in resp_str
+
+
+@pytest.mark.parametrize('ctxt_manager', ['deployment', 'flow'])
+def test_parameters_all_default_not_required(ctxt_manager):
+    class DefaultParameters(BaseModel):
+        param: str = 'default'
+        num: int = 5
+
+    class DefaultParamExecutor(Executor):
+        @requests(on='/hello')
+        def foo(
+            self, docs: DocList[TextDoc], parameters: DefaultParameters, **kwargs
+        ) -> DocList[TextDoc]:
+            for doc in docs:
+                doc.text += f'Processed by foo with param: {parameters.param} and num: {parameters.num}'
+
+        @requests(on='/hello_single')
+        def bar(self, doc: TextDoc, parameters: DefaultParameters, **kwargs) -> TextDoc:
+            doc.text = f'Processed by bar with param: {parameters.param} and num: {parameters.num}'
+
+    if ctxt_manager == 'flow':
+        ctxt_mgr = Flow(protocol='http').add(uses=DefaultParamExecutor)
+    else:
+        ctxt_mgr = Deployment(protocol='http', uses=DefaultParamExecutor)
+
+    with ctxt_mgr:
+        ret = ctxt_mgr.post(
+            on='/hello',
+            inputs=DocList[TextDoc]([TextDoc(text='')]),
+        )
+        assert len(ret) == 1
+        assert ret[0].text == 'Processed by foo with param: default and num: 5'
+
+        ret = ctxt_mgr.post(
+            on='/hello_single',
+            inputs=DocList[TextDoc]([TextDoc(text='')]),
+        )
+        assert len(ret) == 1
+        assert ret[0].text == 'Processed by bar with param: default and num: 5'
+        import requests as global_requests
+
+        for endpoint in {'hello', 'hello_single'}:
+            processed_by = 'foo' if endpoint == 'hello' else 'bar'
+            url = f'http://localhost:{ctxt_mgr.port}/{endpoint}'
+            myobj = {'data': {'text': ''}}
+            resp = global_requests.post(url, json=myobj)
+            resp_json = resp.json()
+            assert (
+                    resp_json['data'][0]['text']
+                    == f'Processed by {processed_by} with param: default and num: 5'
+            )
+            myobj = {'data': [{'text': ''}]}
+            resp = global_requests.post(url, json=myobj)
+            resp_json = resp.json()
+            assert (
+                    resp_json['data'][0]['text']
+                    == f'Processed by {processed_by} with param: default and num: 5'
+            )

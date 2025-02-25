@@ -88,10 +88,10 @@ def test_timer_decorator(metrics_setup):
     }
 
     @MetricsTimer(summary, histogram, labels)
-    def _sleep():
+    def _sleep_2():
         time.sleep(0.1)
 
-    _sleep()
+    _sleep_2()
 
     # Prometheus samples
     summary_count_sample = [
@@ -107,5 +107,5 @@ def test_timer_decorator(metrics_setup):
         .to_json()
     )
     assert 'time_taken_decorator' == histogram_metric['name']
-    assert 1 == histogram_metric['data']['data_points'][0]['count']
-    assert labels == histogram_metric['data']['data_points'][0]['attributes']
+    assert 1 == histogram_metric['data']['data_points'][1]['count']
+    assert labels == histogram_metric['data']['data_points'][1]['attributes']

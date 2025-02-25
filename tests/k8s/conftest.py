@@ -30,14 +30,14 @@ class KindClusterWrapper:
         self._loaded_images = set()
 
     def _linkerd_install_cmd(
-        self, kind_cluster: KindCluster, cmd, tool_name: str
+            self, kind_cluster: KindCluster, cmd, tool_name: str
     ) -> None:
         self._log.info(f'Installing {tool_name} to Cluster...')
         kube_out = subprocess.check_output(
             (str(kind_cluster.kubectl_path), 'version'),
             env=os.environ,
         )
-        self._log.info(f'kuberbetes versions: {kube_out}')
+        self._log.info(f'kubernetes versions: {kube_out}')
 
         # since we need to pipe to commands and the linkerd output can bee too long
         # there is a risk of deadlock and hanging tests: https://docs.python.org/3/library/subprocess.html#popen-objects
@@ -86,7 +86,7 @@ class KindClusterWrapper:
             print(f'linkerd check yields {out.decode() if out else "nothing"}')
         except subprocess.CalledProcessError as e:
             print(
-                f'linkerd check failed with error code { e.returncode } and output { e.output }, and stderr { e.stderr }'
+                f'linkerd check failed with error code {e.returncode} and output {e.output}, and stderr {e.stderr}'
             )
             raise
 
@@ -125,8 +125,9 @@ class KindClusterWrapper:
             print(f'linkerd check yields {out.decode() if out else "nothing"}')
         except subprocess.CalledProcessError as e:
             print(
-                f'linkerd check failed with error code { e.returncode } and output { e.output }'
+                f'linkerd check failed with error code {e.returncode} and output {e.output}, and stderr {e.stderr}'
             )
+            raise
 
     def _set_kube_config(self):
         self._log.info(f'Setting KUBECONFIG to {self._kube_config_path}')
@@ -134,7 +135,7 @@ class KindClusterWrapper:
         load_cluster_config()
 
     def load_docker_images(
-        self, images: List[str], image_tag_map: Dict[str, str]
+            self, images: List[str], image_tag_map: Dict[str, str]
     ) -> None:
         for image in images:
             full_image_name = image + ':' + image_tag_map[image]
@@ -213,9 +214,9 @@ def load_cluster_config() -> None:
 
 @pytest.fixture
 def docker_images(
-    request: FixtureRequest,
-    image_name_tag_map: Dict[str, str],
-    k8s_cluster: KindClusterWrapper,
+        request: FixtureRequest,
+        image_name_tag_map: Dict[str, str],
+        k8s_cluster: KindClusterWrapper,
 ) -> List[str]:
     image_names: List[str] = request.param
     k8s_cluster.load_docker_images(image_names, image_name_tag_map)
@@ -227,7 +228,7 @@ def docker_images(
 
 @contextlib.contextmanager
 def shell_portforward(
-    kubectl_path, pod_or_service, port1, port2, namespace, waiting: float = 1
+        kubectl_path, pod_or_service, port1, port2, namespace, waiting: float = 1
 ):
     try:
         proc = subprocess.Popen(

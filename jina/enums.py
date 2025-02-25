@@ -269,6 +269,7 @@ class ProviderType(BetterEnum):
 
     NONE = 0  #: no provider
     SAGEMAKER = 1  #: AWS SageMaker
+    AZURE = 2 #: AZURE
 
 
 def replace_enum_to_str(obj):

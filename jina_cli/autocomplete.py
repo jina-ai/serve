@@ -564,6 +564,7 @@ ac_table = {
             '--metrics-exporter-host',
             '--metrics-exporter-port',
             '--log-config',
+            '--reuse-session',
             '--protocol',
             '--grpc-channel-options',
             '--prefetch',

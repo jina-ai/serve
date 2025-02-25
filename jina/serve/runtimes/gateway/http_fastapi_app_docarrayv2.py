@@ -42,7 +42,7 @@ def get_fastapi_app(
     if expose_graphql_endpoint:
         logger.error(f' GraphQL endpoint is not enabled when using docarray >0.30')
     with ImportExtensions(required=True):
-        from fastapi import FastAPI, Response, HTTPException
+        from fastapi import FastAPI, Response, HTTPException, status as http_status
         from fastapi.middleware.cors import CORSMiddleware
         import pydantic
         from pydantic import Field
@@ -219,7 +219,7 @@ def get_fastapi_app(
                     status = resp.header.status
 
                     if status.code == jina_pb2.StatusProto.ERROR:
-                        raise HTTPException(status_code=499, detail=status.description)
+                        raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail=status.description)
                     else:
                         result_dict = resp.to_dict()
                         return result_dict
@@ -275,8 +275,21 @@ def get_fastapi_app(
             input_doc_model = input_output_map['input']
             output_doc_model = input_output_map['output']
             is_generator = input_output_map['is_generator']
-            parameters_model = input_output_map['parameters'] or Optional[Dict]
-            default_parameters = ... if input_output_map['parameters'] else None
+            parameters_model = input_output_map['parameters']
+            parameters_model_needed = parameters_model is not None
+            if parameters_model_needed:
+                try:
+                    _ = parameters_model()
+                    parameters_model_needed = False
+                except:
+                    parameters_model_needed = True
+                parameters_model = parameters_model if parameters_model_needed else Optional[parameters_model]
+                default_parameters = (
+                    ... if parameters_model_needed else None
+                )
+            else:
+                parameters_model = Optional[Dict]
+                default_parameters = None
 
             if not is_pydantic_v2:
                 _config = inherit_config(InnerConfig, BaseDoc.__config__)

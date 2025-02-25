@@ -4,7 +4,7 @@
 This how-to will go through deploying a Deployment and a simple Flow using Kubernetes, customizing the Kubernetes configuration
 to your needs, and scaling Executors using replicas and shards.
 
-Deploying Jina services in Kubernetes is the recommended way to use Jina in production because Kubernetes can easily take over the lifetime management of Executors and Gateways.  
+Deploying Jina-serve services in Kubernetes is the recommended way to use Jina-serve in production because Kubernetes can easily take over the lifetime management of Executors and Gateways.  
 
 ```{seelaso}
 This page is a step by step guide, refer to the {ref}`Kubernetes support documentation <kubernetes-docs>` for more details
@@ -12,7 +12,7 @@ This page is a step by step guide, refer to the {ref}`Kubernetes support documen
 
 
 ```{hint}
-This guide is designed for users who want to **manually** deploy a Jina project on Kubernetes.
+This guide is designed for users who want to **manually** deploy a Jina-serve project on Kubernetes.
 
 Check out {ref}`jcloud` if you want a **one-click** solution to deploy and host Jina, leveraging a cloud-native stack of Kubernetes, Prometheus and Grafana, **without worrying about provisioning**.
 ```
@@ -256,14 +256,14 @@ Just ensure that the Executor is containerized, either by using *'jinaai+docker'
 Executors <dockerize-exec>`.
 
 Next, generate Kubernetes YAML configs from the Flow. Notice, that this step may be a little slow, because [Executor Hub](https://cloud.jina.ai/) may 
-adapt the image to your Jina and docarray version.
+adapt the image to your Jina-serve and docarray version.
 
 ```python
 d.to_kubernetes_yaml('./k8s_deployment', k8s_namespace='custom-namespace')
 ```
 
 The following file structure will be generated - don't worry if it's slightly different -- there can be 
-changes from one Jina version to another:
+changes from one Jina-serve version to another:
 
 ```
 .
@@ -369,14 +369,14 @@ Executors <dockerize-exec>`.
 The example Flow here simply encodes and indexes text data using two Executors pushed to the [Executor Hub](https://cloud.jina.ai/).
  
 Next, generate Kubernetes YAML configs from the Flow. Notice, that this step may be a little slow, because [Executor Hub](https://cloud.jina.ai/) may 
-adapt the image to your Jina and docarray version.
+adapt the image to your Jina-serve and docarray version.
 
 ```python
 f.to_kubernetes_yaml('./k8s_flow', k8s_namespace='custom-namespace')
 ```
 
 The following file structure will be generated - don't worry if it's slightly different -- there can be 
-changes from one Jina version to another:
+changes from one Jina-serve version to another:
 
 ```
 .

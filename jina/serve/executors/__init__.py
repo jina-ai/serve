@@ -401,10 +401,10 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         self._init_monitoring()
         self._init_workspace = workspace
         if __dry_run_endpoint__ not in self.requests:
-            self.requests[
-                __dry_run_endpoint__
-            ] = _FunctionWithSchema.get_function_with_schema(
-                self.__class__._dry_run_func
+            self.requests[__dry_run_endpoint__] = (
+                _FunctionWithSchema.get_function_with_schema(
+                    self.__class__._dry_run_func
+                )
             )
         else:
             self.logger.warning(
@@ -412,10 +412,10 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
                 f' So it is recommended not to expose this endpoint. '
             )
         if type(self) == BaseExecutor:
-            self.requests[
-                __default_endpoint__
-            ] = _FunctionWithSchema.get_function_with_schema(
-                self.__class__._dry_run_func
+            self.requests[__default_endpoint__] = (
+                _FunctionWithSchema.get_function_with_schema(
+                    self.__class__._dry_run_func
+                )
             )
 
         self._lock = contextlib.AsyncExitStack()
@@ -595,14 +595,14 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
                 _func = getattr(self.__class__, func)
                 if callable(_func):
                     # the target function is not decorated with `@requests` yet
-                    self.requests[
-                        endpoint
-                    ] = _FunctionWithSchema.get_function_with_schema(_func)
+                    self.requests[endpoint] = (
+                        _FunctionWithSchema.get_function_with_schema(_func)
+                    )
                 elif typename(_func) == 'jina.executors.decorators.FunctionMapper':
                     # the target function is already decorated with `@requests`, need unwrap with `.fn`
-                    self.requests[
-                        endpoint
-                    ] = _FunctionWithSchema.get_function_with_schema(_func.fn)
+                    self.requests[endpoint] = (
+                        _FunctionWithSchema.get_function_with_schema(_func.fn)
+                    )
                 else:
                     raise TypeError(
                         f'expect {typename(self)}.{func} to be a function, but receiving {typename(_func)}'
@@ -619,7 +619,14 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         ):
             return
 
+        remove_keys = set()
+        for k in self.requests.keys():
+            if k != '/invocations':
+                remove_keys.add(k)
+
         if '/invocations' in self.requests:
+            for k in remove_keys:
+                self.requests.pop(k)
             return
 
         if (
@@ -627,25 +634,43 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
             and self.runtime_args.provider_endpoint
         ):
             endpoint_to_use = ('/' + self.runtime_args.provider_endpoint).lower()
-            if endpoint_to_use in list(self.requests.keys()):
-                self.logger.warning(
-                    f'Using "{endpoint_to_use}" as "/invocations" route'
-                )
-                self.requests['/invocations'] = self.requests[endpoint_to_use]
-                return
+        elif len(self.requests) == 1:
+            endpoint_to_use = list(self.requests.keys())[0]
+        else:
+            raise ValueError('Cannot identify the endpoint to use for "/invocations"')
 
-        if len(self.requests) == 1:
-            route = list(self.requests.keys())[0]
-            self.logger.warning(f'Using "{route}" as "/invocations" route')
-            self.requests['/invocations'] = self.requests[route]
+        if endpoint_to_use in list(self.requests.keys()):
+            self.logger.warning(f'Using "{endpoint_to_use}" as "/invocations" route')
+            self.requests['/invocations'] = self.requests[endpoint_to_use]
+            if (
+                getattr(self, 'dynamic_batching', {}).get(endpoint_to_use, None)
+                is not None
+            ):
+                self.dynamic_batching['/invocations'] = self.dynamic_batching[
+                    endpoint_to_use
+                ]
+                self.dynamic_batching.pop(endpoint_to_use)
+            for k in remove_keys:
+                self.requests.pop(k)
             return
 
-        raise ValueError('Cannot identify the endpoint to use for "/invocations"')
-
     def _add_dynamic_batching(self, _dynamic_batching: Optional[Dict]):
+        from collections.abc import Mapping
+
+        def deep_update(source, overrides):
+            for key, value in overrides.items():
+                if isinstance(value, Mapping) and value:
+                    returned = deep_update(source.get(key, {}), value)
+                    source[key] = returned
+                else:
+                    source[key] = overrides[key]
+            return source
+
         if _dynamic_batching:
             self.dynamic_batching = getattr(self, 'dynamic_batching', {})
-            self.dynamic_batching.update(_dynamic_batching)
+            self.dynamic_batching = deep_update(
+                self.dynamic_batching, _dynamic_batching
+            )
 
     def _add_metas(self, _metas: Optional[Dict]):
         from jina.serve.executors.metas import get_default_metas
@@ -977,7 +1002,7 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         docker_kwargs: Optional[dict] = None,
         entrypoint: Optional[str] = None,
         env: Optional[dict] = None,
-        exit_on_exceptions: Optional[List[str]] = [],
+        exit_on_exceptions: Optional[List] = [],
         external: Optional[bool] = False,
         floating: Optional[bool] = False,
         force_update: Optional[bool] = False,
@@ -985,7 +1010,7 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         grpc_channel_options: Optional[dict] = None,
         grpc_metadata: Optional[dict] = None,
         grpc_server_options: Optional[dict] = None,
-        host: Optional[List[str]] = ['0.0.0.0'],
+        host: Optional[List] = ['0.0.0.0'],
         install_requirements: Optional[bool] = False,
         log_config: Optional[str] = None,
         metrics: Optional[bool] = False,
@@ -1003,7 +1028,7 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         protocol: Optional[Union[str, List[str]]] = ['GRPC'],
         provider: Optional[str] = ['NONE'],
         provider_endpoint: Optional[str] = None,
-        py_modules: Optional[List[str]] = None,
+        py_modules: Optional[List] = None,
         quiet: Optional[bool] = False,
         quiet_error: Optional[bool] = False,
         raft_configuration: Optional[dict] = None,
@@ -1033,7 +1058,7 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         uses_requests: Optional[dict] = None,
         uses_with: Optional[dict] = None,
         uvicorn_kwargs: Optional[dict] = None,
-        volumes: Optional[List[str]] = None,
+        volumes: Optional[List] = None,
         when: Optional[dict] = None,
         workspace: Optional[str] = None,
         **kwargs,
@@ -1102,14 +1127,14 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         :param port_monitoring: The port on which the prometheus server is exposed, default is a random port between [49152, 65535]
         :param prefer_platform: The preferred target Docker platform. (e.g. "linux/amd64", "linux/arm64")
         :param protocol: Communication protocol of the server exposed by the Executor. This can be a single value or a list of protocols, depending on your chosen Gateway. Choose the convenient protocols from: ['GRPC', 'HTTP', 'WEBSOCKET'].
-        :param provider: If set, Executor is translated to a custom container compatible with the chosen provider. Choose the convenient providers from: ['NONE', 'SAGEMAKER'].
+        :param provider: If set, Executor is translated to a custom container compatible with the chosen provider. Choose the convenient providers from: ['NONE', 'SAGEMAKER', 'AZURE'].
         :param provider_endpoint: If set, Executor endpoint will be explicitly chosen and used in the custom container operated by the provider.
         :param py_modules: The customized python modules need to be imported before loading the executor
 
           Note that the recommended way is to only import a single module - a simple python file, if your
           executor can be defined in a single file, or an ``__init__.py`` file if you have multiple files,
           which should be structured as a python package. For more details, please see the
-          `Executor cookbook <https://docs.jina.ai/concepts/executor/executor-files/>`__
+          `Executor cookbook <https://jina.ai/serve/concepts/executor/executor-files/>`__
         :param quiet: If set, then no log will be emitted from this object.
         :param quiet_error: If set, then exception stack information will not be added to the log
         :param raft_configuration: Dictionary of kwargs arguments that will be passed to the RAFT node as configuration options when starting the RAFT node.
@@ -1117,7 +1142,7 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         :param replicas: The number of replicas in the deployment
         :param retries: Number of retries per gRPC call. If <0 it defaults to max(3, num_replicas)
         :param runtime_cls: The runtime class to run inside the Pod
-        :param shards: The number of shards in the deployment running at the same time. For more details check https://docs.jina.ai/concepts/flow/create-flow/#complex-flow-topologies
+        :param shards: The number of shards in the deployment running at the same time. For more details check https://jina.ai/serve/concepts/flow/create-flow/#complex-flow-topologies
         :param ssl_certfile: the path to the certificate file
         :param ssl_keyfile: the path to the key file
         :param stateful: If set, start consensus module to make sure write operations are properly replicated between all the replicas
@@ -1188,12 +1213,12 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
             to main thread.
         :param uses_dynamic_batching: dictionary of parameters to overwrite from the default config's dynamic_batching field
         :param reload: a flag indicating if the Executor should watch the Python files of its implementation to reload the code live while serving.
-        :param kwargs: other kwargs accepted by the Flow, full list can be found `here <https://docs.jina.ai/api/jina.orchestrate.flow.base/>`
+        :param kwargs: other kwargs accepted by the Flow, full list can be found `here <https://jina.ai/serve/api/jina.orchestrate.flow.base/>`
 
         """
         warnings.warn(
             f'Executor.serve() is no more supported and will be deprecated soon. Use Deployment to serve an Executor instead: '
-            f'https://docs.jina.ai/concepts/executor/serve/',
+            f'https://jina.ai/serve/concepts/executor/serve/',
             DeprecationWarning,
         )
         from jina.orchestrate.deployments import Deployment
@@ -1246,11 +1271,11 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         :param uses_metas: dictionary of parameters to overwrite from the default config's metas field
         :param uses_requests: dictionary of parameters to overwrite from the default config's requests field
         :param uses_dynamic_batching: dictionary of parameters to overwrite from the default config's dynamic_batching field
-        :param kwargs: other kwargs accepted by the Flow, full list can be found `here <https://docs.jina.ai/api/jina.orchestrate.flow.base/>`
+        :param kwargs: other kwargs accepted by the Flow, full list can be found `here <https://jina.ai/serve/api/jina.orchestrate.flow.base/>`
         """
         warnings.warn(
             f'Executor.to_kubernetes_yaml() is no more supported and will be deprecated soon. Use Deployment to export kubernetes YAML files: '
-            f'https://docs.jina.ai/concepts/executor/serve/#serve-via-kubernetes',
+            f'https://jina.ai/serve/concepts/executor/serve/#serve-via-kubernetes',
             DeprecationWarning,
         )
         from jina.orchestrate.flow.base import Flow
@@ -1294,12 +1319,12 @@ class BaseExecutor(JAMLCompatible, metaclass=ExecutorType):
         :param uses_metas: dictionary of parameters to overwrite from the default config's metas field
         :param uses_requests: dictionary of parameters to overwrite from the default config's requests field
         :param uses_dynamic_batching: dictionary of parameters to overwrite from the default config's requests field
-        :param kwargs: other kwargs accepted by the Flow, full list can be found `here <https://docs.jina.ai/api/jina.orchestrate.flow.base/>`
+        :param kwargs: other kwargs accepted by the Flow, full list can be found `here <https://jina.ai/serve/api/jina.orchestrate.flow.base/>`
         """
 
         warnings.warn(
             f'Executor.to_docker_compose_yaml() is no more supported and will be deprecated soon. Use Deployment to export docker compose YAML files: '
-            f'https://docs.jina.ai/concepts/executor/serve/#serve-via-docker-compose',
+            f'https://jina.ai/serve/concepts/executor/serve/#serve-via-docker-compose',
             DeprecationWarning,
         )
 

@@ -1,7 +1,7 @@
 (jina-env-vars)=
 # {octicon}`list-unordered` Environment Variables
 
-Jina uses environment variables to determine different behaviours. To see all supported environment variables and their current values, run:
+Jina-serve uses environment variables to determine different behaviours. To see all supported environment variables and their current values, run:
 
 ```bash
 jina -vf

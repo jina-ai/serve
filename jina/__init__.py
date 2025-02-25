@@ -73,11 +73,10 @@ elif _sys.version_info >= (3, 8, 0) and _platform.system() == 'Darwin':
     except Exception as e:
         _warnings.warn(f'failed to set multiprocessing start_method to `fork`: {e!r}')
 
-# do not change this line manually
-# this is managed by git tag and updated on every release
+# do not change this line manually this is managed by git tag and updated on every release
 # NOTE: this represents the NEXT release version
 
-__version__ = '3.23.6'
+__version__ = '3.33.1'
 
 # do not change this line manually
 # this is managed by proto/build-proto.sh and updated on every execution

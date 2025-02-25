@@ -113,6 +113,8 @@ def test_create_pydantic_model_from_schema(transformation):
     class CustomDoc(BaseDoc):
         tensor: Optional[AnyTensor]
         url: ImageUrl
+        num: float = 0.5,
+        num_num: List[float] = [1.5, 2.5],
         lll: List[List[List[int]]] = [[[5]]]
         fff: List[List[List[float]]] = [[[5.2]]]
         single_text: TextDoc
@@ -133,6 +135,8 @@ def test_create_pydantic_model_from_schema(transformation):
     original_custom_docs = DocList[CustomDoc](
         [
             CustomDoc(
+                num=3.5,
+                num_num=[4.5, 5.5],
                 url='photo.jpg',
                 lll=[[[40]]],
                 fff=[[[40.2]]],
@@ -164,6 +168,8 @@ def test_create_pydantic_model_from_schema(transformation):
 
     assert len(custom_partial_da) == 1
     assert custom_partial_da[0].url == 'photo.jpg'
+    assert custom_partial_da[0].num == 3.5
+    assert custom_partial_da[0].num_num == [4.5, 5.5]
     assert custom_partial_da[0].lll == [[[40]]]
     assert custom_partial_da[0].lu == ['3', '4']  # Union validates back to string
     assert custom_partial_da[0].fff == [[[40.2]]]
@@ -179,6 +185,8 @@ def test_create_pydantic_model_from_schema(transformation):
     assert custom_partial_da[0].nested.nested.value == 'hello world'
 
     assert len(original_back) == 1
+    assert original_back[0].num == 3.5
+    assert original_back[0].num_num == [4.5, 5.5]
     assert original_back[0].url == 'photo.jpg'
     assert original_back[0].lll == [[[40]]]
     assert original_back[0].lu == ['3', '4']  # Union validates back to string
@@ -278,6 +286,7 @@ def test_create_empty_doc_list_from_schema(transformation):
     class CustomDoc(BaseDoc):
         tensor: Optional[AnyTensor]
         url: ImageUrl
+        num: float = 0.5,
         class_var: ClassVar[str] = "class_var_val"
         lll: List[List[List[int]]] = [[[5]]]
         fff: List[List[List[float]]] = [[[5.2]]]

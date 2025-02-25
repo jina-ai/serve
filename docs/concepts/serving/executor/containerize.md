@@ -20,8 +20,8 @@ The image building happens on the cloud, and once done the image is available im
 You can also build a Docker image yourself and use it like any other Executor. There are some requirements
 on how this image needs to be built:
 
-- Jina must be installed inside the image.
-- The Jina CLI command to start the Executor must be the default entrypoint.
+- Jina-serve must be installed inside the image.
+- The Jina-serve CLI command to start the Executor must be the default entrypoint.
 
 ## Prerequisites
 
@@ -31,19 +31,19 @@ a [Dockerfile](https://docs.docker.com/engine/reference/builder/), and how to bu
 You need Docker installed locally to reproduce the example below.
 
 
-## Install Jina in the Docker image
+## Install Jina-serve in the Docker image
 
-Jina **must** be installed inside the Docker image. This can be achieved in one of two ways:
+Jina-serve **must** be installed inside the Docker image. This can be achieved in one of two ways:
 
-- Use a [Jina based image](https://hub.docker.com/r/jinaai/jina) as the base image in your Dockerfile.
-This ensures that everything needed for Jina to run the Executor is installed.
+- Use a [Jina-serve based image](https://hub.docker.com/r/jinaai/jina) as the base image in your Dockerfile.
+This ensures that everything needed for Jina-serve to run the Executor is installed.
 
 ```dockerfile
 FROM jinaai/jina:3-py38-perf
 ```
 
 - Install Jina like any other Python package. You can do this by specifying Jina in `requirements.txt`, 
-or by including the `pip install jina` command as part of the image building process.  
+or by including the `pip install jina-serve` command as part of the image building process.  
 
 ```dockerfile
 RUN pip install jina
@@ -59,7 +59,7 @@ ENTRYPOINT ["jina", "executor", "--uses", "config.yml"]
 
 ```{note}
 We **strongly encourage** you to name the Executor YAML as `config.yml`, otherwise using your containerized Executor with Kubernetes requires an extra step. 
-When using {meth}`~jina.serve.executors.BaseExecutor.to_kubernetes_yaml()` or {meth}`~jina.serve.executors.BaseExecutor.to_docker_compose_yaml()`, Jina adds `--uses config.yml` in the entrypoint. 
+When using {meth}`~jina.serve.executors.BaseExecutor.to_kubernetes_yaml()` or {meth}`~jina.serve.executors.BaseExecutor.to_docker_compose_yaml()`, Jina-serve adds `--uses config.yml` in the entrypoint. 
 To change that you need to manually edit the generated files.
 ```
 
@@ -97,7 +97,7 @@ The YAML configuration, as a minimal working example, is required to point to th
 
 ```{admonition} More YAML options
 :class: seealso
-To see what else can be configured using Jina's YAML interface, see {ref}`here <executor-yaml-spec>`.
+To see what else can be configured using Jina-serve's YAML interface, see {ref}`here <executor-yaml-spec>`.
 ```
 
 This is necessary for the Executor to be put inside the Docker image,
@@ -121,7 +121,7 @@ torch
 
 ### Write the Dockerfile
 
-The last step is to write a `Dockerfile`, which has to do little more than launching the Executor via the Jina CLI:
+The last step is to write a `Dockerfile`, which has to do little more than launching the Executor via the Jina-serve CLI:
 
 ```dockerfile
 FROM jinaai/jina:3-py38-perf

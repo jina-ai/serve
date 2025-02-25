@@ -90,8 +90,7 @@ class GRPCBaseClient(BaseClient):
                 else grpc.Compression.NoCompression
             )
 
-            self.inputs = inputs
-            req_iter = self._get_requests(**kwargs)
+            req_iter, inputs_length = self._get_requests(inputs=inputs, **kwargs)
             continue_on_error = self.continue_on_error
             # while loop with retries, check in which state the `iterator` remains after failure
             options = client_grpc_options(
@@ -120,7 +119,7 @@ class GRPCBaseClient(BaseClient):
                     self.logger.debug(f'connected to {self.args.host}:{self.args.port}')
 
                     with ProgressBar(
-                        total_length=self._inputs_length, disable=not self.show_progress
+                        total_length=inputs_length, disable=not self.show_progress
                     ) as p_bar:
                         try:
                             if stream:

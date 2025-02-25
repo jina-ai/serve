@@ -4,9 +4,9 @@ docker build --build-arg PIP_TAG="[devel]" --build-arg DOCARRAY_VERSION="0.21.0"
 docker build -f tests/jinahub/hub_mwu/Dockerfile tests/jinahub/hub_mwu -t hubpod:test
 docker build -f tests/jinahub/Dockerfile tests/jinahub/ -t jinaai/test_hubapp_hubpods
 
-if [ "${PWD##*/}" != "jina" ]
+if [ "${PWD##*/}" != "serve" ]
   then
-    echo "test_integration.sh should only be run from the jina base directory"
+    echo "test_integration.sh should only be run from the serve base directory"
     exit 1
 fi
 

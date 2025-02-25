@@ -9,7 +9,7 @@ that operates on `Documents`. These `Executors` live in different runtimes depen
 your Flow. 
 
 By default, if you are serving your Flow locally they live within processes. Nevertheless, 
-because Jina is cloud native your Flow can easily manage Executors that live in containers and that are
+because Jina-serve is cloud native your Flow can easily manage Executors that live in containers and that are
 orchestrated by your favorite tools. One of the simplest is Docker Compose which is supported out of the box. 
 
 You can deploy a Flow with Docker Compose in one line:
@@ -24,7 +24,7 @@ flow = Flow(...).add(...).add(...)
 flow.to_docker_compose_yaml('docker-compose.yml')
 ```
 
-Jina generates a `docker-compose.yml` configuration file corresponding with your Flow. You can use this directly with 
+Jina-serve generates a `docker-compose.yml` configuration file corresponding with your Flow. You can use this directly with 
 Docker Compose, avoiding the overhead of manually defining all of your Flow's services.
 
 ````{admonition} Use Docker-based Executors
@@ -34,15 +34,15 @@ All Executors in the Flow should be used with `jinaai+docker://...` or `docker:/
 
 ````{admonition} Health check available from 3.1.3
 :class: caution
-If you use Executors that rely on Docker images built with a version of Jina prior to 3.1.3, remove the 
+If you use Executors that rely on Docker images built with a version of Jina-serve prior to 3.1.3, remove the 
 health check from the dumped YAML file, otherwise your Docker Compose services will 
 always be "unhealthy."
 ````
 
-````{admonition} Matching Jina versions
+````{admonition} Matching Jina-serve versions
 :class: caution
 If you change the Docker images in your Docker Compose generated file, ensure that all services included in
-the Gateway are built with the same Jina version to guarantee compatibility.
+the Gateway are built with the same Jina-serve version to guarantee compatibility.
 ````
 
 ## Example: Index and search text using your own built Encoder and Indexer

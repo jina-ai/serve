@@ -247,6 +247,90 @@ def test_timeout(add_parameters, use_stream):
 @pytest.mark.parametrize(
     'add_parameters',
     [
+        {
+            'uses': PlaceholderExecutorWrongDecorator,
+            'uses_dynamic_batching': USES_DYNAMIC_BATCHING_PLACE_HOLDER_EXECUTOR,
+        }
+    ],
+)
+@pytest.mark.parametrize('use_stream', [False, True])
+@pytest.mark.parametrize('use_dynamic_batching', [False, True])
+def test_timeout_no_use(add_parameters, use_stream, use_dynamic_batching):
+    for k, v in add_parameters["uses_dynamic_batching"].items():
+        v["use_dynamic_batching"] = use_dynamic_batching
+    f = Flow().add(**add_parameters)
+    with f:
+        start_time = time.time()
+        f.post('/bar', inputs=DocumentArray.empty(2), stream=use_stream)
+        time_taken = time.time() - start_time
+        if use_dynamic_batching:
+            assert time_taken > 2, 'Timeout ended too fast'
+            assert time_taken < 2 + TIMEOUT_TOLERANCE, 'Timeout ended too slowly'
+        else:
+            assert time_taken < 2
+
+        with mp.Pool(3) as p:
+            start_time = time.time()
+            list(
+                p.map(
+                    call_api,
+                    [
+                        RequestStruct(f.port, '/bar', range(1), use_stream),
+                        RequestStruct(f.port, '/bar', range(1), not use_stream),
+                        RequestStruct(f.port, '/bar', range(1), use_stream),
+                    ],
+                )
+            )
+            time_taken = time.time() - start_time
+            if use_dynamic_batching:
+                assert time_taken > 2, 'Timeout ended too fast'
+                assert time_taken < 2 + TIMEOUT_TOLERANCE, 'Timeout ended too slowly'
+            else:
+                assert time_taken < 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('use_custom_metric', [False, True])
+@pytest.mark.parametrize('use_dynamic_batching', [False, True])
+async def test_timeout_no_use_custom(use_dynamic_batching, use_custom_metric):
+    class TextUseCustomDynBatch(Executor):
+        @requests(on='/foo')
+        @dynamic_batching(custom_metric=lambda d: len(d.text))
+        def fun(self, docs, **kwargs):
+            if use_custom_metric:
+                self.logger.debug(f'Received {len(docs)} in "/foo" call with with custom metric and sum of text lengths? {sum([len(d.text) for d in docs])}')
+            else:
+                self.logger.debug(
+                    f'Received {len(docs)} in "/foo" call with sum of text lengths? {sum([len(d.text) for d in docs])}')
+            time.sleep(1)
+            for doc in docs:
+                doc.text += FOO_SUCCESS_MSG
+
+    d = Deployment(uses=TextUseCustomDynBatch, uses_dynamic_batching={'/foo': {'timeout': 2000, "preferred_batch_size": 10, 'use_dynamic_batching': use_dynamic_batching, 'use_custom_metric': use_custom_metric}})
+    with d:
+        start_time = time.time()
+        inputs = DocumentArray([Document(text='ab') for _ in range(8)])
+        client = Client(port=d.port, asyncio=True, protocol=d.protocol)
+        async for _ in client.post('/foo', inputs=inputs, request_size=1):
+            pass
+        time_taken = time.time() - start_time
+        if not use_dynamic_batching:
+            # in this case it should simply call once for each
+            assert time_taken > 8, 'Timeout ended too fast'
+            assert time_taken < 8 + TIMEOUT_TOLERANCE, 'Timeout ended too slowly'
+        elif not use_custom_metric:
+            # in this case it should accumulate all in 2 seconds, and spend only 1 second inside call
+            assert time_taken > 3, 'Timeout ended too fast'
+            assert time_taken < 3 + TIMEOUT_TOLERANCE, 'Timeout ended too slowly'
+        elif use_custom_metric:
+            # in this case it should accumulate all before 2 seconds, and divide the call in 2 calls
+            assert time_taken > 2, 'Timeout ended too fast'
+            assert time_taken < 2 + TIMEOUT_TOLERANCE, 'Timeout ended too slowly'
+
+
+@pytest.mark.parametrize(
+    'add_parameters',
+    [
         {'uses': PlaceholderExecutor},
         {
             'uses': PlaceholderExecutorWrongDecorator,
@@ -528,7 +612,7 @@ def _assert_all_docs_processed(port, num_docs, endpoint):
         target=f'0.0.0.0:{port}',
         endpoint=endpoint,
     )
-    docs = resp.data.docs
+    docs = resp.docs
     assert docs.texts == ['long timeout' for _ in range(num_docs)]
 
 
@@ -629,11 +713,17 @@ def test_failure_propagation():
             )
 
 
-@pytest.mark.repeat(10)
-def test_exception_handling_in_dynamic_batch():
+@pytest.mark.parametrize(
+    'flush_all',
+    [
+        False,
+        True
+    ],
+)
+def test_exception_handling_in_dynamic_batch(flush_all):
     class SlowExecutorWithException(Executor):
 
-        @dynamic_batching(preferred_batch_size=3, timeout=1000)
+        @dynamic_batching(preferred_batch_size=3, timeout=5000, flush_all=flush_all)
         @requests(on='/foo')
         def foo(self, docs, **kwargs):
             for doc in docs:
@@ -659,4 +749,114 @@ def test_exception_handling_in_dynamic_batch():
             if r.header.status.code == jina_pb2.StatusProto.StatusCode.ERROR:
                 num_failed_requests += 1
 
-        assert 1 <= num_failed_requests <= 3  # 3 requests in the dynamic batch failing
+        if not flush_all:
+            assert 1 <= num_failed_requests <= 3  # 3 requests in the dynamic batch failing
+        else:
+            assert 1 <= num_failed_requests <= len(da)  # 3 requests in the dynamic batch failing
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'flush_all',
+    [
+        False,
+        True
+    ],
+)
+async def test_num_docs_processed_in_exec(flush_all):
+    class DynBatchProcessor(Executor):
+
+        @dynamic_batching(preferred_batch_size=5, timeout=5000, flush_all=flush_all)
+        @requests(on='/foo')
+        def foo(self, docs, **kwargs):
+            for doc in docs:
+                doc.text = f"{len(docs)}"
+
+    depl = Deployment(uses=DynBatchProcessor, protocol='http')
+
+    with depl:
+        da = DocumentArray([Document(text='good') for _ in range(50)])
+        cl = Client(protocol=depl.protocol, port=depl.port, asyncio=True)
+        res = []
+        async for r in cl.post(
+                on='/foo',
+                inputs=da,
+                request_size=7,
+                continue_on_error=True,
+                results_in_order=True,
+        ):
+            res.extend(r)
+        assert len(res) == 50  # 1 request per input
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('use_custom_metric', [True, False])
+@pytest.mark.parametrize('flush_all', [True, False])
+async def test_dynamic_batching_custom_metric(use_custom_metric, flush_all):
+    class DynCustomBatchProcessor(Executor):
+
+        @dynamic_batching(preferred_batch_size=10, custom_metric=lambda x: len(x.text))
+        @requests(on='/foo')
+        def foo(self, docs, **kwargs):
+            time.sleep(0.5)
+            total_len = sum([len(doc.text) for doc in docs])
+            for doc in docs:
+                doc.text = f"{total_len}"
+
+    depl = Deployment(uses=DynCustomBatchProcessor, uses_dynamic_batching={
+        'foo': {"preferred_batch_size": 10, "timeout": 2000, "use_custom_metric": use_custom_metric,
+                "flush_all": flush_all}})
+    da = DocumentArray([Document(text='aaaaa') for i in range(50)])
+    with depl:
+        cl = Client(protocol=depl.protocol, port=depl.port, asyncio=True)
+        res = []
+        async for r in cl.post(
+                on='/foo',
+                inputs=da,
+                request_size=1,
+                continue_on_error=True,
+                results_in_order=True,
+        ):
+            res.extend(r)
+        assert len(res) == 50  # 1 request per input
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('use_dynamic_batching', [True, False])
+async def test_use_dynamic_batching(use_dynamic_batching):
+    class UseDynBatchProcessor(Executor):
+
+        @dynamic_batching(preferred_batch_size=10)
+        @requests(on='/foo')
+        def foo(self, docs, **kwargs):
+            print(f'len docs {len(docs)}')
+            for doc in docs:
+                doc.text = f"{len(docs)}"
+
+    depl = Deployment(uses=UseDynBatchProcessor, uses_dynamic_batching={
+        'foo': {"preferred_batch_size": 10, "timeout": 2000, "use_dynamic_batching": use_dynamic_batching,
+                "flush_all": False}})
+    da = DocumentArray([Document(text='aaaaa') for _ in range(50)])
+    with depl:
+        cl = Client(protocol=depl.protocol, port=depl.port, asyncio=True)
+        res = []
+        async for r in cl.post(
+                on='/foo',
+                inputs=da,
+                request_size=1,
+                continue_on_error=True,
+                results_in_order=True,
+        ):
+            res.extend(r)
+        assert len(res) == 50  # 1 request per input
+        for doc in res:
+            num_10 = 0
+            if doc.text == "10":
+                num_10 += 1
+            if not use_dynamic_batching:
+                assert doc.text == "1"
+
+        if use_dynamic_batching:
+            assert num_10 > 0
+        else:
+            assert num_10 == 0

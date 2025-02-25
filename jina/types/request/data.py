@@ -114,6 +114,8 @@ class DataRequest(Request):
         self._pb_body = None
         self._document_array_cls = DocumentArray
         self._data = None
+        # to be used to bypass proto extra transforms
+        self.direct_docs = None
 
         try:
             if isinstance(request, jina_pb2.DataRequestProto):
@@ -275,7 +277,10 @@ class DataRequest(Request):
         """Get the :class: `DocumentArray` with sequence `data.docs` as content.
 
         .. # noqa: DAR201"""
-        return self.data.docs
+        if self.direct_docs is not None:
+            return self.direct_docs
+        else:
+            return self.data.docs
 
     @property
     def data(self) -> 'DataRequest._DataContent':
@@ -441,6 +446,8 @@ class SingleDocumentRequest(Request):
         self._document_cls = Document
         self.buffer = None
         self._data = None
+        # to be used to bypass proto extra transforms
+        self.direct_doc = None
 
         try:
             if isinstance(request, jina_pb2.SingleDocumentRequestProto):
@@ -606,7 +613,10 @@ class SingleDocumentRequest(Request):
         """Get the :class: `DocumentArray` with sequence `data.docs` as content.
 
         .. # noqa: DAR201"""
-        return self.data.doc
+        if self.direct_doc is not None:
+            return self.direct_doc
+        else:
+            return self.data.doc
 
     @property
     def data(self) -> 'SingleDocumentRequest._DataContent':

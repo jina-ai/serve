@@ -4,7 +4,7 @@
 ## Using gRPC
 
 You can check every individual Executor, by using a [standard gRPC health check endpoint](https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-In most cases this is not necessary, since such checks are performed by Jina, a Kubernetes service mesh or a load balancer under the hood.
+In most cases this is not necessary, since such checks are performed by Jina-serve, a Kubernetes service mesh or a load balancer under the hood.
 Nevertheless, you can perform these checks yourself.
 
 When performing these checks, you can expect one of the following `ServingStatus` responses:

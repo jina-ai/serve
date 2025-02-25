@@ -1,16 +1,23 @@
+from typing import Optional, List
+
 import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.typing import NdArray
+from docarray.typing.bytes import ImageBytes
+from docarray.typing.url import AnyUrl
+from jina import Executor, requests
 from pydantic import Field
 
-from jina import Executor, requests
+
+class TextAndImageDoc(BaseDoc):
+    text: Optional[str] = None
+    url: Optional[AnyUrl] = None
+    bytes: Optional[ImageBytes] = None
+    num_tokens: Optional[int] = None
+    input_ids: Optional[List[int]] = None
 
 
-class TextDoc(BaseDoc):
-    text: str = Field(description="The text of the document", default="")
-
-
-class EmbeddingResponseModel(TextDoc):
+class EmbeddingResponseModel(TextAndImageDoc):
     embeddings: NdArray = Field(description="The embedding of the texts", default=[])
 
     class Config(BaseDoc.Config):
@@ -19,15 +26,19 @@ class EmbeddingResponseModel(TextDoc):
         json_encoders = {NdArray: lambda v: v.tolist()}
 
 
-class SampleExecutor(Executor):
+class SampleClipExecutor(Executor):
     @requests(on="/encode")
-    def foo(self, docs: DocList[TextDoc], **kwargs) -> DocList[EmbeddingResponseModel]:
+    def foo(
+        self, docs: DocList[TextAndImageDoc], **kwargs
+    ) -> DocList[EmbeddingResponseModel]:
         ret = []
         for doc in docs:
             ret.append(
                 EmbeddingResponseModel(
                     id=doc.id,
                     text=doc.text,
+                    url=doc.url,
+                    bytes=doc.bytes,
                     embeddings=np.random.random((1, 64)),
                 )
             )

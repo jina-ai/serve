@@ -1,7 +1,7 @@
 (orchestration)=
 # {fas}`network-wired` Orchestration
 
-As seen in the {ref}`architecture overview <architecture-overview>`, Jina is organized in different layers.
+As seen in the {ref}`architecture overview <architecture-overview>`, Jina-serve is organized in different layers.
 
 The Orchestration layer is composed of concepts that let you orchestrate, serve and scale your Executors with ease.
 

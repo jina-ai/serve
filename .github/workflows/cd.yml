@@ -106,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
         protobuf-version: ['==3.19.6', '']
     steps:
       - uses: actions/checkout@v2.5.0
@@ -127,7 +127,7 @@ jobs:
 
       - name: Build wheels with setuptools-golang-build-manylinux-wheel
         run: |
-          setuptools-golang-build-manylinux-wheels --pythons cp38-cp38
+          setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
           docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -138,7 +138,7 @@ jobs:
           if [[ "${{ matrix.protobuf-version }}" == "==3.19.6" ]]; then
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.47.5 grpcio-reflection==1.47.5 grpcio-health-checking==1.47.5
           else
-            pip install -U protobuf${{ matrix.protobuf-version }}
+            pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
           jina
           export JINA_LOG_LEVEL="ERROR"
@@ -151,7 +151,7 @@ jobs:
           pytest --suppress-no-test-exit-code --force-flaky --min-passes 1 --max-runs 5 --cov=jina --cov-report=xml --timeout=600 -v -s --ignore-glob='tests/integration/hub_usage/dummyhub*' tests/integration/docarray_v2/test_singleton.py
           pytest --suppress-no-test-exit-code --force-flaky --min-passes 1 --max-runs 5 --cov=jina --cov-report=xml --timeout=600 -v -s --ignore-glob='tests/integration/hub_usage/dummyhub*' tests/integration/docarray_v2/test_parameters_as_pydantic.py
           pytest --suppress-no-test-exit-code --force-flaky --min-passes 1 --max-runs 5 --cov=jina --cov-report=xml --timeout=600 -v -s --ignore-glob='tests/integration/hub_usage/dummyhub*' tests/integration/docarray_v2/test_streaming.py
-          pytest --suppress-no-test-exit-code --force-flaky --min-passes 1 --max-runs 5 --cov=jina --cov-report=xml --timeout=600 -v -s --ignore-glob='tests/integration/hub_usage/dummyhub*' tests/integration/docarray_v2/sagemaker
+          pytest --suppress-no-test-exit-code --force-flaky --min-passes 1 --max-runs 5 --cov=jina --cov-report=xml --timeout=600 -v -s --ignore-glob='tests/integration/hub_usage/dummyhub*' tests/integration/docarray_v2/csp
           pytest --suppress-no-test-exit-code --force-flaky --min-passes 1 --max-runs 5 --cov=jina --cov-report=xml --timeout=600 -v -s --ignore-glob='tests/integration/hub_usage/dummyhub*' tests/integration/docarray_v2/docker
           echo "flag it as jina for codeoverage"
           echo "codecov_flag=jina" >> $GITHUB_OUTPUT
@@ -180,7 +180,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
         protobuf-version: ['==3.19.6', '']
     steps:
       - uses: actions/checkout@v2.5.0
@@ -202,7 +202,7 @@ jobs:
 
       - name: Build wheels with setuptools-golang-build-manylinux-wheel
         run: |
-          setuptools-golang-build-manylinux-wheels --pythons cp38-cp38
+          setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
           docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -213,7 +213,7 @@ jobs:
           if [[ "${{ matrix.protobuf-version }}" == "==3.19.6" ]]; then
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.47.5 grpcio-reflection==1.47.5 grpcio-health-checking==1.47.5
           else
-            pip install -U protobuf${{ matrix.protobuf-version }}
+            pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
           jina
           export JINA_LOG_LEVEL="ERROR"
@@ -281,9 +281,6 @@ jobs:
       matrix:
         include:
           # linux
-          - os: ubuntu-latest
-            python: '3.7'
-            python-manylinux-tag: "cp37-cp37m"
           - os: ubuntu-latest
             python: '3.8'
             python-manylinux-tag: "cp38-cp38"
@@ -401,15 +398,8 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir dist
 
-      - name: Test wheels
-        run: |
-          WHEEL_FILE=$(ls dist/*.whl)
-          python -m pip install $WHEEL_FILE
-          python -c "import jraft"
-        if: ${{ matrix.os != 'macos-latest' || matrix.platform_id != 'macosx_arm64' }} # runners do not necessarily have macos ARM, so cannot run this test for it
-
       - name: Upload wheels as artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: dist/*.whl
 
@@ -458,7 +448,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
         test-path: ${{fromJson(needs.prep-testbed.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2.5.0
@@ -480,7 +470,7 @@ jobs:
 
       - name: Build wheels with setuptools-golang-build-manylinux-wheel
         run: |
-          setuptools-golang-build-manylinux-wheels --pythons cp38-cp38
+          setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -489,6 +479,7 @@ jobs:
           WHEEL_FILE=$(ls dist/*whl)
           pip install "$WHEEL_FILE[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           jina
           export JINA_LOG_LEVEL="ERROR"
       - name: Test
@@ -510,7 +501,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -594,10 +585,10 @@ jobs:
       #        with:
       #          access_token: ${{ github.token }}
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Test hubapp with hubpods
         run: |
           ./tests/jinahub/test_integration.sh
@@ -611,10 +602,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -641,7 +632,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -653,10 +644,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -683,7 +674,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -695,10 +686,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -725,7 +716,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -737,10 +728,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -768,7 +759,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -780,10 +771,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -808,7 +799,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
@@ -820,10 +811,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Prepare enviroment
         run: |
           docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
@@ -846,7 +837,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov

@@ -266,6 +266,35 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Change Logs
 
 Jina is released on every Friday evening. The PyPi package and Docker Image will be updated, the changes of the release will be tracked by this file.
@@ -660,6 +689,34 @@ Jina is released on every Friday evening. The PyPi package and Docker Image will
 - [Release Note (`3.23.3`)](#release-note-3233)
 - [Release Note (`3.23.4`)](#release-note-3234)
 - [Release Note (`3.23.5`)](#release-note-3235)
+- [Release Note (`3.24.0`)](#release-note-3240)
+- [Release Note (`3.24.1`)](#release-note-3241)
+- [Release Note (`3.25.0`)](#release-note-3250)
+- [Release Note (`3.25.1`)](#release-note-3251)
+- [Release Note (`3.25.2`)](#release-note-3252)
+- [Release Note (`3.26.0`)](#release-note-3260)
+- [Release Note (`3.27.0`)](#release-note-3270)
+- [Release Note (`3.27.1`)](#release-note-3271)
+- [Release Note (`3.27.2`)](#release-note-3272)
+- [Release Note (`3.27.3`)](#release-note-3273)
+- [Release Note (`3.27.4`)](#release-note-3274)
+- [Release Note (`3.27.5`)](#release-note-3275)
+- [Release Note (`3.27.6`)](#release-note-3276)
+- [Release Note (`3.27.7`)](#release-note-3277)
+- [Release Note (`3.27.8`)](#release-note-3278)
+- [Release Note (`3.27.9`)](#release-note-3279)
+- [Release Note (`3.27.10`)](#release-note-32710)
+- [Release Note (`3.27.11`)](#release-note-32711)
+- [Release Note (`3.27.12`)](#release-note-32712)
+- [Release Note (`3.27.13`)](#release-note-32713)
+- [Release Note (`3.27.14`)](#release-note-32714)
+- [Release Note (`3.27.15`)](#release-note-32715)
+- [Release Note (`3.27.16`)](#release-note-32716)
+- [Release Note (`3.27.17`)](#release-note-32717)
+- [Release Note (`3.27.18`)](#release-note-32718)
+- [Release Note (`3.27.19`)](#release-note-32719)
+- [Release Note (`3.27.20`)](#release-note-32720)
+- [Release Note (`3.28.0`)](#release-note-3280)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -9521,7 +9578,7 @@ Jina is released on every Friday evening. The PyPi package and Docker Image will
  - [[```4273af8d```](https://github.com/jina-ai/jina/commit/4273af8d46394f476423fd53c6bc4054050fd9cf)] __-__ remove hub-builder success (*Han Xiao*)
  - [[```73457b17```](https://github.com/jina-ai/jina/commit/73457b17909b68c4415613ed8da78f2e6f9774a3)] __-__ hide my exec collide with other test (#2654) (*Joan Fontanals*)
  - [[```e01ed315```](https://github.com/jina-ai/jina/commit/e01ed3152509b47a896d05d1d6d59ae41acb0515)] __-__ latency-tracking adapt new release (#2595) (*Alan Zhisheng Niu*)
- - [[```7651bb44```](https://github.com/jina-ai/jina/commit/7651bb44e725002da65bda8a10d3b4477d692935)] __-__ replace docs2.jina.ai to docs.jina.ai (*Han Xiao*)
+ - [[```7651bb44```](https://github.com/jina-ai/jina/commit/7651bb44e725002da65bda8a10d3b4477d692935)] __-__ replace docs2.jina.ai to jina.ai/serve (*Han Xiao*)
  - [[```26403122```](https://github.com/jina-ai/jina/commit/264031226563e6b84073c4b3a168fa5c1e2de1d0)] __-__ fix 404 page generation in ci (*Han Xiao*)
 
 ### 🍹 Other Improvements
@@ -16542,4 +16599,627 @@ Jina is released on every Friday evening. The PyPi package and Docker Image will
 
  - [[```f008ab5f```](https://github.com/jina-ai/jina/commit/f008ab5f24866bcdd3af7865c24ccf5f5d944a1a)] __-__ __docs__: update TOC (*Jina Dev Bot*)
  - [[```c4688f9d```](https://github.com/jina-ai/jina/commit/c4688f9de3caeff538ac35dea51a4f2931b25498)] __-__ __version__: the next version will be 3.23.5 (*Jina Dev Bot*)
+
+<a name=release-note-3-24-0></a>
+## Release Note (`3.24.0`)
+
+> Release time: 2024-03-11 09:48:35
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Martinez,  Zac Li,  Jina Dev Bot,  Joan Fontanals,  🙇
+
+
+### 🆕 New Features
+
+ - [[```176f953e```](https://github.com/jina-ai/jina/commit/176f953e00f95ed15251b707cf2cb9794d712006)] __-__ support provider endpoint in jina executor (#6149) (*Zac Li*)
+
+### 🍹 Other Improvements
+
+ - [[```e2b2aaa2```](https://github.com/jina-ai/jina/commit/e2b2aaa22357578d430a1d5ac182de836613fe72)] __-__ upgrade version to 3.24.0 (*Joan Martinez*)
+ - [[```69bf8f64```](https://github.com/jina-ai/jina/commit/69bf8f64be7bcb5877628aaab908c83b6812b3f0)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```d3aecc07```](https://github.com/jina-ai/jina/commit/d3aecc0703ec0b6413ee25f6aa8813f73620182e)] __-__ blackify (#6146) (*Joan Fontanals*)
+ - [[```8762e003```](https://github.com/jina-ai/jina/commit/8762e003ecc5e12f54cf71921a93f5f19a44febe)] __-__ __version__: the next version will be 3.23.6 (*Jina Dev Bot*)
+
+<a name=release-note-3-24-1></a>
+## Release Note (`3.24.1`)
+
+> Release time: 2024-03-20 09:35:52
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```ade90842```](https://github.com/jina-ai/jina/commit/ade90842be6cd7c4fa14d07529888d3aa2bc436e)] __-__ fix issue with float (#6155) (*Joan Fontanals*)
+
+### 🧼 Code Refactoring
+
+ - [[```b5793f0b```](https://github.com/jina-ai/jina/commit/b5793f0b044256fb70c60fa5741d54cc9dd9d54c)] __-__ keep only sagemaker endpoint (#6152) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```64a01157```](https://github.com/jina-ai/jina/commit/64a0115753edec2860ece436d1a2822b434ffa98)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```e315f408```](https://github.com/jina-ai/jina/commit/e315f408d24e11ef7e1ff8ee53354819469b9528)] __-__ __version__: the next version will be 3.24.1 (*Jina Dev Bot*)
+
+<a name=release-note-3-25-0></a>
+## Release Note (`3.25.0`)
+
+> Release time: 2024-04-02 13:02:31
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Zac Li,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```b04f750a```](https://github.com/jina-ai/jina/commit/b04f750a7cf249e33cc8da0dd3c4b82b07e72918)] __-__ executor to azure custom container (#6159) (*Zac Li*)
+
+### 🍹 Other Improvements
+
+ - [[```05ea6ce5```](https://github.com/jina-ai/jina/commit/05ea6ce5b6a32c43e7b0d6ca2a15ef0901485591)] __-__ upgrade ver (#6160) (*Joan Fontanals*)
+ - [[```a3fb8e1b```](https://github.com/jina-ai/jina/commit/a3fb8e1b04c32fa0cccc3a71e992cbcf068bcf6e)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```5dec7992```](https://github.com/jina-ai/jina/commit/5dec79924bb3b423d5e0cb21e6e5ff1c74782b61)] __-__ __version__: the next version will be 3.24.2 (*Jina Dev Bot*)
+
+<a name=release-note-3-25-1></a>
+## Release Note (`3.25.1`)
+
+> Release time: 2024-04-10 14:39:02
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  dependabot[bot],  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```1ba90ee5```](https://github.com/jina-ai/jina/commit/1ba90ee5fe86fb447d92330743cded9b7a2277d4)] __-__ fix usage of input model (#6163) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```f091fd68```](https://github.com/jina-ai/jina/commit/f091fd687a9f62ccef82a5ebae47267c4379cd8a)] __-__ update black dependency (#6162) (*Joan Fontanals*)
+ - [[```95906b02```](https://github.com/jina-ai/jina/commit/95906b029b887715b0dd7d7e599fa388eeb3503e)] __-__ __deps__: bump google.golang.org/protobuf from 1.30.0 to 1.33.0 in /jina/serve/consensus (#6153) (*dependabot[bot]*)
+ - [[```49461515```](https://github.com/jina-ai/jina/commit/49461515622b6addc66e15f6da922f01451fb93e)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```8c9df630```](https://github.com/jina-ai/jina/commit/8c9df6306e71aaae98a82b890c1b820a72ecd361)] __-__ __version__: the next version will be 3.25.1 (*Jina Dev Bot*)
+
+<a name=release-note-3-25-2></a>
+## Release Note (`3.25.2`)
+
+> Release time: 2024-06-13 16:32:38
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Zac Li,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```ae142c00```](https://github.com/jina-ai/jina/commit/ae142c00e582db021e6dcd12c8ec645fe3115074)] __-__ update force-release.yml (#6172) (*Joan Fontanals*)
+ - [[```98429b05```](https://github.com/jina-ai/jina/commit/98429b055a8e2f4cfc97819cdf516ada2a23725d)] __-__ support sagemaker batch transform for clip (#6171) (*Zac Li*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```7e2247d2```](https://github.com/jina-ai/jina/commit/7e2247d277ac9169863c5ad10606c6605cdc7ed3)] __-__ update force-release.yml (#6173) (*Joan Fontanals*)
+ - [[```12e2a945```](https://github.com/jina-ai/jina/commit/12e2a945ec1c9b1090597163f94092b9d53abc10)] __-__ test ci (#6169) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```9dcd0c18```](https://github.com/jina-ai/jina/commit/9dcd0c1889904307387b58481bec79a808de40a9)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```287fa618```](https://github.com/jina-ai/jina/commit/287fa61873d761187b965eeb44d09ad471a97f7b)] __-__ __version__: the next version will be 3.25.2 (*Jina Dev Bot*)
+
+<a name=release-note-3-26-0></a>
+## Release Note (`3.26.0`)
+
+> Release time: 2024-07-10 17:04:59
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Martinez,  Joan Fontanals,  Janus,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```58e0397b```](https://github.com/jina-ai/jina/commit/58e0397be1c4a953e1da3d928a979c037cb15593)] __-__ add Python official Logging rotating handlers support (#6167) (*Janus*)
+
+### 🐞 Bug fixes
+
+ - [[```09bd7655```](https://github.com/jina-ai/jina/commit/09bd76552a6f4e3abb71b0f1aada95f6184381fa)] __-__ pass header kwargs to get openapi endpoints (#6177) (*Joan Fontanals*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```e3ea29fa```](https://github.com/jina-ai/jina/commit/e3ea29fa73949e5939e4b09392a32e3d7d1f139d)] __-__ test CSP parameters (#6176) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```ecf1dad5```](https://github.com/jina-ai/jina/commit/ecf1dad5ac9d5305298750de44fa882f4ab80509)] __-__ upgrade ver (*Joan Martinez*)
+ - [[```53ec704f```](https://github.com/jina-ai/jina/commit/53ec704fb62f6b07c5e7fae1f567b412cc07c624)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```faa8bd7d```](https://github.com/jina-ai/jina/commit/faa8bd7d6fa13a9af17d5f727066cc95ce5645b6)] __-__ __version__: the next version will be 3.25.3 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-0></a>
+## Release Note (`3.27.0`)
+
+> Release time: 2024-07-18 17:00:58
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Martinez,  Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```cf7284f8```](https://github.com/jina-ai/jina/commit/cf7284f8064c62c2f4e47012b63b5bf26f3d009e)] __-__ add flush all option to dynamic batching configuration (#6179) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```93139c3a```](https://github.com/jina-ai/jina/commit/93139c3ae90ff33b6aec4b3d99d4360faff0c461)] __-__ upgrade ver (*Joan Martinez*)
+ - [[```e0f620dc```](https://github.com/jina-ai/jina/commit/e0f620dc6a8a74bd79b315b76dc4570d10cb82a7)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```5ccbb80e```](https://github.com/jina-ai/jina/commit/5ccbb80e4f027b60ea1ba3ae0c46ae81f9426ed9)] __-__ __version__: the next version will be 3.26.1 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-1></a>
+## Release Note (`3.27.1`)
+
+> Release time: 2024-07-23 11:45:04
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```4eaeb2da```](https://github.com/jina-ai/jina/commit/4eaeb2dad4cdd0dd3701fb473effdd6464deb245)] __-__ set direct docs (#6183) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```b28c633a```](https://github.com/jina-ai/jina/commit/b28c633aa4a233011623abb9588742519d162da5)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```b0fe4102```](https://github.com/jina-ai/jina/commit/b0fe410270685486ff769c7932c6c404ffb9eba8)] __-__ __version__: the next version will be 3.27.1 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-2></a>
+## Release Note (`3.27.2`)
+
+> Release time: 2024-07-23 14:50:49
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```6e29377a```](https://github.com/jina-ai/jina/commit/6e29377a6595911750967c30dab484d5cc2800a5)] __-__ fix optim issue with optimization (#6184) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```268ceb76```](https://github.com/jina-ai/jina/commit/268ceb766d405bf7286c8ba6b8772b7488fab063)] __-__ __version__: the next version will be 3.27.2 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-3></a>
+## Release Note (`3.27.3`)
+
+> Release time: 2024-09-02 12:44:55
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```09f61da8```](https://github.com/jina-ai/jina/commit/09f61da8a96b0b45f89865447de3049a35e31984)] __-__ pass allow_concurrent to runtime_args (#6188) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```3ca71a55```](https://github.com/jina-ai/jina/commit/3ca71a5529b772c652243ba94c69d77215522abe)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```dc3ef520```](https://github.com/jina-ai/jina/commit/dc3ef520dd1a6a33720339653d1606375cc32eac)] __-__ __version__: the next version will be 3.27.3 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-4></a>
+## Release Note (`3.27.4`)
+
+> Release time: 2024-09-03 19:36:57
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```3e0943ff```](https://github.com/jina-ai/jina/commit/3e0943ffef1441bf3dcdf7ea03f3471622b9f04c)] __-__ avoid need data lock in batch queue (#6190) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```f3e34428```](https://github.com/jina-ai/jina/commit/f3e344289d22d8b20bba39296758640c122974b7)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```e8c1f00d```](https://github.com/jina-ai/jina/commit/e8c1f00d2c2b600e2322e75500ab67237837a73b)] __-__ __version__: the next version will be 3.27.4 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-5></a>
+## Release Note (`3.27.5`)
+
+> Release time: 2024-09-05 09:58:55
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```5397e430```](https://github.com/jina-ai/jina/commit/5397e430417be834a5ae0e659192cd5daf3e8b2d)] __-__ add plain handler (#6192) (*Joan Fontanals*)
+
+### 🧼 Code Refactoring
+
+ - [[```abc4ca24```](https://github.com/jina-ai/jina/commit/abc4ca24f4a36347018370050d3d5cd42190ee93)] __-__ slight change in dyn batch queue (#6193) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```bff3d1fc```](https://github.com/jina-ai/jina/commit/bff3d1fcb95299a12845d7c415f313905351b106)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```35dcf9e5```](https://github.com/jina-ai/jina/commit/35dcf9e59581a39f0a4f2012182956a4f3d31d54)] __-__ __version__: the next version will be 3.27.5 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-6></a>
+## Release Note (`3.27.6`)
+
+> Release time: 2024-09-10 08:19:23
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```533a7d8a```](https://github.com/jina-ai/jina/commit/533a7d8a45ea88ee47c5e0fa614059444de2d5e5)] __-__ handle async context manager in clientlet (#6194) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```dbb62432```](https://github.com/jina-ai/jina/commit/dbb624328c2a546a54de96470cca1826a9833719)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```762b50c6```](https://github.com/jina-ai/jina/commit/762b50c6eb968ecf85b1d7afe22025e0c6b04eb2)] __-__ __version__: the next version will be 3.27.6 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-7></a>
+## Release Note (`3.27.7`)
+
+> Release time: 2024-09-12 09:51:05
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```4c5dab7a```](https://github.com/jina-ai/jina/commit/4c5dab7a1cf128f21349ca64b5aa0664f011ab7e)] __-__ do not return response object (#6195) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```6caf84c0```](https://github.com/jina-ai/jina/commit/6caf84c09bc1c551df0bb14ad800a4c3970c859b)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```a61028bc```](https://github.com/jina-ai/jina/commit/a61028bca94021a3b4e6427565726766c3cbec74)] __-__ __version__: the next version will be 3.27.7 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-8></a>
+## Release Note (`3.27.8`)
+
+> Release time: 2024-09-15 16:24:05
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```fbdde039```](https://github.com/jina-ai/jina/commit/fbdde03928fc1c66958ab1718d3587f875f59638)] __-__ reuse session (#6196) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```a62b85e7```](https://github.com/jina-ai/jina/commit/a62b85e76bab95c379410eab5f91af5db026ab34)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```f9f08da5```](https://github.com/jina-ai/jina/commit/f9f08da535433dcd8f13a041a9e69c739db8e21d)] __-__ __version__: the next version will be 3.27.8 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-9></a>
+## Release Note (`3.27.9`)
+
+> Release time: 2024-09-15 19:37:06
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```ef11cf70```](https://github.com/jina-ai/jina/commit/ef11cf705795cbf71ad172044c2e060fc4b6331c)] __-__ readd timeout (#6199) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```50e34ca5```](https://github.com/jina-ai/jina/commit/50e34ca56be6ff2b59a4b135a8adcae4b060f9ac)] __-__ __version__: the next version will be 3.27.9 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-10></a>
+## Release Note (`3.27.10`)
+
+> Release time: 2024-09-17 12:00:15
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```be385a50```](https://github.com/jina-ai/jina/commit/be385a5009e2ee348f3fb4f963dac3a4db0aa613)] __-__ pass params to iolet (#6200) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```3223ce9f```](https://github.com/jina-ai/jina/commit/3223ce9fe4433238efae75f2e14df88527d07a48)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```be20ea83```](https://github.com/jina-ai/jina/commit/be20ea830ebd16f25a581bb844c762390d8f87c5)] __-__ __version__: the next version will be 3.27.10 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-11></a>
+## Release Note (`3.27.11`)
+
+> Release time: 2024-09-18 18:58:01
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```d17b6206```](https://github.com/jina-ai/jina/commit/d17b62063520258187970ed069053de633dd2c8a)] __-__ add custom_metric for dynamic batching (#6189) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```d4fb94d2```](https://github.com/jina-ai/jina/commit/d4fb94d245092c8bdd8f713e44a362d31b7c8f07)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```12949a5f```](https://github.com/jina-ai/jina/commit/12949a5f95b2565e47d92a045eba0b55559f14fa)] __-__ __version__: the next version will be 3.27.11 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-12></a>
+## Release Note (`3.27.12`)
+
+> Release time: 2024-09-20 06:33:17
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🏁 Unit Test and CICD
+
+ - [[```38943534```](https://github.com/jina-ai/jina/commit/389435345bef0926942e1dfb58fccdd458c74b84)] __-__ test no data lock in batch queue (#6201) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```246f5960```](https://github.com/jina-ai/jina/commit/246f5960b99750202b87b0c1b7e788fa252e3319)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```9cdb9ffc```](https://github.com/jina-ai/jina/commit/9cdb9ffc7a4d3dc22a5df6f8e17dcc9583a66ab4)] __-__ __version__: the next version will be 3.27.12 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-13></a>
+## Release Note (`3.27.13`)
+
+> Release time: 2024-09-20 09:19:17
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```d48f5a35```](https://github.com/jina-ai/jina/commit/d48f5a35abc1eb40d632f30c5a2191251a765e06)] __-__ rewrite compatible (#6202) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```77d46f71```](https://github.com/jina-ai/jina/commit/77d46f71e60643bf9a850d31e26fa9bb3662982c)] __-__ __version__: the next version will be 3.27.13 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-14></a>
+## Release Note (`3.27.14`)
+
+> Release time: 2024-09-23 14:35:28
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```338ac3f3```](https://github.com/jina-ai/jina/commit/338ac3f3ae40d21278fd79fe11b710df646acdff)] __-__ use dynamic batching param (#6203) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```434d09ec```](https://github.com/jina-ai/jina/commit/434d09ec238cd8d20ec38c241587dc71e3458f93)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```82bb7220```](https://github.com/jina-ai/jina/commit/82bb7220e03db2cca7e132e18d8bc965e0c49eba)] __-__ __version__: the next version will be 3.27.14 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-15></a>
+## Release Note (`3.27.15`)
+
+> Release time: 2024-09-25 11:07:13
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```b1139bc6```](https://github.com/jina-ai/jina/commit/b1139bc62336301b439cc6a4f69bfc81fba3e687)] __-__ dyn batching configs (#6204) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```450553a3```](https://github.com/jina-ai/jina/commit/450553a3dc163e692db148666dd082f4991984c2)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```22bdaee8```](https://github.com/jina-ai/jina/commit/22bdaee8c69fe56518505a67318d2ce36a2971f6)] __-__ __version__: the next version will be 3.27.15 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-16></a>
+## Release Note (`3.27.16`)
+
+> Release time: 2024-09-26 15:28:55
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```c933e499```](https://github.com/jina-ai/jina/commit/c933e4998a2d8bafe80851f00f3ef94cd63a5e29)] __-__ enrich logs (#6206) (*Joan Fontanals*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```eaad3233```](https://github.com/jina-ai/jina/commit/eaad323320ba8951bd17d9154a1d0adcf3e5c9d0)] __-__ add extra test for dyn batching (#6205) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```449e087c```](https://github.com/jina-ai/jina/commit/449e087c91f19223aa96fe04c0ec3a231ebaaa5e)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```35241042```](https://github.com/jina-ai/jina/commit/352410421a3def43bbb0492205a33186e207fc51)] __-__ __version__: the next version will be 3.27.16 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-17></a>
+## Release Note (`3.27.17`)
+
+> Release time: 2024-10-01 09:22:10
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```47eb5f0e```](https://github.com/jina-ai/jina/commit/47eb5f0e8e41df54b82e1214ece0890b90cb7ef5)] __-__ remove inputs state from client (#6207) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```ebbc2519```](https://github.com/jina-ai/jina/commit/ebbc25197e58116226126fc731ff394c73d5a2c4)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```1517fc7c```](https://github.com/jina-ai/jina/commit/1517fc7c93c75a428ce351add2dc886e51d90e53)] __-__ __version__: the next version will be 3.27.17 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-18></a>
+## Release Note (`3.27.18`)
+
+> Release time: 2024-10-25 16:57:06
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 📗 Documentation
+
+ - [[```d65d0c30```](https://github.com/jina-ai/jina/commit/d65d0c30e5732d14477938a018f46d33463e3d51)] __-__ fix url (*Han Xiao*)
+ - [[```99f4384a```](https://github.com/jina-ai/jina/commit/99f4384a13595cd4c687e0ff062e75e43798f05b)] __-__ fix typo (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```ce97c322```](https://github.com/jina-ai/jina/commit/ce97c322aaeca958e106458d0837927413a983b5)] __-__ replace docarray v1v2 to version number (*Han Xiao*)
+ - [[```984da92d```](https://github.com/jina-ai/jina/commit/984da92d126471a107e82fb0d77950696420be10)] __-__ update readme (*Han Xiao*)
+ - [[```32f0cb30```](https://github.com/jina-ai/jina/commit/32f0cb30dbd019cb60f24754befdfb30d2410e4a)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```1e3dd5f2```](https://github.com/jina-ai/jina/commit/1e3dd5f29b6c88548cd44a1be51d3226523cf81a)] __-__ __version__: the next version will be 3.27.18 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-19></a>
+## Release Note (`3.27.19`)
+
+> Release time: 2024-11-04 10:18:08
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Zac Li,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```92d03f08```](https://github.com/jina-ai/jina/commit/92d03f08a3ae9ff02de207418cb4cde4d9fb93a2)] __-__ fix batch handling in sagemaker for clip (#6216) (*Zac Li*)
+
+### 🍹 Other Improvements
+
+ - [[```2f65ce10```](https://github.com/jina-ai/jina/commit/2f65ce1074aeff7fd6b77c8b9cd2a0eca7e0dcbd)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```8aee3a1d```](https://github.com/jina-ai/jina/commit/8aee3a1d9dc7842425163ba36f82cb0e7f09c851)] __-__ __version__: the next version will be 3.27.19 (*Jina Dev Bot*)
+
+<a name=release-note-3-27-20></a>
+## Release Note (`3.27.20`)
+
+> Release time: 2024-11-05 09:18:22
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```a51e5eec```](https://github.com/jina-ai/jina/commit/a51e5eec4df0b80dee13fcd89044be1b42ed5c40)] __-__ fix req handling sagemaker (#6218) (*Joan Fontanals*)
+ - [[```0337bc47```](https://github.com/jina-ai/jina/commit/0337bc47b4beaf1c3ab5639bf55c88dd7c80ae7b)] __-__ test hubapp hubpods fix (#6217) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```425e5ea6```](https://github.com/jina-ai/jina/commit/425e5ea6a0f687f78d27b95e2f107c3319f499d2)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```6ddc3406```](https://github.com/jina-ai/jina/commit/6ddc34062c9a87075010c13136b1ba7f4902e666)] __-__ __version__: the next version will be 3.27.20 (*Jina Dev Bot*)
+
+<a name=release-note-3-28-0></a>
+## Release Note (`3.28.0`)
+
+> Release time: 2024-11-12 08:25:46
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🏁 Unit Test and CICD
+
+ - [[```7f3ad55d```](https://github.com/jina-ai/jina/commit/7f3ad55dc51a3398caf7e341150d15685b0065e0)] __-__ unblock grpcio version (#6198) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```6a472c8c```](https://github.com/jina-ai/jina/commit/6a472c8c49a9acbd53f49955994e349a15430fac)] __-__ update version (#6219) (*Joan Fontanals*)
+ - [[```80996ca3```](https://github.com/jina-ai/jina/commit/80996ca3a1395221fe1e8fbbb14ab45a9ea2b5af)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```6edbbb14```](https://github.com/jina-ai/jina/commit/6edbbb147eaacf7cc3248b7e10143dba6f8ece49)] __-__ __version__: the next version will be 3.27.21 (*Jina Dev Bot*)
+
+<a name=release-note-3-33-0></a>
+## Release Note (`3.33.0`)
+
+> Release time: 2024-12-20 12:13:19
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Martinez,  Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```da1d3117```](https://github.com/jina-ai/jina/commit/da1d31170b932bdde2ad611fe4577e18b2c4ea01)] __-__ change return error code (#6220) (*Joan Fontanals*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```dcacbe04```](https://github.com/jina-ai/jina/commit/dcacbe04c8e83321eabc96261b8a72f06e3d3cca)] __-__ test uvicorn non standard install (#6223) (*Joan Fontanals*)
+ - [[```0694771b```](https://github.com/jina-ai/jina/commit/0694771b6d66c269043f06a2d12768326652ce88)] __-__ force release change (*Joan Martinez*)
+ - [[```63d8d6a7```](https://github.com/jina-ai/jina/commit/63d8d6a79d41bcb602a3df9e5a577de3e2d938de)] __-__ pdate force-release.yml (#6222) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```626df92a```](https://github.com/jina-ai/jina/commit/626df92a56da4fc96a04829ee07aefb46f3568f0)] __-__ update ver (*Joan Martinez*)
+ - [[```173f421f```](https://github.com/jina-ai/jina/commit/173f421f24aa58caa52e7cda010a26cb0fa40991)] __-__ change build (#6221) (*Joan Fontanals*)
+ - [[```59f832a0```](https://github.com/jina-ai/jina/commit/59f832a023c17a9678765458f712bdaa59922e9b)] __-__ __docs__: update TOC (*Jina Dev Bot*)
+ - [[```24e16df3```](https://github.com/jina-ai/jina/commit/24e16df3e06718f2fd2fb99a465f33e71e7a248a)] __-__ __version__: the next version will be 3.28.1 (*Jina Dev Bot*)
 

@@ -45,12 +45,12 @@ async def test_flow_resource_labeling(
         'svc/gateway', NAMESPACE, svc_port=8080
     ) as gateway_port:
         from jina import Client
-
-        [docs async for docs in Client(port=gateway_port, asyncio=True).post("/")]
-
-    # Give grace period for metrics and traces to be exported
+        res = []
+        async for docs in Client(port=gateway_port, asyncio=True).post("/"):
+            res.extend(docs)
+    # # Give grace period for metrics and traces to be exported
     await asyncio.sleep(60)
-
+    #
     # Check Jaeger API
     with k8s_cluster_v2.port_forward(
         'svc/jaeger', otel_test_namespace, svc_port=16686

@@ -1,5 +1,5 @@
 # !!! An ARG declared before a FROM is outside of a build stage, so it can’t be used in any instruction after a FROM
-ARG PY_VERSION=3.7
+ARG PY_VERSION=3.10
 
 FROM python:${PY_VERSION}-slim AS jina_dep
 
@@ -27,7 +27,7 @@ LABEL org.opencontainers.image.vendor="Jina AI Limited" \
       org.opencontainers.image.description="Build multimodal AI services via cloud native technologies" \
       org.opencontainers.image.authors="hello@jina.ai" \
       org.opencontainers.image.url="https://github.com/jina-ai/jina" \
-      org.opencontainers.image.documentation="https://docs.jina.ai"
+      org.opencontainers.image.documentation="https://jina.ai/serve"
 
 # constant, wont invalidate cache
 ENV PIP_NO_CACHE_DIR=1 \

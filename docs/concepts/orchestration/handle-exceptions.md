@@ -1,9 +1,9 @@
 (flow-error-handling)=
 # Handle Exceptions
 
-When building a complex solution, things sometimes go wrong. Jina does its best to recover from failures, handle them gracefully, and report useful failure information to the user.
+When building a complex solution, things sometimes go wrong. Jina-serve does its best to recover from failures, handle them gracefully, and report useful failure information to the user.
 
-The following outlines (more or less) common failure cases, and explains how Jina responds to each.
+The following outlines (more or less) common failure cases, and explains how Jina-serve responds to each.
 
 ## Executor errors
 
@@ -77,7 +77,7 @@ A Kubernetes service mesh can enable load balancing, and thus retries, between a
 While Jina supports any service mesh, the output of `f.to_kubernetes_yaml()` already includes the necessary annotations for [Linkerd](https://linkerd.io/).
 ````
 
-If a service mesh is installed alongside Jina in the Kubernetes cluster, the following retry policy applies for each Executor:
+If a service mesh is installed alongside Jina-serve in the Kubernetes cluster, the following retry policy applies for each Executor:
 
 - Try the request at least three times, or until it succeeds
 - Distribute the requests to the replicas according to the service mesh's configuration

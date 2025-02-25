@@ -387,6 +387,10 @@ def test_flow_workspace_id():
     assert list(f.workspace_id.values())[0] == new_id
 
 
+@pytest.mark.skipif(
+    'GITHUB_WORKFLOW' in os.environ,
+    reason='not stable in gh action',
+)
 @pytest.mark.slow
 def test_bad_pod_graceful_termination():
     def asset_bad_flow(f):

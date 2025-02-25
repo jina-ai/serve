@@ -180,7 +180,7 @@ class WorkerRequestHandler:
                 'is_generator'
             ]
 
-            return self.process_single_data(request, None, is_generator=is_generator)
+            return self.process_single_data(request, None, http=True, is_generator=is_generator)
 
         app = get_fastapi_app(
             request_models_map=request_models_map, caller=call_handle, **kwargs
@@ -194,8 +194,8 @@ class WorkerRequestHandler:
 
         return extend_rest_interface(app)
 
-    def _http_fastapi_sagemaker_app(self, **kwargs):
-        from jina.serve.runtimes.worker.http_sagemaker_app import get_fastapi_app
+    def _http_fastapi_csp_app(self, **kwargs):
+        from jina.serve.runtimes.worker.http_csp_app import get_fastapi_app
 
         request_models_map = self._executor._get_endpoint_models_dict()
 
@@ -204,7 +204,7 @@ class WorkerRequestHandler:
                 'is_generator'
             ]
 
-            return self.process_single_data(request, None, is_generator=is_generator)
+            return self.process_single_data(request, None, http=True, is_generator=is_generator)
 
         app = get_fastapi_app(
             request_models_map=request_models_map, caller=call_handle, **kwargs
@@ -266,9 +266,21 @@ class WorkerRequestHandler:
         if getattr(self._executor, 'dynamic_batching', None) is not None:
             # We need to sort the keys into endpoints and functions
             # Endpoints allow specific configurations while functions allow configs to be applied to all endpoints of the function
+            self.logger.debug(
+                f'Executor Dynamic Batching configs: {self._executor.dynamic_batching}'
+            )
             dbatch_endpoints = []
             dbatch_functions = []
+            request_models_map = self._executor._get_endpoint_models_dict()
+
             for key, dbatch_config in self._executor.dynamic_batching.items():
+                if request_models_map.get(key, {}).get('parameters', {}).get('model', None) is not None:
+                    error_msg = f'Executor Dynamic Batching cannot be used for endpoint {key} because it depends on parameters.'
+                    self.logger.error(
+                        error_msg
+                    )
+                    raise Exception(error_msg)
+
                 if key.startswith('/'):
                     dbatch_endpoints.append((key, dbatch_config))
                 else:
@@ -283,15 +295,27 @@ class WorkerRequestHandler:
                 func.fn.__name__: [] for func in self._executor.requests.values()
             }
             for endpoint, func in self._executor.requests.items():
-                func_endpoints[func.fn.__name__].append(endpoint)
+                if func.fn.__name__ in func_endpoints:
+                    # For SageMaker, not all endpoints are there
+                    func_endpoints[func.fn.__name__].append(endpoint)
             for func_name, dbatch_config in dbatch_functions:
-                for endpoint in func_endpoints[func_name]:
-                    if endpoint not in self._batchqueue_config:
-                        self._batchqueue_config[endpoint] = dbatch_config
+                if func_name in func_endpoints: # For SageMaker, not all endpoints are there
+                    for endpoint in func_endpoints[func_name]:
+                        if endpoint not in self._batchqueue_config:
+                            self._batchqueue_config[endpoint] = dbatch_config
+                        else:
+                            # we need to eventually copy the `custom_metric`
+                            if dbatch_config.get('custom_metric', None) is not None:
+                                self._batchqueue_config[endpoint]['custom_metric'] = dbatch_config.get('custom_metric')
 
-            self.logger.debug(
-                f'Executor Dynamic Batching configs: {self._executor.dynamic_batching}'
-            )
+            keys_to_remove = []
+            for k, batch_config in self._batchqueue_config.items():
+                if not batch_config.get('use_dynamic_batching', True):
+                    keys_to_remove.append(k)
+
+            for k in keys_to_remove:
+                self._batchqueue_config.pop(k)
+
             self.logger.debug(
                 f'Endpoint Batch Queue Configs: {self._batchqueue_config}'
             )
@@ -393,6 +417,7 @@ class WorkerRequestHandler:
                     'metrics_registry': metrics_registry,
                     'tracer_provider': tracer_provider,
                     'meter_provider': meter_provider,
+                    'allow_concurrent': self.args.allow_concurrent,
                 },
                 py_modules=self.args.py_modules,
                 extra_search_paths=self.args.extra_search_paths,
@@ -542,7 +567,7 @@ class WorkerRequestHandler:
                 requests[0].nbytes, attributes=attributes
             )
 
-    def _set_result(self, requests, return_data, docs):
+    def _set_result(self, requests, return_data, docs, http=False):
         # assigning result back to request
         if return_data is not None:
             if isinstance(return_data, DocumentArray):
@@ -562,10 +587,12 @@ class WorkerRequestHandler:
                     f'The return type must be DocList / Dict / `None`, '
                     f'but getting {return_data!r}'
                 )
-
-        WorkerRequestHandler.replace_docs(
-            requests[0], docs, self.args.output_array_type
-        )
+        if not http:
+            WorkerRequestHandler.replace_docs(
+                requests[0], docs, self.args.output_array_type
+            )
+        else:
+            requests[0].direct_docs = docs
         return docs
 
     def _setup_req_doc_array_cls(self, requests, exec_endpoint, is_response=False):
@@ -653,11 +680,12 @@ class WorkerRequestHandler:
         )
 
     async def handle(
-        self, requests: List['DataRequest'], tracing_context: Optional['Context'] = None
+        self, requests: List['DataRequest'], http=False, tracing_context: Optional['Context'] = None
     ) -> DataRequest:
         """Initialize private parameters and execute private loading functions.
 
         :param requests: The messages to handle containing a DataRequest
+        :param http: Flag indicating if it is used by the HTTP server for some optims
         :param tracing_context: Optional OpenTelemetry tracing context from the originating request.
         :returns: the processed message
         """
@@ -695,8 +723,9 @@ class WorkerRequestHandler:
                     **self._batchqueue_config[exec_endpoint],
                 )
             # This is necessary because push might need to await for the queue to be emptied
+            # the batch queue will change the request in-place
             queue = await self._batchqueue_instances[exec_endpoint][param_key].push(
-                requests[0]
+                requests[0], http=http
             )
             item = await queue.get()
             queue.task_done()
@@ -715,7 +744,7 @@ class WorkerRequestHandler:
                 docs_map=docs_map,
                 tracing_context=tracing_context,
             )
-            _ = self._set_result(requests, return_data, docs)
+            _ = self._set_result(requests, return_data, docs, http=http)
 
         for req in requests:
             req.add_executor(self.deployment_name)
@@ -903,18 +932,19 @@ class WorkerRequestHandler:
 
     # serving part
     async def process_single_data(
-        self, request: DataRequest, context, is_generator: bool = False
+        self, request: DataRequest, context, http: bool = False, is_generator: bool = False
     ) -> DataRequest:
         """
         Process the received requests and return the result as a new request
 
         :param request: the data request to process
         :param context: grpc context
+        :param http: Flag indicating if it is used by the HTTP server for some optims
         :param is_generator: whether the request should be handled with streaming
         :returns: the response request
         """
         self.logger.debug('recv a process_single_data request')
-        return await self.process_data([request], context, is_generator=is_generator)
+        return await self.process_data([request], context, http=http, is_generator=is_generator)
 
     async def stream_doc(
         self, request: SingleDocumentRequest, context: 'grpc.aio.ServicerContext'
@@ -1053,20 +1083,20 @@ class WorkerRequestHandler:
     ) -> Optional['Context']:
         if self.tracer:
             from opentelemetry.propagate import extract
-
             context = extract(dict(metadata))
             return context
 
         return None
 
     async def process_data(
-        self, requests: List[DataRequest], context, is_generator: bool = False
+        self, requests: List[DataRequest], context, http=False, is_generator: bool = False
     ) -> DataRequest:
         """
         Process the received requests and return the result as a new request
 
         :param requests: the data requests to process
         :param context: grpc context
+        :param http: Flag indicating if it is used by the HTTP server for some optims
         :param is_generator: whether the request should be handled with streaming
         :returns: the response request
         """
@@ -1093,7 +1123,7 @@ class WorkerRequestHandler:
                     )
                 else:
                     result = await self.handle(
-                        requests=requests, tracing_context=tracing_context
+                        requests=requests, http=http, tracing_context=tracing_context
                     )
 
                 if self._successful_requests_metrics:

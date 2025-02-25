@@ -30,6 +30,7 @@ def Client(
     prefetch: Optional[int] = 1000,
     protocol: Optional[Union[str, List[str]]] = 'GRPC',
     proxy: Optional[bool] = False,
+    reuse_session: Optional[bool] = False,
     suppress_root_logging: Optional[bool] = False,
     tls: Optional[bool] = False,
     traces_exporter_host: Optional[str] = None,
@@ -59,6 +60,7 @@ def Client(
               Used to control the speed of data input into a Flow. 0 disables prefetch (1000 requests is the default)
     :param protocol: Communication protocol between server and client.
     :param proxy: If set, respect the http_proxy and https_proxy environment variables. otherwise, it will unset these proxy variables before start. gRPC seems to prefer no proxy
+    :param reuse_session: True if HTTPClient should reuse ClientSession. If true, user will be responsible to close it
     :param suppress_root_logging: If set, then no root handlers will be suppressed from logging.
     :param tls: If set, connect to gateway using tls encryption
     :param traces_exporter_host: If tracing is enabled, this hostname will be used to configure the trace exporter agent.
@@ -73,9 +75,7 @@ def Client(
     # overload_inject_end_client
 
 
-def Client(
-    args: Optional['argparse.Namespace'] = None, **kwargs
-) -> Union[
+def Client(args: Optional['argparse.Namespace'] = None, **kwargs) -> Union[
     'AsyncWebSocketClient',
     'WebSocketClient',
     'AsyncGRPCClient',
@@ -115,6 +115,7 @@ def Client(
               Used to control the speed of data input into a Flow. 0 disables prefetch (1000 requests is the default)
     :param protocol: Communication protocol between server and client.
     :param proxy: If set, respect the http_proxy and https_proxy environment variables. otherwise, it will unset these proxy variables before start. gRPC seems to prefer no proxy
+    :param reuse_session: True if HTTPClient should reuse ClientSession. If true, user will be responsible to close it
     :param suppress_root_logging: If set, then no root handlers will be suppressed from logging.
     :param tls: If set, connect to gateway using tls encryption
     :param traces_exporter_host: If tracing is enabled, this hostname will be used to configure the trace exporter agent.

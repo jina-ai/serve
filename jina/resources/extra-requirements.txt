@@ -27,9 +27,9 @@
 
 numpy:                      core
 protobuf>=3.19.0:           core
-grpcio>=1.46.0,<=1.57.0:    core
-grpcio-reflection>=1.46.0,<=1.57.0:  core
-grpcio-health-checking>=1.46.0,<=1.57.0:  core
+grpcio>=1.46.0,<=1.68.0:    core
+grpcio-reflection>=1.46.0,<=1.68.0:  core
+grpcio-health-checking>=1.46.0,<=1.68.0:  core
 pyyaml>=5.3.1:              core
 packaging>=20.0:            core
 docarray>=0.16.4:           core
@@ -39,14 +39,14 @@ opentelemetry-api>=1.12.0:  core
 opentelemetry-instrumentation-grpc>=0.35b0:  core 
 uvloop:                     perf,standard,devel
 prometheus_client>=0.12.0:  perf,standard,devel
-opentelemetry-sdk>=1.14.0,<1.20.0:  perf,standard,devel
+opentelemetry-sdk>=1.14.0:  perf,standard,devel
 opentelemetry-exporter-otlp>=1.12.0:  perf,standard,devel
 opentelemetry-exporter-prometheus>=0.33b0:  perf,standard,devel
 opentelemetry-instrumentation-aiohttp-client>=0.33b0:    perf,standard,devel
 opentelemetry-instrumentation-fastapi>=0.33b0: perf,standard,devel
 opentelemetry-exporter-otlp-proto-grpc>=1.13.0: perf,standrad,devel
 fastapi>=0.76.0:            standard,devel
-uvicorn[standard]<=0.23.1:  standard,devel
+uvicorn<=0.23.1:            standard,devel
 docker:                     standard,devel
 pathspec:                   standard,devel
 filelock:                   standard,devel
@@ -70,8 +70,8 @@ flaky:                      test
 mock:                       test
 requests-mock:              test
 pytest-custom_exit_code:    test
-black==22.3.0:              test
-kubernetes>=18.20.0:        test
+black==24.3.0:              test
+kubernetes>=18.20.0,<31.0.0: test
 pytest-kind==22.11.1:       test
 pytest-lazy-fixture:        test
 torch:                      cicd

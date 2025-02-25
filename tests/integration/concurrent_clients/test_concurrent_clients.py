@@ -23,11 +23,15 @@ class MyExecutor(Executor):
 @pytest.mark.parametrize('prefetch', [1, 10])
 @pytest.mark.parametrize('concurrent', [15])
 @pytest.mark.parametrize('use_stream', [False, True])
+@pytest.mark.parametrize('reuse_session', [True, False])
 def test_concurrent_clients(
-    concurrent, protocol, shards, polling, prefetch, reraise, use_stream
+    concurrent, protocol, shards, polling, prefetch, reraise, use_stream, reuse_session
 ):
 
     if not use_stream and protocol != 'grpc':
+        return
+
+    if reuse_session and protocol != 'http':
         return
 
     def pong(peer_hash, queue, resp: Response):
@@ -35,7 +39,7 @@ def test_concurrent_clients(
             queue.put((peer_hash, d.text))
 
     def peer_client(port, protocol, peer_hash, queue):
-        c = Client(protocol=protocol, port=port)
+        c = Client(protocol=protocol, port=port, reuse_session=reuse_session)
         for _ in range(NUM_REQUESTS):
             c.post(
                 '/ping',

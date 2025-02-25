@@ -1,11 +1,11 @@
 (docarray-support)=
 # DocArray support
 
-Jina depends heavily on DocArray to provide the data that is processed inside Jina Executors and sent by our Clients.
+Jina-serve depends heavily on DocArray to provide the data that is processed inside Jina-serve Executors and sent by our Clients.
 Recently, DocArray was heavily refactored for version 0.30. 
 
-Starting from that version, DocArray usage  has changed drastically, however Jina can work seamlessly and automatically with any of the versions of Jina.
-Jina will automatically detect the docarray version installed and use the corresponding methods and APIs. However, developers
+Starting from that version, DocArray usage  has changed drastically, however Jina-serve can work seamlessly and automatically with any of the versions of Jina-serve.
+Jina-serve will automatically detect the docarray version installed and use the corresponding methods and APIs. However, developers
 must take into account that some APIs and usages have changed, especially when it comes to developing Executors.
 
 The new version makes the dataclass feature of DocArray<0.30 a first-class citizen and for this 
@@ -22,10 +22,10 @@ Please note that also the names of data structure change in the new version of D
 
 TODO: ADD snippets for both versions
 
-On the Jina side, this flexibility extends to every Executor, where you can now customize input and output schemas:
+On the Jina-serve side, this flexibility extends to every Executor, where you can now customize input and output schemas:
 
 - With DocArray<0.30 a Document has a fixed schema in the input and the output
-- With DocArray>=0.30 (the version currently used by default in Jina), an Executor defines its own input and output schemas. 
+- With DocArray>=0.30 (the version currently used by default in Jina-serve), an Executor defines its own input and output schemas. 
 It also provides several predefined schemas that you can use out of the box.
 
 ## Executor API

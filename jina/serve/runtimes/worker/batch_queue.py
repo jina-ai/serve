@@ -1,6 +1,7 @@
 import asyncio
+import copy
 from asyncio import Event, Task
-from typing import Callable, Dict, List, Optional, TYPE_CHECKING
+from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Union
 from jina._docarray import docarray_v2
 
 if not docarray_v2:
@@ -17,16 +18,20 @@ class BatchQueue:
     """A batch queue that holds the data request and the callable to batch requests to."""
 
     def __init__(
-        self,
-        func: Callable,
-        request_docarray_cls,
-        response_docarray_cls,
-        output_array_type: Optional[str] = None,
-        params: Optional[Dict] = None,
-        preferred_batch_size: int = 4,
-        timeout: int = 10_000,
+            self,
+            func: Callable,
+            request_docarray_cls,
+            response_docarray_cls,
+            output_array_type: Optional[str] = None,
+            params: Optional[Dict] = None,
+            flush_all: bool = False,
+            preferred_batch_size: int = 4,
+            timeout: int = 10_000,
+            custom_metric: Optional[Callable[['DocumentArray'], Union[int, float]]] = None,
+            use_custom_metric: bool = False,
+            **kwargs,
     ) -> None:
-        self._data_lock = asyncio.Lock()
+        # To keep old user behavior, we use data lock when flush_all is true and no allow_concurrent
         self.func = func
         if params is None:
             params = dict()
@@ -35,7 +40,10 @@ class BatchQueue:
         self.params = params
         self._request_docarray_cls = request_docarray_cls
         self._response_docarray_cls = response_docarray_cls
+        self._flush_all = flush_all
         self._preferred_batch_size: int = preferred_batch_size
+        self._custom_metric = None if not use_custom_metric else custom_metric
+        self._metric_value = 0
         self._timeout: int = timeout
         self._reset()
         self._flush_trigger: Event = Event()
@@ -51,22 +59,25 @@ class BatchQueue:
     def _reset(self) -> None:
         """Set all events and reset the batch queue."""
         self._requests: List[DataRequest] = []
-        # a list of every request ID
+        # a list of every request idx inside self._requests
         self._request_idxs: List[int] = []
         self._request_lens: List[int] = []
+        self._docs_metrics: List[int] = []
         self._requests_completed: List[asyncio.Queue] = []
         if not docarray_v2:
             self._big_doc: DocumentArray = DocumentArray.empty()
         else:
             self._big_doc = self._request_docarray_cls()
+        self._metric_value = 0
 
         self._flush_task: Optional[Task] = None
+        self._flush_trigger: Event = Event()
 
     def _cancel_timer_if_pending(self):
         if (
-            self._timer_task
-            and not self._timer_task.done()
-            and not self._timer_task.cancelled()
+                self._timer_task
+                and not self._timer_task.done()
+                and not self._timer_task.cancelled()
         ):
             self._timer_finished = False
             self._timer_task.cancel()
@@ -82,13 +93,14 @@ class BatchQueue:
         self._flush_trigger.set()
         self._timer_finished = True
 
-    async def push(self, request: DataRequest) -> asyncio.Queue:
+    async def push(self, request: DataRequest, http=False) -> asyncio.Queue:
         """Append request to the the list of requests to be processed.
 
         This method creates an asyncio Queue for that request and keeps track of it. It returns
         this queue to the caller so that the caller can now when this request has been processed
 
         :param request: The request to append to the queue.
+        :param http: Flag to determine if the request is served via HTTP for some optims
 
         :return: The queue that will receive when the request is processed.
         """
@@ -99,30 +111,37 @@ class BatchQueue:
             # this push requests the data lock. The order of accessing the data lock guarantees that this request will be put in the `big_doc`
             # before the `flush` task processes it.
             self._start_timer()
-        async with self._data_lock:
-            if not self._flush_task:
-                self._flush_task = asyncio.create_task(self._await_then_flush())
-
-            self._big_doc.extend(docs)
-            next_req_idx = len(self._requests)
-            num_docs = len(docs)
-            self._request_idxs.extend([next_req_idx] * num_docs)
-            self._request_lens.append(len(docs))
-            self._requests.append(request)
-            queue = asyncio.Queue()
-            self._requests_completed.append(queue)
-            if len(self._big_doc) >= self._preferred_batch_size:
-                self._flush_trigger.set()
+        if not self._flush_task:
+            self._flush_task = asyncio.create_task(self._await_then_flush(http))
+        self._big_doc.extend(docs)
+        next_req_idx = len(self._requests)
+        num_docs = len(docs)
+        metric_value = num_docs
+        if self._custom_metric is not None:
+            metrics = [self._custom_metric(doc) for doc in docs]
+            metric_value += sum(metrics)
+            self._docs_metrics.extend(metrics)
+        self._metric_value += metric_value
+        self._request_idxs.extend([next_req_idx] * num_docs)
+        self._request_lens.append(num_docs)
+        self._requests.append(request)
+        queue = asyncio.Queue()
+        self._requests_completed.append(queue)
+        if self._metric_value >= self._preferred_batch_size:
+            self._flush_trigger.set()
 
         return queue
 
-    async def _await_then_flush(self) -> None:
-        """Process all requests in the queue once flush_trigger event is set."""
+    async def _await_then_flush(self, http=False) -> None:
+        """Process all requests in the queue once flush_trigger event is set.
+        :param http: Flag to determine if the request is served via HTTP for some optims
+        """
 
         def _get_docs_groups_completed_request_indexes(
-            non_assigned_docs,
-            non_assigned_docs_reqs_idx,
-            sum_from_previous_mini_batch_in_first_req_idx,
+                non_assigned_docs,
+                non_assigned_docs_reqs_idx,
+                sum_from_previous_mini_batch_in_first_req_idx,
+                requests_lens_in_batch,
         ):
             """
             This method groups all the `non_assigned_docs` into groups of docs according to the `req_idx` they belong to.
@@ -131,6 +150,7 @@ class BatchQueue:
             :param non_assigned_docs: The documents that have already been processed but have not been assigned to a request result
             :param non_assigned_docs_reqs_idx: The request IDX that are not yet completed (not all of its docs have been processed)
             :param sum_from_previous_mini_batch_in_first_req_idx: The number of docs from previous iteration that belong to the first non_assigned_req_idx. This is useful to make sure we know when a request is completed.
+            :param requests_lens_in_batch: List of lens of documents for each request in the batch.
 
             :return: list of document groups and a list of request Idx to which each of these groups belong
             """
@@ -146,9 +166,9 @@ class BatchQueue:
                 )
                 if req_idx > min_involved_req_idx:
                     request_bucket = non_assigned_docs[
-                        num_distributed_docs : num_distributed_docs
-                        + num_docs_in_req_idx
-                    ]
+                                     num_distributed_docs: num_distributed_docs
+                                                           + num_docs_in_req_idx
+                                     ]
                     num_distributed_docs += num_docs_in_req_idx
                     completed_req_idx.append(min_involved_req_idx)
                     min_involved_req_idx = req_idx
@@ -157,22 +177,25 @@ class BatchQueue:
                 num_docs_in_req_idx += 1
 
             if (
-                req_idx not in completed_req_idx
-                and num_docs_in_req_idx + sum_from_previous_mini_batch_in_first_req_idx
-                == self._request_lens[req_idx]
+                    req_idx not in completed_req_idx
+                    and num_docs_in_req_idx + sum_from_previous_mini_batch_in_first_req_idx
+                    == requests_lens_in_batch[req_idx]
             ):
                 completed_req_idx.append(req_idx)
                 request_bucket = non_assigned_docs[
-                    num_distributed_docs : num_distributed_docs + num_docs_in_req_idx
-                ]
+                                 num_distributed_docs: num_distributed_docs + num_docs_in_req_idx
+                                 ]
                 distributed_requests.append(request_bucket)
 
             return distributed_requests, completed_req_idx
 
         async def _assign_results(
-            non_assigned_docs,
-            non_assigned_docs_reqs_idx,
-            sum_from_previous_mini_batch_in_first_req_idx,
+                non_assigned_docs,
+                non_assigned_docs_reqs_idx,
+                sum_from_previous_mini_batch_in_first_req_idx,
+                requests_lens_in_batch,
+                requests_in_batch,
+                requests_completed_in_batch,
         ):
             """
             This method aims to assign to the corresponding request objects the resulting documents from the mini batches.
@@ -182,6 +205,9 @@ class BatchQueue:
             :param non_assigned_docs: The documents that have already been processed but have not been assigned to a request result
             :param non_assigned_docs_reqs_idx: The request IDX that are not yet completed (not all of its docs have been processed)
             :param sum_from_previous_mini_batch_in_first_req_idx: The number of docs from previous iteration that belong to the first non_assigned_req_idx. This is useful to make sure we know when a request is completed.
+            :param requests_lens_in_batch: List of lens of documents for each request in the batch.
+            :param requests_in_batch: List requests in batch
+            :param requests_completed_in_batch: List of queues for requests to be completed
 
             :return: amount of assigned documents so that some documents can come back in the next iteration
             """
@@ -192,113 +218,149 @@ class BatchQueue:
                 non_assigned_docs,
                 non_assigned_docs_reqs_idx,
                 sum_from_previous_mini_batch_in_first_req_idx,
+                requests_lens_in_batch
             )
             num_assigned_docs = sum(len(group) for group in docs_grouped)
 
             for docs_group, request_idx in zip(docs_grouped, completed_req_idxs):
-                request = self._requests[request_idx]
-                request_completed = self._requests_completed[request_idx]
-                request.data.set_docs_convert_arrays(
-                    docs_group, ndarray_type=self._output_array_type
-                )
+                request = requests_in_batch[request_idx]
+                request_completed = requests_completed_in_batch[request_idx]
+                if http is False or self._output_array_type is not None:
+                    request.direct_docs = None  # batch queue will work in place, therefore result will need to read from data.
+                    request.data.set_docs_convert_arrays(
+                        docs_group, ndarray_type=self._output_array_type
+                    )
+                else:
+                    request.direct_docs = docs_group
                 await request_completed.put(None)
 
             return num_assigned_docs
 
-        def batch(iterable_1, iterable_2, n=1):
-            items = len(iterable_1)
-            for ndx in range(0, items, n):
-                yield iterable_1[ndx : min(ndx + n, items)], iterable_2[
-                    ndx : min(ndx + n, items)
-                ]
+        def batch(iterable_1, iterable_2, n: Optional[int] = 1, iterable_metrics: Optional = None):
+            if n is None:
+                yield iterable_1, iterable_2
+                return
+            elif iterable_metrics is None:
+                items = len(iterable_1)
+                for ndx in range(0, items, n):
+                    yield iterable_1[ndx: min(ndx + n, items)], iterable_2[
+                                                                ndx: min(ndx + n, items)
+                                                                ]
+            else:
+                batch_idx = 0
+                batch_weight = 0
+
+                for i, (item, weight) in enumerate(zip(iterable_1, iterable_metrics)):
+                    batch_weight += weight
+
+                    if batch_weight >= n:
+                        yield iterable_1[batch_idx: i + 1], iterable_2[batch_idx: i + 1]
+                        batch_idx = i + 1
+                        batch_weight = 0
+
+                # Yield any remaining items
+                if batch_weight > 0:
+                    yield iterable_1[batch_idx: len(iterable_1)], iterable_2[batch_idx: len(iterable_1)]
 
         await self._flush_trigger.wait()
         # writes to shared data between tasks need to be mutually exclusive
-        async with self._data_lock:
-            # At this moment, we have documents concatenated in self._big_doc corresponding to requests in
-            # self._requests with its lengths stored in self._requests_len. For each requests, there is a queue to
-            # communicate that the request has been processed properly. At this stage the data_lock is ours and
-            # therefore no-one can add requests to this list.
-            self._flush_trigger: Event = Event()
+        big_doc_in_batch = copy.copy(self._big_doc)
+        requests_idxs_in_batch = copy.copy(self._request_idxs)
+        requests_lens_in_batch = copy.copy(self._request_lens)
+        docs_metrics_in_batch = copy.copy(self._docs_metrics)
+        requests_in_batch = copy.copy(self._requests)
+        requests_completed_in_batch = copy.copy(self._requests_completed)
+
+        self._reset()
+
+        # At this moment, we have documents concatenated in big_doc_in_batch corresponding to requests in
+        # requests_idxs_in_batch with its lengths stored in requests_lens_in_batch. For each requests, there is a queue to
+        # communicate that the request has been processed properly.
+
+        if not docarray_v2:
+            non_assigned_to_response_docs: DocumentArray = DocumentArray.empty()
+        else:
+            non_assigned_to_response_docs = self._response_docarray_cls()
+
+        non_assigned_to_response_request_idxs = []
+        sum_from_previous_first_req_idx = 0
+        for docs_inner_batch, req_idxs in batch(
+                big_doc_in_batch, requests_idxs_in_batch,
+                self._preferred_batch_size if not self._flush_all else None,
+                docs_metrics_in_batch if self._custom_metric is not None else None
+        ):
+            involved_requests_min_indx = req_idxs[0]
+            involved_requests_max_indx = req_idxs[-1]
+            input_len_before_call: int = len(docs_inner_batch)
+            batch_res_docs = None
             try:
-                if not docarray_v2:
-                    non_assigned_to_response_docs: DocumentArray = DocumentArray.empty()
-                else:
-                    non_assigned_to_response_docs = self._response_docarray_cls()
-
-                non_assigned_to_response_request_idxs = []
-                sum_from_previous_first_req_idx = 0
-                for docs_inner_batch, req_idxs in batch(
-                    self._big_doc, self._request_idxs, self._preferred_batch_size
+                batch_res_docs = await self.func(
+                    docs=docs_inner_batch,
+                    parameters=self.params,
+                    docs_matrix=None,  # joining manually with batch queue is not supported right now
+                    tracing_context=None,
+                )
+                # Output validation
+                if (docarray_v2 and isinstance(batch_res_docs, DocList)) or (
+                        not docarray_v2
+                        and isinstance(batch_res_docs, DocumentArray)
                 ):
-                    involved_requests_min_indx = req_idxs[0]
-                    involved_requests_max_indx = req_idxs[-1]
-                    input_len_before_call: int = len(docs_inner_batch)
-                    batch_res_docs = None
-                    try:
-                        batch_res_docs = await self.func(
-                            docs=docs_inner_batch,
-                            parameters=self.params,
-                            docs_matrix=None,  # joining manually with batch queue is not supported right now
-                            tracing_context=None,
+                    if not len(batch_res_docs) == input_len_before_call:
+                        raise ValueError(
+                            f'Dynamic Batching requires input size to equal output size. Expected output size {input_len_before_call}, but got {len(batch_res_docs)}'
                         )
-                        # Output validation
-                        if (docarray_v2 and isinstance(batch_res_docs, DocList)) or (
-                            not docarray_v2
-                            and isinstance(batch_res_docs, DocumentArray)
-                        ):
-                            if not len(batch_res_docs) == input_len_before_call:
-                                raise ValueError(
-                                    f'Dynamic Batching requires input size to equal output size. Expected output size {input_len_before_call}, but got {len(batch_res_docs)}'
-                                )
-                        elif batch_res_docs is None:
-                            if not len(docs_inner_batch) == input_len_before_call:
-                                raise ValueError(
-                                    f'Dynamic Batching requires input size to equal output size. Expected output size {input_len_before_call}, but got {len(docs_inner_batch)}'
-                                )
-                        else:
-                            array_name = (
-                                'DocumentArray' if not docarray_v2 else 'DocList'
-                            )
-                            raise TypeError(
-                                f'The return type must be {array_name} / `None` when using dynamic batching, '
-                                f'but getting {batch_res_docs!r}'
-                            )
-                    except Exception as exc:
-                        # All the requests containing docs in this Exception should be raising it
-                        for request_full in self._requests_completed[
-                            involved_requests_min_indx : involved_requests_max_indx + 1
-                        ]:
-                            await request_full.put(exc)
-                    else:
-                        # We need to attribute the docs to their requests
-                        non_assigned_to_response_docs.extend(
-                            batch_res_docs or docs_inner_batch
+                elif batch_res_docs is None:
+                    if not len(docs_inner_batch) == input_len_before_call:
+                        raise ValueError(
+                            f'Dynamic Batching requires input size to equal output size. Expected output size {input_len_before_call}, but got {len(docs_inner_batch)}'
                         )
-                        non_assigned_to_response_request_idxs.extend(req_idxs)
-                        num_assigned_docs = await _assign_results(
-                            non_assigned_to_response_docs,
-                            non_assigned_to_response_request_idxs,
-                            sum_from_previous_first_req_idx,
-                        )
-
-                        sum_from_previous_first_req_idx = (
-                            len(non_assigned_to_response_docs) - num_assigned_docs
-                        )
-                        non_assigned_to_response_docs = non_assigned_to_response_docs[
-                            num_assigned_docs:
-                        ]
-                        non_assigned_to_response_request_idxs = (
-                            non_assigned_to_response_request_idxs[num_assigned_docs:]
-                        )
-                if len(non_assigned_to_response_request_idxs) > 0:
-                    _ = await _assign_results(
-                        non_assigned_to_response_docs,
-                        non_assigned_to_response_request_idxs,
-                        sum_from_previous_first_req_idx,
+                else:
+                    array_name = (
+                        'DocumentArray' if not docarray_v2 else 'DocList'
                     )
-            finally:
-                self._reset()
+                    raise TypeError(
+                        f'The return type must be {array_name} / `None` when using dynamic batching, '
+                        f'but getting {batch_res_docs!r}'
+                    )
+            except Exception as exc:
+                # All the requests containing docs in this Exception should be raising it
+                for request_full in requests_completed_in_batch[
+                                    involved_requests_min_indx: involved_requests_max_indx + 1
+                                    ]:
+                    await request_full.put(exc)
+            else:
+                # We need to attribute the docs to their requests
+                non_assigned_to_response_docs.extend(
+                    batch_res_docs or docs_inner_batch
+                )
+                non_assigned_to_response_request_idxs.extend(req_idxs)
+                num_assigned_docs = await _assign_results(
+                    non_assigned_to_response_docs,
+                    non_assigned_to_response_request_idxs,
+                    sum_from_previous_first_req_idx,
+                    requests_lens_in_batch,
+                    requests_in_batch,
+                    requests_completed_in_batch,
+                )
+
+                sum_from_previous_first_req_idx = (
+                        len(non_assigned_to_response_docs) - num_assigned_docs
+                )
+                non_assigned_to_response_docs = non_assigned_to_response_docs[
+                                                num_assigned_docs:
+                                                ]
+                non_assigned_to_response_request_idxs = (
+                    non_assigned_to_response_request_idxs[num_assigned_docs:]
+                )
+        if len(non_assigned_to_response_request_idxs) > 0:
+            _ = await _assign_results(
+                non_assigned_to_response_docs,
+                non_assigned_to_response_request_idxs,
+                sum_from_previous_first_req_idx,
+                requests_lens_in_batch,
+                requests_in_batch,
+                requests_completed_in_batch,
+            )
 
     async def close(self):
         """Closes the batch queue by flushing pending requests."""

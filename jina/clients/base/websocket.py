@@ -108,12 +108,11 @@ class WebSocketBaseClient(BaseClient):
         with ImportExtensions(required=True):
             pass
 
-        self.inputs = inputs
-        request_iterator = self._get_requests(**kwargs)
+        request_iterator, inputs_length = self._get_requests(inputs=inputs, **kwargs)
 
         async with AsyncExitStack() as stack:
             cm1 = ProgressBar(
-                total_length=self._inputs_length, disable=not (self.show_progress)
+                total_length=inputs_length, disable=not (self.show_progress)
             )
             p_bar = stack.enter_context(cm1)
 

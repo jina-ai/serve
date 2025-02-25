@@ -145,7 +145,7 @@ def test_flow_returned_collect(protocol, port_generator):
     def validate_func(resp):
         num_evaluations = 0
         scores = set()
-        for doc in resp.data.docs:
+        for doc in resp.docs:
             num_evaluations += len(doc.evaluations)
             scores.add(doc.evaluations['evaluate'].value)
         assert num_evaluations == 1

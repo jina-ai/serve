@@ -1,7 +1,7 @@
 (python-yaml)=
 # Coding in Python/YAML
 
-In the docs, you often see two coding styles when describing a Jina project: 
+In the docs, you often see two coding styles when describing a Jina-serve project: 
 
 ```{glossary}
 

@@ -13,7 +13,10 @@ import asyncio
 )
 @pytest.mark.parametrize('return_type', ['batch', 'singleton'])
 @pytest.mark.parametrize('include_gateway', [True, False])
-def test_singleton_return(ctxt_manager, protocols, return_type, include_gateway):
+@pytest.mark.parametrize('reuse_session', [True, False])
+def test_singleton_return(ctxt_manager, protocols, return_type, include_gateway, reuse_session):
+    if reuse_session and 'http' not in protocols:
+        return
     if 'websocket' in protocols and ctxt_manager != 'flow':
         return
     if not include_gateway and ctxt_manager == 'flow':
@@ -63,7 +66,7 @@ def test_singleton_return(ctxt_manager, protocols, return_type, include_gateway)
 
     with ctxt:
         for port, protocol in zip(ports, protocols):
-            c = Client(port=port, protocol=protocol)
+            c = Client(port=port, protocol=protocol, reuse_session=reuse_session)
             docs = c.post(
                 on='/foo',
                 inputs=MySingletonReturnInputDoc(text='hello', price=2),
@@ -102,7 +105,10 @@ def test_singleton_return(ctxt_manager, protocols, return_type, include_gateway)
     'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http']]
 )
 @pytest.mark.parametrize('return_type', ['batch', 'singleton'])
-def test_singleton_return_async(ctxt_manager, protocols, return_type):
+@pytest.mark.parametrize('reuse_session', [True, False])
+def test_singleton_return_async(ctxt_manager, protocols, return_type, reuse_session):
+    if reuse_session and 'http' not in protocols:
+        return
     if 'websocket' in protocols and ctxt_manager != 'flow':
         return
 
@@ -149,7 +155,7 @@ def test_singleton_return_async(ctxt_manager, protocols, return_type):
 
     with ctxt:
         for port, protocol in zip(ports, protocols):
-            c = Client(port=port, protocol=protocol)
+            c = Client(port=port, protocol=protocol, reuse_session=reuse_session)
             docs = c.post(
                 on='/foo',
                 inputs=MySingletonReturnInputDoc(text='hello', price=2),

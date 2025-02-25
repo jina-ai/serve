@@ -7,6 +7,7 @@ from jina.importer import ImportExtensions
 from jina.serve.networking.sse import EventSourceResponse
 from jina.types.request.data import DataRequest
 
+
 if TYPE_CHECKING:
     from jina.logging.logger import JinaLogger
 
@@ -32,7 +33,7 @@ def get_fastapi_app(
     :return: fastapi app
     """
     with ImportExtensions(required=True):
-        from fastapi import FastAPI, Response, HTTPException
+        from fastapi import FastAPI, Response, HTTPException, status as http_status
         import pydantic
         from fastapi.middleware.cors import CORSMiddleware
     import os
@@ -90,7 +91,6 @@ def get_fastapi_app(
 
         @app.api_route(**app_kwargs)
         async def post(body: input_model, response: Response):
-
             req = DataRequest()
             if body.header is not None:
                 req.header.request_id = body.header.request_id
@@ -101,16 +101,16 @@ def get_fastapi_app(
             data = body.data
             if isinstance(data, list):
                 if not docarray_v2:
-                    req.data.docs = DocumentArray.from_pydantic_model(data)
+                    req.direct_docs = DocumentArray.from_pydantic_model(data)
                 else:
                     req.document_array_cls = DocList[input_doc_model]
-                    req.data.docs = DocList[input_doc_list_model](data)
+                    req.direct_docs = DocList[input_doc_list_model](data)
             else:
                 if not docarray_v2:
-                    req.data.docs = DocumentArray([Document.from_pydantic_model(data)])
+                    req.direct_docs = DocumentArray([Document.from_pydantic_model(data)])
                 else:
                     req.document_array_cls = DocList[input_doc_model]
-                    req.data.docs = DocList[input_doc_list_model]([data])
+                    req.direct_docs = DocList[input_doc_list_model]([data])
                 if body.header is None:
                     req.header.request_id = req.docs[0].id
 
@@ -118,13 +118,14 @@ def get_fastapi_app(
             status = resp.header.status
 
             if status.code == jina_pb2.StatusProto.ERROR:
-                raise HTTPException(status_code=499, detail=status.description)
+                raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail=status.description)
             else:
                 if not docarray_v2:
                     docs_response = resp.docs.to_dict()
                 else:
                     docs_response = resp.docs
                 ret = output_model(data=docs_response, parameters=resp.parameters)
+
                 return ret
 
     def add_streaming_routes(
@@ -152,10 +153,10 @@ def get_fastapi_app(
             req = DataRequest()
             req.header.exec_endpoint = endpoint_path
             if not docarray_v2:
-                req.data.docs = DocumentArray([body])
+                req.direct_docs = DocumentArray([body])
             else:
                 req.document_array_cls = DocList[input_doc_model]
-                req.data.docs = DocList[input_doc_model]([body])
+                req.direct_docs = DocList[input_doc_model]([body])
             event_generator = _gen_dict_documents(await caller(req))
             return EventSourceResponse(event_generator)
 
@@ -164,10 +165,21 @@ def get_fastapi_app(
             input_doc_model = input_output_map['input']['model']
             output_doc_model = input_output_map['output']['model']
             is_generator = input_output_map['is_generator']
-            parameters_model = input_output_map['parameters']['model'] or Optional[Dict]
-            default_parameters = (
-                ... if input_output_map['parameters']['model'] else None
-            )
+            parameters_model = input_output_map['parameters']['model']
+            parameters_model_needed = parameters_model is not None
+            if parameters_model_needed:
+                try:
+                    _ = parameters_model()
+                    parameters_model_needed = False
+                except:
+                    parameters_model_needed = True
+                parameters_model = parameters_model if parameters_model_needed else Optional[parameters_model]
+                default_parameters = (
+                    ... if parameters_model_needed else None
+                )
+            else:
+                parameters_model = Optional[Dict]
+                default_parameters = None
 
             if docarray_v2:
                 if not is_pydantic_v2:

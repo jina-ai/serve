@@ -23,7 +23,10 @@ class MyExecutor(Executor):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('protocol', ['http', 'grpc'])
 @pytest.mark.parametrize('include_gateway', [False, True])
-async def test_streaming_deployment(protocol, include_gateway):
+@pytest.mark.parametrize('reuse_session', [False, True])
+async def test_streaming_deployment(protocol, include_gateway, reuse_session):
+    if reuse_session and protocol != 'http':
+        return
 
     port = random_port()
     docs = []
@@ -35,7 +38,7 @@ async def test_streaming_deployment(protocol, include_gateway):
         port=port,
         include_gateway=include_gateway,
     ):
-        client = Client(port=port, protocol=protocol, asyncio=True)
+        client = Client(port=port, protocol=protocol, asyncio=True, reuse_session=reuse_session)
         i = 0
         async for doc in client.stream_doc(
             on='/hello',
@@ -60,7 +63,10 @@ class WaitStreamExecutor(Executor):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('protocol', ['http', 'grpc'])
 @pytest.mark.parametrize('include_gateway', [False, True])
-async def test_streaming_delay(protocol, include_gateway):
+@pytest.mark.parametrize('reuse_session', [False, True])
+async def test_streaming_delay(protocol, include_gateway, reuse_session):
+    if reuse_session and protocol != 'http':
+        return
     from jina import Deployment
 
     port = random_port()
@@ -72,7 +78,7 @@ async def test_streaming_delay(protocol, include_gateway):
         port=port,
         include_gateway=include_gateway,
     ):
-        client = Client(port=port, protocol=protocol, asyncio=True)
+        client = Client(port=port, protocol=protocol, asyncio=True, reuse_session=reuse_session)
         i = 0
         start_time = time.time()
         async for doc in client.stream_doc(

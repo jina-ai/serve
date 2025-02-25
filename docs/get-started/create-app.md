@@ -1,6 +1,6 @@
 # {fas}`folder-plus` Create First Project
 
-Let's build a toy application with Jina. To start, use Jina CLI to make a new Deployment or a Flow: 
+Let's build a toy application with Jina-serve. To start, use Jina-serve CLI to make a new Deployment or a Flow: 
 
 ## Create a Deployment or Flow
 
@@ -12,7 +12,7 @@ A {ref}`Deployment <deployment>` lets you serve and scale a single model or micr
 jina new hello-jina --type=deployment
 ```
 
-This creates a new project folder called `hello-jina` with the following file structure:
+This creates a new project folder called `hello-jina-serve` with the following file structure:
 
 ```text
 hello-jina/
@@ -63,7 +63,7 @@ jina deployment --uses deployment.yml
 jina new hello-jina --type=flow
 ```
 
-This creates a new project folder called `hello-jina` with the following file structure:
+This creates a new project folder called `hello-jina-serve` with the following file structure:
 
 ```text
 hello-jina/
@@ -77,7 +77,7 @@ hello-jina/
 - `flow.yml` is the configuration file for the Flow`.
 - `executor1/` is where you write your {ref}`Executor <executor-cookbook>` code.
 - `config.yml` is the configuration file for the Executor. It stores metadata for your Executor, as well as dependencies.
-- `client.py` is the entrypoint of your Jina project. You can run it via `python app.py`.
+- `client.py` is the entrypoint of your Jina-serve project. You can run it via `python app.py`.
 
 There are some other files like `README.md` and `requirements.txt` to provide extra metadata about that Executor. More information {ref}`can be found here<create-executor>`.
 
@@ -86,7 +86,7 @@ Now run it and observe the output of the server and client:
 ## Launch Flow
 
 ```shell
-jina flow --uses flow.yml
+jina-serve flow --uses flow.yml
 ```
 
 ```shell
@@ -213,7 +213,7 @@ At present, JCloud is only available for Flows. We are currently working on supp
 ```
 
 ```bash
-jina auth login
+jina-serve auth login
 ```
 
 Log in with your GitHub, Google or Email account:
@@ -295,4 +295,4 @@ jina cloud flow remove 1655d050ad
 Successfully removed Flow 1655d050ad.
 ```
 
-You've just finished your first toy Jina project, congratulations! You can now start your own project.
+You've just finished your first toy Jina-serve project, congratulations! You can now start your own project.

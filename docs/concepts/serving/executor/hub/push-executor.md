@@ -16,9 +16,9 @@ jina hub push [--public/--private] <path_to_executor_folder>
 
 <script id="asciicast-tpvuZ9u0lU2IumRyLlly3JI93" src="https://asciinema.org/a/tpvuZ9u0lU2IumRyLlly3JI93.js" async></script>
 
-If you have logged into Jina, it will return a `TASK_ID`. You need that to get your Executor's build status and logs. 
+If you have logged into Jina-serve, it will return a `TASK_ID`. You need that to get your Executor's build status and logs. 
 
-If you haven't logged into Jina, it will return `NAME` and `SECRET`. You need them to use (if the Executor is private) or update the Executor. **Please keep them safe.**
+If you haven't logged into Jina-serve, it will return `NAME` and `SECRET`. You need them to use (if the Executor is private) or update the Executor. **Please keep them safe.**
 
 ````{admonition} Note
 :class: note

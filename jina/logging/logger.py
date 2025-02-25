@@ -108,7 +108,7 @@ class JinaLogger:
     :return:: an executor object.
     """
 
-    supported = {'FileHandler', 'StreamHandler', 'SysLogHandler', 'RichHandler'}
+    supported = {'FileHandler', 'StreamHandler', 'SysLogHandler', 'RichHandler', 'TimedRotatingFileHandler', 'RotatingFileHandler'}
 
     def __init__(
         self,
@@ -246,6 +246,27 @@ class JinaLogger:
                 handler = logging.FileHandler(filename, delay=True)
                 handler.setFormatter(fmt(cfg['format'].format_map(kwargs)))
 
+            elif h == 'TimedRotatingFileHandler':
+                filename = cfg['filename'].format_map(kwargs)
+                handler = logging.handlers.TimedRotatingFileHandler(
+                    filename=filename,
+                    when=cfg['when'],
+                    interval=cfg['interval'],
+                    backupCount=cfg['backupCount'],
+                    encoding=cfg.get('encoding', 'utf-8')
+                )
+                handler.setFormatter(fmt(cfg['format'].format_map(kwargs)))
+
+            elif h == 'RotatingFileHandler':
+                filename = cfg['filename'].format_map(kwargs)
+                handler = logging.handlers.RotatingFileHandler(
+                    filename=filename,
+                    maxBytes=cfg['maxBytes'],
+                    backupCount=cfg['backupCount'],
+                    encoding=cfg.get('encoding', 'utf-8')
+                )
+                handler.setFormatter(fmt(cfg['format'].format_map(kwargs)))
+            
             if handler:
                 self.logger.addHandler(handler)
 

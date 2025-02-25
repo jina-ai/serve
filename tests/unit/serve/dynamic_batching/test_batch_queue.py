@@ -9,7 +9,8 @@ from jina.types.request.data import DataRequest
 
 
 @pytest.mark.asyncio
-async def test_batch_queue_timeout():
+@pytest.mark.parametrize('flush_all', [False, True])
+async def test_batch_queue_timeout(flush_all):
     async def foo(docs, **kwargs):
         await asyncio.sleep(0.1)
         return DocumentArray([Document(text='Done') for _ in docs])
@@ -20,12 +21,13 @@ async def test_batch_queue_timeout():
         response_docarray_cls=DocumentArray,
         preferred_batch_size=4,
         timeout=2000,
+        flush_all=flush_all,
     )
 
     three_data_requests = [DataRequest() for _ in range(3)]
     for req in three_data_requests:
         req.data.docs = DocumentArray.empty(1)
-        assert req.data.docs[0].text == ''
+        assert req.docs[0].text == ''
 
     async def process_request(req):
         q = await bq.push(req)
@@ -40,12 +42,12 @@ async def test_batch_queue_timeout():
     assert time_spent >= 2000
     # Test that since no more docs arrived, the function was triggerred after timeout
     for resp in responses:
-        assert resp.data.docs[0].text == 'Done'
+        assert resp.docs[0].text == 'Done'
 
     four_data_requests = [DataRequest() for _ in range(4)]
     for req in four_data_requests:
         req.data.docs = DocumentArray.empty(1)
-        assert req.data.docs[0].text == ''
+        assert req.docs[0].text == ''
     init_time = time.time()
     tasks = [asyncio.create_task(process_request(req)) for req in four_data_requests]
     responses = await asyncio.gather(*tasks)
@@ -53,13 +55,14 @@ async def test_batch_queue_timeout():
     assert time_spent < 2000
     # Test that since no more docs arrived, the function was triggerred after timeout
     for resp in responses:
-        assert resp.data.docs[0].text == 'Done'
+        assert resp.docs[0].text == 'Done'
 
     await bq.close()
 
 
 @pytest.mark.asyncio
-async def test_batch_queue_timeout_does_not_wait_previous_batch():
+@pytest.mark.parametrize('flush_all', [False, True])
+async def test_batch_queue_timeout_does_not_wait_previous_batch(flush_all):
     batches_lengths_computed = []
 
     async def foo(docs, **kwargs):
@@ -73,6 +76,7 @@ async def test_batch_queue_timeout_does_not_wait_previous_batch():
         response_docarray_cls=DocumentArray,
         preferred_batch_size=5,
         timeout=3000,
+        flush_all=flush_all,
     )
 
     data_requests = [DataRequest() for _ in range(3)]
@@ -93,19 +97,26 @@ async def test_batch_queue_timeout_does_not_wait_previous_batch():
     init_time = time.time()
     tasks = [asyncio.create_task(process_request(req)) for req in data_requests]
     tasks.append(asyncio.create_task(process_request(extra_data_request, sleep=2)))
-    responses = await asyncio.gather(*tasks)
+    _ = await asyncio.gather(*tasks)
     time_spent = (time.time() - init_time) * 1000
-    # TIME TAKEN: 8000 for first batch of requests, plus 4000 for second batch that is fired inmediately
-    # BEFORE FIX in https://github.com/jina-ai/jina/pull/6071, this would take: 8000 + 3000 + 4000 (Timeout would start counting too late)
-    assert time_spent >= 12000
-    assert time_spent <= 12500
-    assert batches_lengths_computed == [5, 1, 2]
+
+    if flush_all is False:
+        # TIME TAKEN: 8000 for first batch of requests, plus 4000 for second batch that is fired inmediately
+        # BEFORE FIX in https://github.com/jina-ai/jina/pull/6071, this would take: 8000 + 3000 + 4000 (Timeout would start counting too late)
+        assert time_spent >= 8000
+        assert time_spent <= 8500
+        assert batches_lengths_computed == [5, 2, 1]
+    else:
+        assert time_spent >= 7000
+        assert time_spent <= 7500
+        assert batches_lengths_computed == [6, 2]
 
     await bq.close()
 
 
 @pytest.mark.asyncio
-async def test_batch_queue_req_length_larger_than_preferred():
+@pytest.mark.parametrize('flush_all', [False, True])
+async def test_batch_queue_req_length_larger_than_preferred(flush_all):
     async def foo(docs, **kwargs):
         await asyncio.sleep(0.1)
         return DocumentArray([Document(text='Done') for _ in docs])
@@ -116,12 +127,13 @@ async def test_batch_queue_req_length_larger_than_preferred():
         response_docarray_cls=DocumentArray,
         preferred_batch_size=4,
         timeout=2000,
+        flush_all=flush_all,
     )
 
     data_requests = [DataRequest() for _ in range(3)]
     for req in data_requests:
         req.data.docs = DocumentArray.empty(10)  # 30 docs in total
-        assert req.data.docs[0].text == ''
+        assert req.docs[0].text == ''
 
     async def process_request(req):
         q = await bq.push(req)
@@ -136,7 +148,7 @@ async def test_batch_queue_req_length_larger_than_preferred():
     assert time_spent < 2000
     # Test that since no more docs arrived, the function was triggerred after timeout
     for resp in responses:
-        assert resp.data.docs[0].text == 'Done'
+        assert resp.docs[0].text == 'Done'
 
     await bq.close()
 
@@ -159,6 +171,7 @@ async def test_exception():
         response_docarray_cls=DocumentArray,
         preferred_batch_size=1,
         timeout=500,
+        flush_all=False,
     )
 
     data_requests = [DataRequest() for _ in range(35)]
@@ -182,9 +195,9 @@ async def test_exception():
             assert isinstance(item, Exception)
     for i, req in enumerate(data_requests):
         if i not in BAD_REQUEST_IDX:
-            assert req.data.docs[0].text == f'{i} Processed'
+            assert req.docs[0].text == f'{i} Processed'
         else:
-            assert req.data.docs[0].text == 'Bad'
+            assert req.docs[0].text == 'Bad'
 
 
 @pytest.mark.asyncio
@@ -209,6 +222,7 @@ async def test_exception_more_complex():
         response_docarray_cls=DocumentArray,
         preferred_batch_size=2,
         timeout=500,
+        flush_all=False,
     )
 
     data_requests = [DataRequest() for _ in range(35)]
@@ -232,15 +246,16 @@ async def test_exception_more_complex():
             assert isinstance(item, Exception)
     for i, req in enumerate(data_requests):
         if i not in EXPECTED_BAD_REQUESTS:
-            assert req.data.docs[0].text == 'Processed'
+            assert req.docs[0].text == 'Processed'
         elif i in TRIGGER_BAD_REQUEST_IDX:
-            assert req.data.docs[0].text == 'Bad'
+            assert req.docs[0].text == 'Bad'
         else:
-            assert req.data.docs[0].text == ''
+            assert req.docs[0].text == ''
 
 
 @pytest.mark.asyncio
-async def test_exception_all():
+@pytest.mark.parametrize('flush_all', [False, True])
+async def test_exception_all(flush_all):
     async def foo(docs, **kwargs):
         raise AssertionError
 
@@ -249,6 +264,7 @@ async def test_exception_all():
         request_docarray_cls=DocumentArray,
         response_docarray_cls=DocumentArray,
         preferred_batch_size=2,
+        flush_all=flush_all,
         timeout=500,
     )
 
@@ -284,14 +300,19 @@ async def test_repr_and_str():
     assert repr(bq) == str(bq)
 
 
-@pytest.mark.parametrize('num_requests', [61, 127, 100])
-@pytest.mark.parametrize('preferred_batch_size', [7, 27, 61, 73, 100])
+@pytest.mark.parametrize('num_requests', [33, 127, 100])
+@pytest.mark.parametrize('preferred_batch_size', [7, 61, 100])
 @pytest.mark.parametrize('timeout', [0.3, 500])
+@pytest.mark.parametrize('flush_all', [False, True])
 @pytest.mark.asyncio
-async def test_return_proper_assignment(num_requests, preferred_batch_size, timeout):
+async def test_return_proper_assignment(num_requests, preferred_batch_size, timeout, flush_all):
     import random
 
     async def foo(docs, **kwargs):
+        if not flush_all:
+            assert len(docs) <= preferred_batch_size
+        else:
+            assert len(docs) >= preferred_batch_size
         await asyncio.sleep(0.1)
         for doc in docs:
             doc.text += ' Processed'
@@ -301,6 +322,7 @@ async def test_return_proper_assignment(num_requests, preferred_batch_size, time
         request_docarray_cls=DocumentArray,
         response_docarray_cls=DocumentArray,
         preferred_batch_size=preferred_batch_size,
+        flush_all=flush_all,
         timeout=timeout,
     )
 

@@ -156,7 +156,6 @@ def test_all_sync_clients(protocol, mocker, use_stream):
     m3.assert_called_once()
     m4.assert_called()
 
-
 @pytest.mark.slow
 @pytest.mark.parametrize('use_stream', [True, False])
 def test_deployment_sync_client(mocker, use_stream):

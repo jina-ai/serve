@@ -175,7 +175,9 @@ if docarray_v2 and not is_pydantic_v2:
             for rec in range(num_recursions):
                 ret = List[ret]
         elif field_type == 'number':
-            if num_recursions <= 1:
+            if num_recursions == 0:
+                ret = float
+            elif num_recursions == 1:
                 # This is a hack because AnyTensor is more generic than a simple List and it comes as simple List
                 if is_tensor:
                     ret = AnyTensor

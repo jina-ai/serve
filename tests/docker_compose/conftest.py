@@ -27,7 +27,7 @@ def image_name_tag_map():
     return {
         'reload-executor': '0.13.1',
         'test-executor': '0.13.1',
-        'test-executor-torch': '0.13.1',
+        #'test-executor-torch': '0.13.1',
         'executor-merger': '0.1.1',
         'custom-gateway': '0.1.1',
         'multiprotocol-gateway': '0.1.1',
@@ -81,14 +81,14 @@ class DockerComposeServices:
 
     def __enter__(self):
         subprocess.run(
-            f'docker-compose -f {self.dump_path} up --build -d --remove-orphans'.split(
+            f'docker compose -f {self.dump_path} up --build -d --remove-orphans'.split(
                 ' '
             )
         )
 
         container_ids = (
             subprocess.run(
-                f'docker-compose -f {self.dump_path} ps -q'.split(' '),
+                f'docker compose -f {self.dump_path} ps -q'.split(' '),
                 capture_output=True,
             )
             .stdout.decode("utf-8")
@@ -127,5 +127,5 @@ class DockerComposeServices:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         subprocess.run(
-            f'docker-compose -f {self.dump_path} down --remove-orphans'.split(' ')
+            f'docker compose -f {self.dump_path} down --remove-orphans'.split(' ')
         )

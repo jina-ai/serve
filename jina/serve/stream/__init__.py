@@ -220,7 +220,7 @@ class RequestStreamer:
         except (
             Exception
         ) as err:  # HTTP and WS need different treatment further up the stack
-            self.logger.error(f'Error while getting responses from deployments: {err}')
+            self.logger.error(f'Error while getting responses from deployments {type(err)}: {err}')
             raise err
 
     async def _stream_requests(

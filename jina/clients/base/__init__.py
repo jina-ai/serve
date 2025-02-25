@@ -5,7 +5,7 @@ import argparse
 import inspect
 import os
 from abc import ABC
-from typing import TYPE_CHECKING, AsyncIterator, Callable, Iterator, Optional, Union
+from typing import TYPE_CHECKING, AsyncIterator, Callable, Iterator, Optional, Union, Tuple
 
 from jina.excepts import BadClientInput
 from jina.helper import T, parse_client, send_telemetry_event, typename
@@ -29,9 +29,9 @@ class BaseClient(InstrumentationMixin, ABC):
     """
 
     def __init__(
-        self,
-        args: Optional['argparse.Namespace'] = None,
-        **kwargs,
+            self,
+            args: Optional['argparse.Namespace'] = None,
+            **kwargs,
     ):
         if args and isinstance(args, argparse.Namespace):
             self.args = args
@@ -47,7 +47,6 @@ class BaseClient(InstrumentationMixin, ABC):
             # affect users os-level envs.
             os.unsetenv('http_proxy')
             os.unsetenv('https_proxy')
-        self._inputs = None
         self._setup_instrumentation(
             name=(
                 self.args.name
@@ -62,6 +61,12 @@ class BaseClient(InstrumentationMixin, ABC):
             metrics_exporter_port=self.args.metrics_exporter_port,
         )
         send_telemetry_event(event='start', obj_cls_name=self.__class__.__name__)
+
+    async def close(self):
+        """Closes the potential resources of the Client.
+        :return: Return whatever a close method may return
+        """
+        return self.teardown_instrumentation()
 
     def teardown_instrumentation(self):
         """Shut down the OpenTelemetry tracer and meter if available. This ensures that the daemon threads for
@@ -118,72 +123,54 @@ class BaseClient(InstrumentationMixin, ABC):
             raise BadClientInput from ex
 
     def _get_requests(
-        self, **kwargs
-    ) -> Union[Iterator['Request'], AsyncIterator['Request']]:
+            self, inputs, **kwargs
+    ) -> Tuple[Union[Iterator['Request'], AsyncIterator['Request']], Optional[int]]:
         """
         Get request in generator.
 
+        :param inputs: The inputs argument to get the requests from.
         :param kwargs: Keyword arguments.
-        :return: Iterator of request.
+        :return: Iterator of request and the length of the inputs.
         """
         _kwargs = vars(self.args)
-        _kwargs['data'] = self.inputs
+        if hasattr(inputs, '__call__'):
+            inputs = inputs()
+
+        _kwargs['data'] = inputs
         # override by the caller-specific kwargs
         _kwargs.update(kwargs)
 
-        if hasattr(self._inputs, '__len__'):
-            total_docs = len(self._inputs)
+        if hasattr(inputs, '__len__'):
+            total_docs = len(inputs)
         elif 'total_docs' in _kwargs:
             total_docs = _kwargs['total_docs']
         else:
             total_docs = None
 
-        self._inputs_length = None
-
         if total_docs:
-            self._inputs_length = max(1, total_docs / _kwargs['request_size'])
+            inputs_length = max(1, total_docs / _kwargs['request_size'])
+        else:
+            inputs_length = None
 
-        if inspect.isasyncgen(self.inputs):
+        if inspect.isasyncgen(inputs):
             from jina.clients.request.asyncio import request_generator
 
-            return request_generator(**_kwargs)
+            return request_generator(**_kwargs), inputs_length
         else:
             from jina.clients.request import request_generator
 
-            return request_generator(**_kwargs)
-
-    @property
-    def inputs(self) -> 'InputType':
-        """
-        An iterator of bytes, each element represents a Document's raw content.
-
-        ``inputs`` defined in the protobuf
-
-        :return: inputs
-        """
-        return self._inputs
-
-    @inputs.setter
-    def inputs(self, bytes_gen: 'InputType') -> None:
-        """
-        Set the input data.
-
-        :param bytes_gen: input type
-        """
-        if hasattr(bytes_gen, '__call__'):
-            self._inputs = bytes_gen()
-        else:
-            self._inputs = bytes_gen
+            return request_generator(**_kwargs), inputs_length
 
     @abc.abstractmethod
     async def _get_results(
-        self,
-        inputs: 'InputType',
-        on_done: 'CallbackFnType',
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
-        **kwargs,
-    ): ...
+            self,
+            inputs: 'InputType',
+            on_done: 'CallbackFnType',
+            on_error: Optional['CallbackFnType'] = None,
+            on_always: Optional['CallbackFnType'] = None,
+            **kwargs,
+    ):
+        ...
 
     @abc.abstractmethod
     def _is_flow_ready(self, **kwargs) -> bool:

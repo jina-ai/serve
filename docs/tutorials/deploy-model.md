@@ -14,7 +14,7 @@ It will *probably* still work for later versions. If you have trouble, please as
 
 ## Introduction
 
-In this tutorial we'll build a fast, reliable and scalable gRPC-based AI service. In Jina we call this an {class}`~jina.Executor`. Our Executor will use [Stable Diffusion](https://stability.ai/blog/stable-diffusion-public-release) to generate images from a given text prompt. We'll then use a {class}`~jina.Deployment` to serve it.
+In this tutorial we'll build a fast, reliable and scalable gRPC-based AI service. In Jina-serve we call this an {class}`~jina.Executor`. Our Executor will use [Stable Diffusion](https://stability.ai/blog/stable-diffusion-public-release) to generate images from a given text prompt. We'll then use a {class}`~jina.Deployment` to serve it.
 
 ![](images/deployment.png)
 
@@ -32,17 +32,17 @@ You can also run this code interactively in [Colab](https://colab.research.googl
 
 ## Understand: Executors and Deployments
 
-- All data that goes into and out of Jina is in the form of [Documents](https://docs.docarray.org/user_guide/representing/first_step/) inside a [DocList](https://docs.docarray.org/user_guide/representing/array/) from the [DocArray](https://docs.docarray.org/) package.
+- All data that goes into and out of Jina-serve is in the form of [Documents](https://docs.docarray.org/user_guide/representing/first_step/) inside a [DocList](https://docs.docarray.org/user_guide/representing/array/) from the [DocArray](https://docs.docarray.org/) package.
 - An {ref}`Executor <executor-cookbook>` is a self-contained gRPC microservice that performs a task on Documents. This could be very simple (like merely capitalizing the entire text of a Document) or a lot more complex (like generating vector embeddings for a given piece of content).
 - A {ref}`Deployment <deployment>` lets you serve your Executor, scale it up with replicas, and allow users to send and receive requests.
 
-When you build a model or service in Jina, it's always in the form of an Executor. An Executor is a Python class that transforms and processes Documents, and can go way beyond image generation, for example, encoding text/images into vectors, OCR, extracting tables from PDFs, or lots more.
+When you build a model or service in Jina-serve, it's always in the form of an Executor. An Executor is a Python class that transforms and processes Documents, and can go way beyond image generation, for example, encoding text/images into vectors, OCR, extracting tables from PDFs, or lots more.
 
 ## Install prerequisites
 
 In this example we need to install:
 
-- The [Jina framework](https://docs.jina.ai/) itself
+- The [Jina-serve framework](https://jina.ai/serve/) itself
 - The dependencies of the specific model we want to serve and deploy
 
 ```shell
@@ -84,13 +84,13 @@ class TextToImage(Executor):
 from docarray import DocList, BaseDoc
 ```
 
-[Documents](https://docs.docarray.org/user_guide/representing/first_step/) and [DocList](https://docs.docarray.org/user_guide/representing/array/) (from the DocArray package) are Jina's native IO format.
+[Documents](https://docs.docarray.org/user_guide/representing/first_step/) and [DocList](https://docs.docarray.org/user_guide/representing/array/) (from the DocArray package) are Jina-serve's native IO format.
 
 ```python
 from jina import Executor, requests
 ```
 
-Jina's Executor class and requests decorator - we'll jump into these in the next section.
+Jina-serve's Executor class and requests decorator - we'll jump into these in the next section.
 
 ```python
 import numpy as np
@@ -124,7 +124,7 @@ class TextToImage(Executor):
         ).to("cuda")
 ```
 
-All Executors are created from Jina's Executor class. User-definable parameters (like `self.pipe`) are {ref}`arguments <executor-constructor> defined in the `__init__()` method.
+All Executors are created from Jina-serve's Executor class. User-definable parameters (like `self.pipe`) are {ref}`arguments <executor-constructor> defined in the `__init__()` method.
 
 ### Requests decorator
 

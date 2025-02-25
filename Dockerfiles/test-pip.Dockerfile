@@ -1,4 +1,4 @@
-ARG PY_VERSION=3.7
+ARG PY_VERSION=3.10
 
 FROM python:${PY_VERSION}-slim
 

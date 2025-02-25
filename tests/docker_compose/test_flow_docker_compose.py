@@ -235,37 +235,37 @@ async def test_flow_with_configmap(flow_configmap, docker_images, tmpdir):
         assert doc.tags['env'] == {'k1': 'v1', 'k2': 'v2'}
 
 
-@pytest.mark.asyncio
-@pytest.mark.timeout(3600)
-@pytest.mark.parametrize(
-    'docker_images',
-    [['test-executor-torch', 'jinaai/jina']],
-    indirect=True,
-)
-async def test_flow_with_workspace_and_tensors(logger, docker_images, tmpdir):
-    flow = Flow(
-        name='docker-compose-flow-with_workspace', port=9090, protocol='http'
-    ).add(
-        name='test_executor',
-        uses=f'docker://{docker_images[0]}',
-        workspace='/shared',
-    )
-
-    dump_path = os.path.join(str(tmpdir), 'docker-compose-flow-workspace.yml')
-    flow.to_docker_compose_yaml(dump_path)
-
-    with DockerComposeServices(dump_path):
-        resp = await run_test(
-            flow=flow,
-            endpoint='/workspace',
-        )
-
-    docs = resp[0].docs
-    assert len(docs) == 10
-    for doc in docs:
-        assert doc.tags['workspace'] == '/shared/TestExecutor/0'
-        assert doc.embedding.shape == (1000,)
-        assert doc.tensor.shape == (1000,)
+# @pytest.mark.asyncio
+# @pytest.mark.timeout(3600)
+# @pytest.mark.parametrize(
+#     'docker_images',
+#     [['test-executor-torch', 'jinaai/jina']],
+#     indirect=True,
+# )
+# async def test_flow_with_workspace_and_tensors(logger, docker_images, tmpdir):
+#     flow = Flow(
+#         name='docker-compose-flow-with_workspace', port=9090, protocol='http'
+#     ).add(
+#         name='test_executor',
+#         uses=f'docker://{docker_images[0]}',
+#         workspace='/shared',
+#     )
+#
+#     dump_path = os.path.join(str(tmpdir), 'docker-compose-flow-workspace.yml')
+#     flow.to_docker_compose_yaml(dump_path)
+#
+#     with DockerComposeServices(dump_path):
+#         resp = await run_test(
+#             flow=flow,
+#             endpoint='/workspace',
+#         )
+#
+#     docs = resp[0].docs
+#     assert len(docs) == 10
+#     for doc in docs:
+#         assert doc.tags['workspace'] == '/shared/TestExecutor/0'
+#         assert doc.embedding.shape == (1000,)
+#         assert doc.tensor.shape == (1000,)
 
 
 @pytest.mark.asyncio

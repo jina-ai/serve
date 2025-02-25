@@ -72,7 +72,7 @@ class MyExecutor(Executor):
 
 ````{admonition} What is inside kwargs? 
 :class: hint
-Here, `kwargs` are reserved for Jina to inject `metas` and `requests` (representing the request-to-function mapping) values when the Executor is used inside a {ref}`Flow <flow-cookbook>`.
+Here, `kwargs` are reserved for Jina-serve to inject `metas` and `requests` (representing the request-to-function mapping) values when the Executor is used inside a {ref}`Flow <flow-cookbook>`.
 
 You can access the values of these arguments in the `__init__` body via `self.metas`/`self.requests`/`self.runtime_args`, or modify their values before passing them to `super().__init__()`.
 ````
@@ -133,13 +133,13 @@ This can be provided to the Executor via the Python API or {ref}`YAML API <execu
 
 ````{admonition} Hint: Default workspace
 :class: hint
-If you haven't provided a workspace, the Executor uses a default workspace, defined in `~/.cache/jina/`.
+If you haven't provided a workspace, the Executor uses a default workspace, defined in `~/.cache/jina-serve/`.
 ````
 
 (executor-requests)=
 ### `requests`
 
-By default, an Executor object contains {attr}`~.jina.serve.executors.BaseExecutor.requests` as an attribute when loaded. This attribute is a `Dict` describing the mapping between Executor methods and network endpoints: It holds endpoint strings as keys, and pointers to functions as values. 
+By default, an Executor object contains {attr}`~.jina-serve.serve.executors.BaseExecutor.requests` as an attribute when loaded. This attribute is a `Dict` describing the mapping between Executor methods and network endpoints: It holds endpoint strings as keys, and pointers to functions as values. 
 
 These can be provided to the Executor via the Python API or {ref}`YAML API <executor-yaml-spec>`.
 

@@ -614,15 +614,15 @@ def test_executors_inheritance_binding():
     [
         (
             dict(preferred_batch_size=4, timeout=5_000),
-            dict(preferred_batch_size=4, timeout=5_000),
+            dict(preferred_batch_size=4, timeout=5_000, flush_all=False, use_custom_metric=False, custom_metric=None, use_dynamic_batching=True),
         ),
         (
-            dict(preferred_batch_size=4, timeout=5_000),
-            dict(preferred_batch_size=4, timeout=5_000),
+            dict(preferred_batch_size=4, timeout=5_000, flush_all=True),
+            dict(preferred_batch_size=4, timeout=5_000, flush_all=True, use_custom_metric=False, custom_metric=None, use_dynamic_batching=True),
         ),
         (
             dict(preferred_batch_size=4),
-            dict(preferred_batch_size=4, timeout=10_000),
+            dict(preferred_batch_size=4, timeout=10_000, flush_all=False, use_custom_metric=False, custom_metric=None, use_dynamic_batching=True),
         ),
     ],
 )
@@ -641,15 +641,15 @@ def test_dynamic_batching(inputs, expected_values):
     [
         (
             dict(preferred_batch_size=4, timeout=5_000),
-            dict(preferred_batch_size=4, timeout=5_000),
+            dict(preferred_batch_size=4, timeout=5_000, flush_all=False, use_custom_metric=False, custom_metric=None, use_dynamic_batching=True),
         ),
         (
-            dict(preferred_batch_size=4, timeout=5_000),
-            dict(preferred_batch_size=4, timeout=5_000),
+            dict(preferred_batch_size=4, timeout=5_000, flush_all=True),
+            dict(preferred_batch_size=4, timeout=5_000, flush_all=True, use_custom_metric=False, custom_metric=None, use_dynamic_batching=True),
         ),
         (
             dict(preferred_batch_size=4),
-            dict(preferred_batch_size=4, timeout=10_000),
+            dict(preferred_batch_size=4, timeout=10_000, flush_all=False, use_custom_metric=False, custom_metric=None, use_dynamic_batching=True),
         ),
     ],
 )

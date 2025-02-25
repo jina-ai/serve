@@ -36,11 +36,11 @@ To keep up-to-date with upstream, use `.from_hub(..., force_update=True)`.
 
 You can also use `jina hub` CLI to pull an Executor without actually using it in the Flow.
 
-````{admonition} Jina and DocArray version
+````{admonition} Jina-serve and DocArray version
 :class: note
 
-Independently of the Jina and DocArray version existing when the Executor was pushed to the Hub. When pulling, the Hub will try
-to install the Jina and DocArray version that you have installed locally in the pulled docker images.
+Independently of the Jina-serve and DocArray version existing when the Executor was pushed to the Hub. When pulling, the Hub will try
+to install the Jina-serve and DocArray version that you have installed locally in the pulled docker images.
 ````
 
 ### Pull the Docker image

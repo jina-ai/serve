@@ -153,14 +153,14 @@ and `response_schema` will be used.
 ```{admonition} Note
 :class: note
 
-When no type annotation or argument is provided, Jina assumes that [LegacyDocument](https://docs.docarray.org/API_reference/documents/documents/#docarray.documents.legacy.LegacyDocument) is the type used.
-This is intended to ease the transition from using Jina with `docarray<0.30.0` to using it with the newer versions.
+When no type annotation or argument is provided, Jina-serve assumes that [LegacyDocument](https://docs.docarray.org/API_reference/documents/documents/#docarray.documents.legacy.LegacyDocument) is the type used.
+This is intended to ease the transition from using Jina-serve with `docarray<0.30.0` to using it with the newer versions.
 ```
 
 (executor-api)=
 ## Executor API
 
-Methods decorated by `@requests` require an API for Jina to serve them with a {class}`~jina.Deployment` or {class}`~jina.Flow`.
+Methods decorated by `@requests` require an API for Jina-serve to serve them with a {class}`~jina.Deployment` or {class}`~jina.Flow`.
 
 An Executor's job is to process `Documents` that are sent via the network. Executors can work on these `Documents` one by one or in batches.
 
@@ -176,7 +176,7 @@ These APIs and related type annotations also affect how your {ref}`OpenAPI looks
 
 When using `doc` as a keyword argument, you need to add a single `BaseDoc` as your request and response schema as seen in {ref}`the document type binding section <document-type-binding>`.
 
-Jina will ensure that even if multiple `Documents` are sent from the client, the Executor will process only one at a time. 
+Jina-serve will ensure that even if multiple `Documents` are sent from the client, the Executor will process only one at a time. 
 
 ```{code-block} python
 ---
@@ -208,7 +208,7 @@ and models can be heavy enough that they cannot profit from processing multiple 
 
 When using `docs` as a keyword argument, you need to add a parametrized `DocList` as your request and response schema as seen in {ref}`the document type binding section <document-type-binding>`.
 
-In this case, Jina will ensure that all the request's `Documents` are passed to the Executor. The {ref}`"request_size" parameter from Client <request-size-client>` controls how many Documents are passed to the server in each request.
+In this case, Jina-serve will ensure that all the request's `Documents` are passed to the Executor. The {ref}`"request_size" parameter from Client <request-size-client>` controls how many Documents are passed to the server in each request.
 When using batches, you can leverage the {ref}`dynamic batching feature <executor-dynamic-batching>`.
 
 ```{code-block} python
@@ -417,7 +417,7 @@ with Deployment(
 ```
 
 From the client side, any SSE client can be used to receive the Documents, one at a time.
-Jina offers a standard python client for using the streaming endpoint:
+Jina-serve offers a standard python client for using the streaming endpoint:
 
 ```python
 from jina import Client
@@ -500,7 +500,7 @@ NotImplementedError('no time for it')
 (openapi-deployment)=
 ## OpenAPI from Executor endpoints
 
-When deploying an Executor and serving it with HTTP, Jina uses FastAPI to expose all Executor endpoints as HTTP endpoints, and you can
+When deploying an Executor and serving it with HTTP, Jina-serve uses FastAPI to expose all Executor endpoints as HTTP endpoints, and you can
 enjoy a corresponding OpenAPI via the Swagger UI. You can also add descriptions and examples to your DocArray and Pydantic types so your
 users and clients can enjoy an API.
 

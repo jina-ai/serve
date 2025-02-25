@@ -41,11 +41,14 @@ def documents(start_index, end_index):
     'return_responses, return_class', [(True, Request), (False, DocumentArray)]
 )
 @pytest.mark.parametrize('use_stream', [False, True])
+@pytest.mark.parametrize('reuse_session', [False, True])
 async def test_run_async_flow(
-    protocol, mocker, flow_cls, return_responses, return_class, use_stream
+    protocol, mocker, flow_cls, return_responses, return_class, use_stream, reuse_session
 ):
+    if reuse_session and protocol != 'http':
+        return
     r_val = mocker.Mock()
-    with flow_cls(protocol=protocol, asyncio=True).add() as f:
+    with flow_cls(protocol=protocol, asyncio=True, reuse_session=reuse_session).add() as f:
         async for r in f.index(
             from_ndarray(np.random.random([num_docs, 4])),
             on_done=r_val,
@@ -155,8 +158,11 @@ async def test_run_async_flow_other_task_concurrent(protocol):
 @pytest.mark.parametrize('protocol', ['websocket', 'grpc', 'http'])
 @pytest.mark.parametrize('flow_cls', [Flow, AsyncFlow])
 @pytest.mark.parametrize('use_stream', [False, True])
-async def test_return_results_async_flow(protocol, flow_cls, use_stream):
-    with flow_cls(protocol=protocol, asyncio=True).add() as f:
+@pytest.mark.parametrize('reuse_session', [False, True])
+async def test_return_results_async_flow(protocol, flow_cls, use_stream, reuse_session):
+    if reuse_session and protocol != 'http':
+        return
+    with flow_cls(protocol=protocol, asyncio=True, reuse_session=reuse_session).add() as f:
         async for r in f.index(
             from_ndarray(np.random.random([10, 2])), stream=use_stream
         ):
@@ -169,8 +175,9 @@ async def test_return_results_async_flow(protocol, flow_cls, use_stream):
 @pytest.mark.parametrize('flow_api', ['delete', 'index', 'update', 'search'])
 @pytest.mark.parametrize('flow_cls', [Flow, AsyncFlow])
 @pytest.mark.parametrize('use_stream', [False, True])
-async def test_return_results_async_flow_crud(protocol, flow_api, flow_cls, use_stream):
-    with flow_cls(protocol=protocol, asyncio=True).add() as f:
+@pytest.mark.parametrize('reuse_session', [False, True])
+async def test_return_results_async_flow_crud(protocol, flow_api, flow_cls, use_stream, reuse_session):
+    with flow_cls(protocol=protocol, asyncio=True, reuse_session=reuse_session).add() as f:
         async for r in getattr(f, flow_api)(documents(0, 10), stream=use_stream):
             assert isinstance(r, DocumentArray)
 

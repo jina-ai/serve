@@ -52,7 +52,7 @@ pathspec:                   standard,devel
 filelock:                   standard,devel
 requests:                   standard,devel
 websockets:                 standard,devel
-pydantic<2.0.0:             core
+pydantic:             core
 python-multipart:           standard,devel
 aiofiles:                   standard,devel
 aiohttp:                    standard,devel

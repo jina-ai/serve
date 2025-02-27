@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from jina._docarray import docarray_v2
+from jina._docarray import docarray_v2, is_pydantic_v2
 from jina.serve.helper import get_default_grpc_options
 from jina.serve.runtimes.helper import (
     _get_name_from_replicas_name,
@@ -96,10 +96,11 @@ def test_create_pydantic_model_from_schema(transformation):
     from docarray.documents import TextDoc
     from docarray.typing import AnyTensor, ImageUrl
 
-    from jina.serve.runtimes.helper import (
-        _create_aux_model_doc_list_to_list,
-        _create_pydantic_model_from_schema,
-    )
+    if not is_pydantic_v2:
+        from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
+        from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+    else:
+        from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
 
     class Nested2Doc(BaseDoc):
         value: str
@@ -110,10 +111,10 @@ def test_create_pydantic_model_from_schema(transformation):
         classvar: ClassVar[str] = 'classvar1'
 
     class CustomDoc(BaseDoc):
-        tensor: Optional[AnyTensor]
+        tensor: Optional[AnyTensor] = None
         url: ImageUrl
-        num: float = 0.5,
-        num_num: List[float] = [1.5, 2.5],
+        num: float = 0.5
+        num_num: List[float] = [1.5, 2.5]
         lll: List[List[List[int]]] = [[[5]]]
         fff: List[List[List[float]]] = [[[5.2]]]
         single_text: TextDoc
@@ -126,8 +127,8 @@ def test_create_pydantic_model_from_schema(transformation):
         nested: Nested1Doc
         classvar: ClassVar[str] = 'classvar'
 
-    CustomDocCopy = _create_aux_model_doc_list_to_list(CustomDoc)
-    new_custom_doc_model = _create_pydantic_model_from_schema(
+    CustomDocCopy = create_pure_python_type_model(CustomDoc)
+    new_custom_doc_model = create_base_doc_from_schema(
         CustomDocCopy.schema(), 'CustomDoc', {}
     )
 
@@ -170,7 +171,10 @@ def test_create_pydantic_model_from_schema(transformation):
     assert custom_partial_da[0].num == 3.5
     assert custom_partial_da[0].num_num == [4.5, 5.5]
     assert custom_partial_da[0].lll == [[[40]]]
-    assert custom_partial_da[0].lu == ['3', '4']  # Union validates back to string
+    if is_pydantic_v2:
+        assert custom_partial_da[0].lu == [3, 4]
+    else:
+        assert custom_partial_da[0].lu == ['3', '4']  # Union validates back to string
     assert custom_partial_da[0].fff == [[[40.2]]]
     assert custom_partial_da[0].di == {'a': 2}
     assert custom_partial_da[0].d == {'b': 'a'}
@@ -181,14 +185,20 @@ def test_create_pydantic_model_from_schema(transformation):
     assert custom_partial_da[0].u == 'a'
     assert custom_partial_da[0].single_text.text == 'single hey ha'
     assert custom_partial_da[0].single_text.embedding.shape == (2,)
-    assert custom_partial_da[0].nested.nested.value == 'hello world'
-
-    assert len(original_back) == 1
+    assert original_back[0].nested.nested.value == 'hello world'
     assert original_back[0].num == 3.5
     assert original_back[0].num_num == [4.5, 5.5]
+    assert original_back[0].classvar == 'classvar'
+    assert original_back[0].nested.classvar == 'classvar1'
+    assert original_back[0].nested.nested.classvar == 'classvar2'
+
+    assert len(original_back) == 1
     assert original_back[0].url == 'photo.jpg'
     assert original_back[0].lll == [[[40]]]
-    assert original_back[0].lu == ['3', '4']  # Union validates back to string
+    if is_pydantic_v2:
+        assert original_back[0].lu == [3, 4]  # Union validates back to string
+    else:
+        assert original_back[0].lu == ['3', '4']  # Union validates back to string
     assert original_back[0].fff == [[[40.2]]]
     assert original_back[0].di == {'a': 2}
     assert original_back[0].d == {'b': 'a'}
@@ -199,16 +209,12 @@ def test_create_pydantic_model_from_schema(transformation):
     assert original_back[0].u == 'a'
     assert original_back[0].single_text.text == 'single hey ha'
     assert original_back[0].single_text.embedding.shape == (2,)
-    assert original_back[0].nested.nested.value == 'hello world'
-    assert original_back[0].classvar == 'classvar'
-    assert original_back[0].nested.classvar == 'classvar1'
-    assert original_back[0].nested.nested.classvar == 'classvar2'
 
     class TextDocWithId(BaseDoc):
         ia: str
 
-    TextDocWithIdCopy = _create_aux_model_doc_list_to_list(TextDocWithId)
-    new_textdoc_with_id_model = _create_pydantic_model_from_schema(
+    TextDocWithIdCopy = create_pure_python_type_model(TextDocWithId)
+    new_textdoc_with_id_model = create_base_doc_from_schema(
         TextDocWithIdCopy.schema(), 'TextDocWithId', {}
     )
 
@@ -237,8 +243,8 @@ def test_create_pydantic_model_from_schema(transformation):
     class ResultTestDoc(BaseDoc):
         matches: DocList[TextDocWithId]
 
-    ResultTestDocCopy = _create_aux_model_doc_list_to_list(ResultTestDoc)
-    new_result_test_doc_with_id_model = _create_pydantic_model_from_schema(
+    ResultTestDocCopy = create_pure_python_type_model(ResultTestDoc)
+    new_result_test_doc_with_id_model = create_base_doc_from_schema(
         ResultTestDocCopy.schema(), 'ResultTestDoc', {}
     )
     result_test_docs = DocList[ResultTestDoc](
@@ -276,13 +282,14 @@ def test_create_empty_doc_list_from_schema(transformation):
     from docarray.documents import TextDoc
     from docarray.typing import AnyTensor, ImageUrl
 
-    from jina.serve.runtimes.helper import (
-        _create_aux_model_doc_list_to_list,
-        _create_pydantic_model_from_schema,
-    )
+    if not is_pydantic_v2:
+        from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
+        from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+    else:
+        from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
 
     class CustomDoc(BaseDoc):
-        tensor: Optional[AnyTensor]
+        tensor: Optional[AnyTensor] = None
         url: ImageUrl
         num: float = 0.5,
         class_var: ClassVar[str] = "class_var_val"
@@ -297,8 +304,8 @@ def test_create_empty_doc_list_from_schema(transformation):
         tags: Optional[Dict[str, Any]] = None
         lf: List[float] = [3.0, 4.1]
 
-    CustomDocCopy = _create_aux_model_doc_list_to_list(CustomDoc)
-    new_custom_doc_model = _create_pydantic_model_from_schema(
+    CustomDocCopy = create_pure_python_type_model(CustomDoc)
+    new_custom_doc_model = create_base_doc_from_schema(
         CustomDocCopy.schema(), 'CustomDoc', {}
     )
 
@@ -322,8 +329,8 @@ def test_create_empty_doc_list_from_schema(transformation):
     class TextDocWithId(BaseDoc):
         ia: str
 
-    TextDocWithIdCopy = _create_aux_model_doc_list_to_list(TextDocWithId)
-    new_textdoc_with_id_model = _create_pydantic_model_from_schema(
+    TextDocWithIdCopy = create_pure_python_type_model(TextDocWithId)
+    new_textdoc_with_id_model = create_base_doc_from_schema(
         TextDocWithIdCopy.schema(), 'TextDocWithId', {}
     )
 
@@ -345,8 +352,8 @@ def test_create_empty_doc_list_from_schema(transformation):
     class ResultTestDoc(BaseDoc):
         matches: DocList[TextDocWithId]
 
-    ResultTestDocCopy = _create_aux_model_doc_list_to_list(ResultTestDoc)
-    new_result_test_doc_with_id_model = _create_pydantic_model_from_schema(
+    ResultTestDocCopy = create_pure_python_type_model(ResultTestDoc)
+    new_result_test_doc_with_id_model = create_base_doc_from_schema(
         ResultTestDocCopy.schema(), 'ResultTestDoc', {}
     )
     result_test_docs = DocList[ResultTestDoc]()
@@ -369,22 +376,25 @@ def test_create_empty_doc_list_from_schema(transformation):
 @pytest.mark.skipif(not docarray_v2, reason='Test only working with docarray v2')
 def test_dynamic_class_creation_multiple_doclist_nested():
     from docarray import BaseDoc, DocList
-    from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list
-    from jina.serve.runtimes.helper import _create_pydantic_model_from_schema
+    if not is_pydantic_v2:
+        from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
+        from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+    else:
+        from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
 
     class MyTextDoc(BaseDoc):
         text: str
 
     class QuoteFile(BaseDoc):
-        texts: DocList[MyTextDoc]
+        texts: DocList[MyTextDoc] = None
 
     class SearchResult(BaseDoc):
         results: DocList[QuoteFile] = None
 
     textlist = DocList[MyTextDoc]([MyTextDoc(text='hey')])
     models_created_by_name = {}
-    SearchResult_aux = _create_aux_model_doc_list_to_list(SearchResult)
-    _ = _create_pydantic_model_from_schema(
+    SearchResult_aux = create_pure_python_type_model(SearchResult)
+    _ = create_base_doc_from_schema(
         SearchResult_aux.schema(), 'SearchResult', models_created_by_name
     )
     QuoteFile_reconstructed_in_gateway_from_Search_results = models_created_by_name[
@@ -392,6 +402,6 @@ def test_dynamic_class_creation_multiple_doclist_nested():
     ]
 
     reconstructed_in_gateway_from_Search_results = (
-        QuoteFile_reconstructed_in_gateway_from_Search_results(texts=textlist)
+        QuoteFile_reconstructed_in_gateway_from_Search_results(texts=textlist, id='hey')
     )
     assert reconstructed_in_gateway_from_Search_results.texts[0].text == 'hey'

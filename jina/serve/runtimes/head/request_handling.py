@@ -16,12 +16,19 @@ from jina.serve.networking import GrpcConnectionPool
 from jina.serve.runtimes.monitoring import MonitoringRequestMixin
 from jina.serve.runtimes.worker.request_handling import WorkerRequestHandler
 from jina.types.request.data import DataRequest, Response
-from jina._docarray import docarray_v2
+from jina._docarray import docarray_v2, is_pydantic_v2
 
 if docarray_v2:
-    from jina.serve.runtimes.helper import _create_pydantic_model_from_schema
+    if not is_pydantic_v2:
+        from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+    else:
+        from docarray.utils.create_dynamic_doc_class import create_base_doc_from_schema
     from docarray import DocList
     from docarray.base_doc.any_doc import AnyDoc
+
+    from jina._docarray import LegacyDocumentJina
+
+    legacy_doc_schema = LegacyDocumentJina.schema()
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -330,9 +337,6 @@ class HeaderRequestHandler(MonitoringRequestMixin):
         self, connection_pool: GrpcConnectionPool, name: str, retries: int, stop_event
     ):
         from google.protobuf import json_format
-        from docarray.documents.legacy import LegacyDocument
-
-        legacy_doc_schema = LegacyDocument.schema()
 
         async def task():
             self.logger.debug(
@@ -356,20 +360,20 @@ class HeaderRequestHandler(MonitoringRequestMixin):
 
                             if input_model_schema == legacy_doc_schema:
                                 models_created_by_name[input_model_name] = (
-                                    LegacyDocument
+                                    LegacyDocumentJina
                                 )
                             elif input_model_name not in models_created_by_name:
-                                input_model = _create_pydantic_model_from_schema(
+                                input_model = create_base_doc_from_schema(
                                     input_model_schema, input_model_name, {}
                                 )
                                 models_created_by_name[input_model_name] = input_model
 
                             if output_model_name == legacy_doc_schema:
                                 models_created_by_name[output_model_name] = (
-                                    LegacyDocument
+                                    LegacyDocumentJina
                                 )
                             elif output_model_name not in models_created_by_name:
-                                output_model = _create_pydantic_model_from_schema(
+                                output_model = create_base_doc_from_schema(
                                     output_model_schema, output_model_name, {}
                                 )
                                 models_created_by_name[output_model_name] = output_model

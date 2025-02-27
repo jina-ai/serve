@@ -52,7 +52,7 @@ from jina.serve.helper import (
 from jina.serve.instrumentation import MetricsTimer
 
 if docarray_v2:
-    from docarray.documents.legacy import LegacyDocument
+    from jina._docarray import LegacyDocumentJina
 
 if TYPE_CHECKING:  # pragma: no cover
     from opentelemetry.context.context import Context
@@ -257,7 +257,7 @@ class _FunctionWithSchema(NamedTuple):
             from docarray import BaseDoc, DocList
 
             default_annotations = (
-                DocList[LegacyDocument] if is_batch_docs else LegacyDocument
+                DocList[LegacyDocumentJina] if is_batch_docs else LegacyDocumentJina
             )
         else:
             from jina import Document, DocumentArray

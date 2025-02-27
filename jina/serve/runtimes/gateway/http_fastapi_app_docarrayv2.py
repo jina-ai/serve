@@ -6,6 +6,7 @@ from jina.importer import ImportExtensions
 from jina.logging.logger import JinaLogger
 from jina.serve.networking.sse import EventSourceResponse
 from jina.types.request.data import DataRequest
+from jina._docarray import is_pydantic_v2
 
 if TYPE_CHECKING:  # pragma: no cover
     from opentelemetry import trace
@@ -80,7 +81,9 @@ def get_fastapi_app(
     import os
 
     from pydantic import BaseModel
-    from pydantic.config import BaseConfig, inherit_config
+    from pydantic.config import BaseConfig
+    if not is_pydantic_v2:
+        from pydantic.config import inherit_config
 
     from jina.proto import jina_pb2
     from jina.serve.runtimes.gateway.models import (
@@ -288,7 +291,10 @@ def get_fastapi_app(
                 parameters_model = Optional[Dict]
                 default_parameters = None
 
-            _config = inherit_config(InnerConfig, BaseDoc.__config__)
+            if not is_pydantic_v2:
+                _config = inherit_config(InnerConfig, BaseDoc.__config__)
+            else:
+                _config = InnerConfig
 
             endpoint_input_model = pydantic.create_model(
                 f'{endpoint.strip("/")}_input_model',

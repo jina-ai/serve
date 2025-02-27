@@ -90,4 +90,5 @@ def _add_docs(req: DataRequest, batch, data_type: DataInputType) -> None:
         d, data_type = _new_doc_from_data(content, data_type)
         da.append(d)
     req.document_array_cls = da.__class__
-    req.data.docs = da
+    req.direct_docs = da
+    #req.data.docs = da

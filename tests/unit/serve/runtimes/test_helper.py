@@ -111,10 +111,10 @@ def test_create_pydantic_model_from_schema(transformation):
         classvar: ClassVar[str] = 'classvar1'
 
     class CustomDoc(BaseDoc):
-        tensor: Optional[AnyTensor]
+        tensor: Optional[AnyTensor] = None
         url: ImageUrl
-        num: float = 0.5,
-        num_num: List[float] = [1.5, 2.5],
+        num: float = 0.5
+        num_num: List[float] = [1.5, 2.5]
         lll: List[List[List[int]]] = [[[5]]]
         fff: List[List[List[float]]] = [[[5.2]]]
         single_text: TextDoc
@@ -171,7 +171,10 @@ def test_create_pydantic_model_from_schema(transformation):
     assert custom_partial_da[0].num == 3.5
     assert custom_partial_da[0].num_num == [4.5, 5.5]
     assert custom_partial_da[0].lll == [[[40]]]
-    assert custom_partial_da[0].lu == ['3', '4']  # Union validates back to string
+    if is_pydantic_v2:
+        assert custom_partial_da[0].lu == [3, 4]
+    else:
+        assert custom_partial_da[0].lu == ['3', '4']  # Union validates back to string
     assert custom_partial_da[0].fff == [[[40.2]]]
     assert custom_partial_da[0].di == {'a': 2}
     assert custom_partial_da[0].d == {'b': 'a'}
@@ -182,14 +185,20 @@ def test_create_pydantic_model_from_schema(transformation):
     assert custom_partial_da[0].u == 'a'
     assert custom_partial_da[0].single_text.text == 'single hey ha'
     assert custom_partial_da[0].single_text.embedding.shape == (2,)
-    assert custom_partial_da[0].nested.nested.value == 'hello world'
-
-    assert len(original_back) == 1
+    assert original_back[0].nested.nested.value == 'hello world'
     assert original_back[0].num == 3.5
     assert original_back[0].num_num == [4.5, 5.5]
+    assert original_back[0].classvar == 'classvar'
+    assert original_back[0].nested.classvar == 'classvar1'
+    assert original_back[0].nested.nested.classvar == 'classvar2'
+
+    assert len(original_back) == 1
     assert original_back[0].url == 'photo.jpg'
     assert original_back[0].lll == [[[40]]]
-    assert original_back[0].lu == ['3', '4']  # Union validates back to string
+    if is_pydantic_v2:
+        assert original_back[0].lu == [3, 4]  # Union validates back to string
+    else:
+        assert original_back[0].lu == ['3', '4']  # Union validates back to string
     assert original_back[0].fff == [[[40.2]]]
     assert original_back[0].di == {'a': 2}
     assert original_back[0].d == {'b': 'a'}
@@ -200,10 +209,6 @@ def test_create_pydantic_model_from_schema(transformation):
     assert original_back[0].u == 'a'
     assert original_back[0].single_text.text == 'single hey ha'
     assert original_back[0].single_text.embedding.shape == (2,)
-    assert original_back[0].nested.nested.value == 'hello world'
-    assert original_back[0].classvar == 'classvar'
-    assert original_back[0].nested.classvar == 'classvar1'
-    assert original_back[0].nested.nested.classvar == 'classvar2'
 
     class TextDocWithId(BaseDoc):
         ia: str
@@ -284,7 +289,7 @@ def test_create_empty_doc_list_from_schema(transformation):
         from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
 
     class CustomDoc(BaseDoc):
-        tensor: Optional[AnyTensor]
+        tensor: Optional[AnyTensor] = None
         url: ImageUrl
         num: float = 0.5,
         class_var: ClassVar[str] = "class_var_val"
@@ -381,7 +386,7 @@ def test_dynamic_class_creation_multiple_doclist_nested():
         text: str
 
     class QuoteFile(BaseDoc):
-        texts: DocList[MyTextDoc]
+        texts: DocList[MyTextDoc] = None
 
     class SearchResult(BaseDoc):
         results: DocList[QuoteFile] = None
@@ -397,6 +402,6 @@ def test_dynamic_class_creation_multiple_doclist_nested():
     ]
 
     reconstructed_in_gateway_from_Search_results = (
-        QuoteFile_reconstructed_in_gateway_from_Search_results(texts=textlist)
+        QuoteFile_reconstructed_in_gateway_from_Search_results(texts=textlist, id='hey')
     )
     assert reconstructed_in_gateway_from_Search_results.texts[0].text == 'hey'

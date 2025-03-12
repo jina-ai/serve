@@ -295,6 +295,7 @@
 
 
 
+
 # Change Logs
 
 Jina is released on every Friday evening. The PyPi package and Docker Image will be updated, the changes of the release will be tracked by this file.
@@ -17222,4 +17223,23 @@ Jina is released on every Friday evening. The PyPi package and Docker Image will
  - [[```173f421f```](https://github.com/jina-ai/jina/commit/173f421f24aa58caa52e7cda010a26cb0fa40991)] __-__ change build (#6221) (*Joan Fontanals*)
  - [[```59f832a0```](https://github.com/jina-ai/jina/commit/59f832a023c17a9678765458f712bdaa59922e9b)] __-__ __docs__: update TOC (*Jina Dev Bot*)
  - [[```24e16df3```](https://github.com/jina-ai/jina/commit/24e16df3e06718f2fd2fb99a465f33e71e7a248a)] __-__ __version__: the next version will be 3.28.1 (*Jina Dev Bot*)
+
+<a name=release-note-3-33-1></a>
+## Release Note (`3.33.1`)
+
+> Release time: 2025-02-25 12:08:35
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Zac Li,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```fa7f11b9```](https://github.com/jina-ai/jina/commit/fa7f11b92f50e387c3dcf443e4e96ca58cdff5ca)] __-__ support param in sm batch (#6229) (*Zac Li*)
+
+### 🍹 Other Improvements
+
+ - [[```ef3ad20f```](https://github.com/jina-ai/jina/commit/ef3ad20f2bd350fdd32a1f947f5b48bb5245cf04)] __-__ __version__: the next version will be 3.33.1 (*Jina Dev Bot*)
 

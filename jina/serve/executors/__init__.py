@@ -55,6 +55,7 @@ if docarray_v2:
     from jina._docarray import LegacyDocumentJina
     from docarray.utils._internal._typing import safe_issubclass
 else:
+
     def safe_issubclass(a, b):
         return issubclass(a, b)
 
@@ -278,7 +279,9 @@ class _FunctionWithSchema(NamedTuple):
                 'DocumentArray will be used instead.'
             )
             docs_annotation = None
-        elif not isinstance(docs_annotation, type) and not safe_issubclass(docs_annotation, DocList):
+        elif not isinstance(docs_annotation, type) and not safe_issubclass(
+            docs_annotation, DocList
+        ):
             warnings.warn(
                 f'`docs` annotation must be a class if you want to use it'
                 f' as schema input, got {docs_annotation}. try to remove the Optional'
@@ -311,7 +314,9 @@ class _FunctionWithSchema(NamedTuple):
             elif get_origin(return_annotation) == AsyncIterator:
                 return_annotation = get_args(return_annotation)[0]
 
-        elif not isinstance(return_annotation, type) and not safe_issubclass(docs_annotation, DocList):
+        elif not isinstance(return_annotation, type) and not safe_issubclass(
+            docs_annotation, DocList
+        ):
             warnings.warn(
                 f'`return` annotation must be a class if you want to use it'
                 f'as schema input, got {docs_annotation}, fallback to default behavior'

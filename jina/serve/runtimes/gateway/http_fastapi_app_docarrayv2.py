@@ -15,15 +15,15 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 def get_fastapi_app(
-    streamer: 'GatewayStreamer',
-    title: str,
-    description: str,
-    expose_graphql_endpoint: bool,
-    cors: bool,
-    logger: 'JinaLogger',
-    tracing: Optional[bool] = None,
-    tracer_provider: Optional['trace.TracerProvider'] = None,
-    **kwargs,
+        streamer: 'GatewayStreamer',
+        title: str,
+        description: str,
+        expose_graphql_endpoint: bool,
+        cors: bool,
+        logger: 'JinaLogger',
+        tracing: Optional[bool] = None,
+        tracer_provider: Optional['trace.TracerProvider'] = None,
+        **kwargs,
 ):
     """
     Get the app from FastAPI as the REST interface.
@@ -54,8 +54,8 @@ def get_fastapi_app(
     app = FastAPI(
         title=title or 'My Jina Service',
         description=description
-        or 'This is my awesome service. You can set `title` and `description` in your `Flow` or `Gateway` '
-        'to customize the title and description.',
+                    or 'This is my awesome service. You can set `title` and `description` in your `Flow` or `Gateway` '
+                       'to customize the title and description.',
         version=__version__,
     )
 
@@ -99,7 +99,8 @@ def get_fastapi_app(
         target_executor: Optional[str] = Field(default=None, example="")
 
         class Config(BaseConfig):
-            alias_generator = _to_camel_case
+            if not is_pydantic_v2:
+                alias_generator = _to_camel_case
             allow_population_by_field_name = True
 
     class InnerConfig(BaseConfig):
@@ -109,7 +110,7 @@ def get_fastapi_app(
     @app.get(
         path='/dry_run',
         summary='Get the readiness of Jina Flow service, sends an empty DocumentArray to the complete Flow to '
-        'validate connectivity',
+                'validate connectivity',
         response_model=PROTO_TO_PYDANTIC_MODELS.StatusProto,
     )
     async def _flow_health():
@@ -176,11 +177,11 @@ def get_fastapi_app(
         return header_dict
 
     def add_post_route(
-        endpoint_path,
-        input_model,
-        output_model,
-        input_doc_list_model=None,
-        output_doc_list_model=None,
+            endpoint_path,
+            input_model,
+            output_model,
+            input_doc_list_model=None,
+            output_doc_list_model=None,
     ):
         app_kwargs = dict(
             path=f'/{endpoint_path.strip("/")}',
@@ -208,18 +209,19 @@ def get_fastapi_app(
 
             try:
                 async for resp in streamer.stream_docs(
-                    docs,
-                    exec_endpoint=endpoint_path,
-                    parameters=body.parameters,
-                    target_executor=target_executor,
-                    request_id=req_id,
-                    return_results=True,
-                    return_type=DocList[output_doc_list_model],
+                        docs,
+                        exec_endpoint=endpoint_path,
+                        parameters=body.parameters,
+                        target_executor=target_executor,
+                        request_id=req_id,
+                        return_results=True,
+                        return_type=DocList[output_doc_list_model],
                 ):
                     status = resp.header.status
 
                     if status.code == jina_pb2.StatusProto.ERROR:
-                        raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail=status.description)
+                        raise HTTPException(status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail=status.description)
                     else:
                         result_dict = resp.to_dict()
                         return result_dict
@@ -227,8 +229,8 @@ def get_fastapi_app(
                 import grpc
 
                 if (
-                    err.code() == grpc.StatusCode.UNAVAILABLE
-                    or err.code() == grpc.StatusCode.NOT_FOUND
+                        err.code() == grpc.StatusCode.UNAVAILABLE
+                        or err.code() == grpc.StatusCode.NOT_FOUND
                 ):
                     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
                 elif err.code() == grpc.StatusCode.DEADLINE_EXCEEDED:
@@ -245,8 +247,8 @@ def get_fastapi_app(
                 return result
 
     def add_streaming_routes(
-        endpoint_path,
-        input_doc_model=None,
+            endpoint_path,
+            input_doc_model=None,
     ):
         from fastapi import Request
 
@@ -261,7 +263,7 @@ def get_fastapi_app(
 
             async def event_generator():
                 async for doc, error in streamer.stream_doc(
-                    doc=body, exec_endpoint=endpoint_path
+                        doc=body, exec_endpoint=endpoint_path
                 ):
                     if error:
                         raise HTTPException(status_code=499, detail=str(error))

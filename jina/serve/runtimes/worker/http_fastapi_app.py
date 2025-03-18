@@ -52,7 +52,8 @@ def get_fastapi_app(
         )
 
         class Config(BaseConfig):
-            alias_generator = _to_camel_case
+            if not is_pydantic_v2:
+                alias_generator = _to_camel_case
             allow_population_by_field_name = True
 
     class InnerConfig(BaseConfig):

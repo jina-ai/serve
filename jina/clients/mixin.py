@@ -17,6 +17,12 @@ if TYPE_CHECKING:  # pragma: no cover
     from jina.types.request.data import Response
 
 from jina._docarray import Document, DocumentArray, docarray_v2
+if docarray_v2:
+    from docarray.utils._internal._typing import safe_issubclass
+else:
+    def safe_issubclass(a, b):
+        return issubclass(a, b)
+
 
 
 def _include_results_field_in_param(parameters: Optional['Dict']) -> 'Dict':
@@ -402,7 +408,7 @@ class PostMixin:
             if docarray_v2:
                 from docarray import DocList
 
-                if not issubclass(return_type, DocList):
+                if not safe_issubclass(return_type, DocList):
                     is_singleton = True
                     inferred_return_type = DocList[return_type]
             result = [] if return_responses else inferred_return_type([])
@@ -532,7 +538,7 @@ class AsyncPostMixin:
             if docarray_v2:
                 from docarray import DocList
 
-                if issubclass(return_type, DocList):
+                if safe_issubclass(return_type, DocList):
                     result.document_array_cls = return_type
                 else:
                     is_singleton = True

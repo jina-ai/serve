@@ -12,6 +12,11 @@ from jina.logging.profile import ProgressBar
 from jina.serve.stream import RequestStreamer
 from jina.types.request import Request
 from jina.types.request.data import DataRequest
+if docarray_v2:
+    from docarray.utils._internal._typing import safe_issubclass
+else:
+    def safe_issubclass(a, b):
+        return issubclass(a, b)
 
 if TYPE_CHECKING:  # pragma: no cover
     from jina.clients.base import CallbackFnType, InputType
@@ -242,7 +247,7 @@ class HTTPBaseClient(BaseClient):
                     else:
                         from docarray import DocList
 
-                        if issubclass(return_type, DocList):
+                        if safe_issubclass(return_type, DocList):
                             da = return_type(
                                 [return_type.doc_type(**v) for v in r_str['data']]
                             )

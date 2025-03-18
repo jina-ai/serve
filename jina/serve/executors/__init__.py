@@ -53,6 +53,11 @@ from jina.serve.instrumentation import MetricsTimer
 
 if docarray_v2:
     from jina._docarray import LegacyDocumentJina
+    from docarray.utils._internal._typing import safe_issubclass
+else:
+    def safe_issubclass(a, b):
+        return issubclass(a, b)
+
 
 if TYPE_CHECKING:  # pragma: no cover
     from opentelemetry.context.context import Context
@@ -104,7 +109,7 @@ def get_inner_pydantic_model(annotation: Type) -> bool:
         args = get_args(annotation)
 
         # If the origin itself is a Pydantic model, return True
-        if isinstance(origin, type) and issubclass(origin, BaseModel):
+        if isinstance(origin, type) and safe_issubclass(origin, BaseModel):
             return origin
 
         # Check the arguments (for the actual types inside Union, Optional, etc.)
@@ -188,37 +193,37 @@ class _FunctionWithSchema(NamedTuple):
 
             if not self.is_generator:
                 if self.is_batch_docs and (
-                    not issubclass(self.request_schema, DocList)
-                    or not issubclass(self.response_schema, DocList)
+                    not safe_issubclass(self.request_schema, DocList)
+                    or not safe_issubclass(self.response_schema, DocList)
                 ):
                     faulty_schema = (
                         'request_schema'
-                        if not issubclass(self.request_schema, DocList)
+                        if not safe_issubclass(self.request_schema, DocList)
                         else 'response_schema'
                     )
                     raise Exception(
                         f'The {faulty_schema} schema for {self.fn.__name__}: {self.request_schema} is not a DocList. Please make sure that your endpoint used DocList for request and response schema'
                     )
                 if self.is_singleton_doc and (
-                    not issubclass(self.request_schema, BaseDoc)
-                    or not issubclass(self.response_schema, BaseDoc)
+                    not safe_issubclass(self.request_schema, BaseDoc)
+                    or not safe_issubclass(self.response_schema, BaseDoc)
                 ):
                     faulty_schema = (
                         'request_schema'
-                        if not issubclass(self.request_schema, BaseDoc)
+                        if not safe_issubclass(self.request_schema, BaseDoc)
                         else 'response_schema'
                     )
                     raise Exception(
                         f'The {faulty_schema} schema for {self.fn.__name__}: {self.request_schema} is not a BaseDoc. Please make sure that your endpoint used BaseDoc for request and response schema'
                     )
             else:
-                if not issubclass(self.request_schema, BaseDoc) or not (
-                    issubclass(self.response_schema, BaseDoc)
-                    or issubclass(self.response_schema, BaseDoc)
+                if not safe_issubclass(self.request_schema, BaseDoc) or not (
+                    safe_issubclass(self.response_schema, BaseDoc)
+                    or safe_issubclass(self.response_schema, BaseDoc)
                 ):  # response_schema may be a DocList because by default we use LegacyDocument, and for generators we ignore response
                     faulty_schema = (
                         'request_schema'
-                        if not issubclass(self.request_schema, BaseDoc)
+                        if not safe_issubclass(self.request_schema, BaseDoc)
                         else 'response_schema'
                     )
                     raise Exception(
@@ -273,7 +278,7 @@ class _FunctionWithSchema(NamedTuple):
                 'DocumentArray will be used instead.'
             )
             docs_annotation = None
-        elif not isinstance(docs_annotation, type):
+        elif not isinstance(docs_annotation, type) and not safe_issubclass(docs_annotation, DocList):
             warnings.warn(
                 f'`docs` annotation must be a class if you want to use it'
                 f' as schema input, got {docs_annotation}. try to remove the Optional'
@@ -306,7 +311,7 @@ class _FunctionWithSchema(NamedTuple):
             elif get_origin(return_annotation) == AsyncIterator:
                 return_annotation = get_args(return_annotation)[0]
 
-        elif not isinstance(return_annotation, type):
+        elif not isinstance(return_annotation, type) and not safe_issubclass(docs_annotation, DocList):
             warnings.warn(
                 f'`return` annotation must be a class if you want to use it'
                 f'as schema input, got {docs_annotation}, fallback to default behavior'

@@ -491,7 +491,7 @@ def test_chain(protocols):
             assert docs[0].a == 'shape input 100'
             if len(protocols) == 1 and protocols[0] == 'grpc':
                 import grpc
-                from docarray.documents.legacy import LegacyDocument
+                from jina._docarray_legacy import LegacyDocumentJina
                 from google.protobuf.json_format import MessageToDict
 
                 from jina.proto import jina_pb2
@@ -511,8 +511,8 @@ def test_chain(protocols):
                 schema_map = MessageToDict(res.schemas)
                 assert set(schema_map.keys()) == {__dry_run_endpoint__, '/bar'}
                 v = schema_map[__dry_run_endpoint__]
-                assert v['input'] == LegacyDocument.schema()
-                assert v['output'] == LegacyDocument.schema()
+                assert v['input'] == LegacyDocumentJina.schema()
+                assert v['output'] == LegacyDocumentJina.schema()
                 v = schema_map['/bar']
                 assert (
                     v['input']
@@ -580,7 +580,7 @@ def test_default_endpoint(protocols):
 
         if len(protocols) == 1 and protocols[0] == 'grpc':
             import grpc
-            from docarray.documents.legacy import LegacyDocument
+            from jina._docarray_legacy import LegacyDocumentJina
             from google.protobuf.json_format import MessageToDict
 
             from jina.proto import jina_pb2
@@ -603,8 +603,8 @@ def test_default_endpoint(protocols):
                 __default_endpoint__,
             }
             v = schema_map[__dry_run_endpoint__]
-            assert v['input'] == LegacyDocument.schema()
-            assert v['output'] == LegacyDocument.schema()
+            assert v['input'] == LegacyDocumentJina.schema()
+            assert v['output'] == LegacyDocumentJina.schema()
             v = schema_map[__default_endpoint__]
             assert (
                 v['input']
@@ -689,6 +689,9 @@ def test_condition_feature(protocol, temp_workspace, tmpdir):
         text: str
         tags: Dict[str, int]
 
+    class EmptyDoc(BaseDoc):
+        text: Optional[str] = None
+
     class ConditionDumpExecutor(Executor):
         @requests
         def foo(
@@ -706,7 +709,7 @@ def test_condition_feature(protocol, temp_workspace, tmpdir):
     class FirstExec(Executor):
         @requests
         def foo(
-                self, docs: DocList[LegacyDocument], **kwargs
+                self, docs: DocList[EmptyDoc], **kwargs
         ) -> DocList[ProcessingTestDocConditions]:
             output_da = DocList[ProcessingTestDocConditions](
                 [
@@ -746,7 +749,7 @@ def test_condition_feature(protocol, temp_workspace, tmpdir):
     )
 
     with f:
-        input_da = DocList[LegacyDocument]([])
+        input_da = DocList[EmptyDoc]([])
 
         ret = f.post(
             on='/bar',
@@ -814,7 +817,16 @@ def test_endpoints_target_executors_combinations(protocol):
 
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_floating_executors(protocol, tmpdir):
+    class EmptyDoc(BaseDoc):
+        text: Optional[str] = None
     TIME_SLEEP_FLOATING = 1.0
+
+    class PassTestExecutor(Executor):
+        @requests
+        def foo(
+                self, docs: DocList[EmptyDoc], **kwargs
+        ) -> DocList[EmptyDoc]:
+            return docs
 
     class FloatingTestExecutor(Executor):
         def __init__(self, file_name, *args, **kwargs):
@@ -823,8 +835,8 @@ def test_floating_executors(protocol, tmpdir):
 
         @requests
         def foo(
-                self, docs: DocList[LegacyDocument], **kwargs
-        ) -> DocList[LegacyDocument]:
+                self, docs: DocList[EmptyDoc], **kwargs
+        ) -> DocList[EmptyDoc]:
             time.sleep(TIME_SLEEP_FLOATING)
             with open(self.file_name, 'a+', encoding='utf-8') as f:
                 f.write('here ')
@@ -838,7 +850,7 @@ def test_floating_executors(protocol, tmpdir):
 
     f = (
         Flow(protocol=protocol)
-            .add(name='first')
+            .add(name='first', uses=PassTestExecutor)
             .add(
             name='second',
             floating=True,
@@ -851,7 +863,7 @@ def test_floating_executors(protocol, tmpdir):
         for j in range(NUM_REQ):
             start_time = time.time()
             ret = f.post(
-                on='/default', inputs=DocList[LegacyDocument]([LegacyDocument(text='')])
+                on='/default', inputs=DocList[EmptyDoc]([EmptyDoc(text='')])
             )
             end_time = time.time()
             assert (
@@ -1379,7 +1391,7 @@ def test_serve_complex_model(protocols, replicas, ctxt_manager):
         img: ImageDoc
 
     class OutputComplexDoc(BaseDoc):
-        tensor: Optional[AnyTensor]
+        tensor: Optional[AnyTensor] = None
         url: ImageUrl
         lll: List[List[List[int]]] = [[[5]]]
         fff: List[List[List[float]]] = [[[5.2]]]
@@ -1437,7 +1449,10 @@ def test_serve_complex_model(protocols, replicas, ctxt_manager):
             assert docs[0].fff == [[[40.2]]]
             assert docs[0].d == {'b': 'a'}
             assert docs[0].u == 'a'
-            assert docs[0].lu == ['3', '4']
+            if not is_pydantic_v2:
+                assert docs[0].lu == ['3', '4']
+            else:
+                assert docs[0].lu == [3, 4]
             assert len(docs[0].texts) == 1
             assert docs[0].single_text.text == 'single hey ha'
             assert docs[0].single_text.embedding.shape == (2,)
@@ -1624,10 +1639,15 @@ def test_doc_with_examples(ctxt_manager, include_gateway):
         """This test should be in description"""
 
         t: str = Field(examples=[random_example], description=random_description)
-
-        class Config:
-            title: str = 'MyDocWithExampleTitle'
-            schema_extra: Dict = {'extra_key': 'extra_value'}
+        if not is_pydantic_v2:
+            class Config:
+                title: str = 'MyDocWithExampleTitle'
+                schema_extra: Dict = {'extra_key': 'extra_value'}
+        else:
+            model_config = {
+                'title': 'MyDocWithExampleTitle',
+                'json_schema_extra': {'extra_key': 'extra_value'}
+            }
 
     class MyExecDocWithExample(Executor):
         @requests

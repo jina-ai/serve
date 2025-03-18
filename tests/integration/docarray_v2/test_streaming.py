@@ -14,7 +14,7 @@ class MyDocument(BaseDoc):
     input_type_name: ClassVar[str] = 'MyDocumentType'
 
     text: str
-    number: Optional[int]
+    number: Optional[int] = None
 
 
 class OutputDocument(BaseDoc):

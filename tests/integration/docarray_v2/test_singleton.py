@@ -267,7 +267,7 @@ def test_singleton_in_place(ctxt_manager, protocols, return_type):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['http', 'grpc', 'websocket']]
+     'protocols', [['grpc'], ['http'], ['http', 'grpc', 'websocket']]
 )
 @pytest.mark.parametrize('return_type', ['batch', 'singleton'])
 def test_singleton_in_flow_in_the_middle(protocols, return_type):
@@ -337,9 +337,10 @@ def test_singleton_in_flow_in_the_middle(protocols, return_type):
                 ),
                 return_type=DocList[OutputDoc] if return_type == 'batch' else OutputDoc,
             )
-            assert isinstance(docs, DocList[OutputDoc])  # I have sent 2
+            assert isinstance(docs, DocList)  # I have sent 2
             assert len(docs) == 2
             for doc in docs:
+                assert isinstance(doc, OutputDoc)
                 assert doc.output == 2 * len('hello')
 
 

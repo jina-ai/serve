@@ -4,6 +4,7 @@ import pytest
 from docarray import BaseDoc, DocList
 from docarray.documents import TextDoc
 from pydantic import BaseModel
+from jina._docarray import is_pydantic_v2
 
 from jina import Deployment, Executor, Flow, requests
 from jina.helper import random_port
@@ -61,7 +62,7 @@ def test_parameters_as_pydantic(protocol, ctxt_manager, parameters_in_client):
         if protocol == 'http':
             import requests as global_requests
 
-            for endpoint in {'hello', 'hello_single'}:
+            for endpoint in {'hello_single', 'hello'}:
                 processed_by = 'foo' if endpoint == 'hello' else 'bar'
                 url = f'http://localhost:{ctxt_mgr.port}/{endpoint}'
                 myobj = {'data': {'text': ''}, 'parameters': {'param': 'value'}}
@@ -219,9 +220,15 @@ def test_openai(ctxt_manager, include_gateway):
 
         t: str = Field(examples=[random_example], description=random_description)
 
-        class Config:
-            title: str = 'MyDocWithExampleTitle'
-            schema_extra: Dict = {'extra_key': 'extra_value'}
+        if not is_pydantic_v2:
+            class Config:
+                title: str = 'MyDocWithExampleTitle'
+                schema_extra: Dict = {'extra_key': 'extra_value'}
+        else:
+            model_config = {
+                'title': 'MyDocWithExampleTitle',
+                'json_schema_extra': {'extra_key': 'extra_value'}
+            }
 
     class MyConfigParam(BaseModel):
         """Configuration for Executor endpoint"""

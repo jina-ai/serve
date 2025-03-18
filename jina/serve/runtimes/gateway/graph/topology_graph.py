@@ -306,15 +306,23 @@ class TopologyGraph:
                                             not in models_created_by_name
                                         ):
                                             from pydantic import BaseModel
-
-                                            parameters_model = (
-                                                create_base_doc_from_schema(
-                                                    parameters_model_schema,
-                                                    parameters_model_name,
-                                                    models_created_by_name,
-                                                    base_class=BaseModel,
+                                            if not is_pydantic_v2:
+                                                parameters_model = (
+                                                    create_base_doc_from_schema(
+                                                        parameters_model_schema,
+                                                        parameters_model_name,
+                                                        models_created_by_name,
+                                                        base_class=BaseModel,
+                                                    )
                                                 )
-                                            )
+                                            else:
+                                                parameters_model = (
+                                                    create_base_doc_from_schema(
+                                                        parameters_model_schema,
+                                                        parameters_model_name,
+                                                        models_created_by_name,
+                                                    )
+                                                )
                                             models_created_by_name[
                                                 parameters_model_name
                                             ] = parameters_model

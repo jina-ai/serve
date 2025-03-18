@@ -18,18 +18,18 @@ class Nested1Doc(BaseDoc):
 
 
 class RootDoc(BaseDoc):
-    nested: Optional[Nested1Doc]
-    num: Optional[int]
+    nested: Optional[Nested1Doc] = None
+    num: Optional[int] = None
     text: str
 
 
 class OptionalNested1Doc(BaseDoc):
-    nested: Optional[Nested2Doc]
+    nested: Optional[Nested2Doc] = None
 
 
 class RootDocWithNestedList(BaseDoc):
-    nested: Optional[List[OptionalNested1Doc]]
-    num: Optional[int]
+    nested: Optional[List[Nested1Doc]] = None
+    num: Optional[int] = None
     text: str
 
 

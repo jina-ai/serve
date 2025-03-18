@@ -3,6 +3,8 @@ ARG PY_VERSION=3.10
 FROM python:${PY_VERSION}-slim
 
 ARG DOCARRAY_VERSION
+ARG PYDANTIC_VERSION
+
 ARG PIP_TAG
 
 RUN apt-get update && apt-get install --no-install-recommends -y gcc libc6-dev net-tools procps htop lsof dnsutils pkg-config wget
@@ -22,6 +24,7 @@ COPY . /jina/
 RUN cd /jina && pip install ."$PIP_TAG"
 
 RUN if [ -z "$DOCARRAY_VERSION" ]; then echo "DOCARRAY_VERSION is not provided"; else pip install docarray==$DOCARRAY_VERSION; fi
+RUN if [ -z "$PYDANTIC_VERSION" ]; then echo "PYDANTIC_VERSION is not provided"; else pip install pydantic$PYDANTIC_VERSION; fi
 
 RUN cat $HOME/.bashrc
 RUN grep -Fxq "# JINA_CLI_BEGIN" $HOME/.bashrc

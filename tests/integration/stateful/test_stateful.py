@@ -3,8 +3,8 @@ import time
 import pytest
 import os
 
-from jina import Client, Document, DocumentArray, Flow, Deployment
-from typing import Dict, List
+from jina import Client, DocumentArray, Flow, Deployment
+from typing import Dict, List, Union
 
 from jina.helper import random_port
 
@@ -22,8 +22,8 @@ cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 class TextDocWithId(TextDoc):
     id: str
-    tags: Dict[str, str] = {}
-    l: List[str] = []
+    tags: Dict[str, Union[str, int]] = {}
+    l: List[Union[str, int]] = []
 
 
 @pytest.fixture(scope='function')
@@ -79,7 +79,7 @@ def assert_all_replicas_indexed(client, search_da, num_replicas=3, key='pid'):
 @pytest.mark.parametrize('shards', [2, 1])
 @pytest.mark.skipif(not docarray_v2, reason='tests support for docarray>=0.30')
 def test_stateful_index_search(
-    executor_cls, shards, tmpdir, stateful_exec_docker_image_built, kill_all_children
+    executor_cls, shards, tmpdir, kill_all_children
 ):
     replicas = 3
     if shards > 1:
@@ -140,7 +140,7 @@ def test_stateful_index_search(
     reason='tests support for docarray>=0.30 and not working on GITHUB since issue with restarting server in grpc',
 )
 def test_stateful_index_search_restore(
-    executor_cls, shards, tmpdir, stateful_exec_docker_image_built, kill_all_children
+    executor_cls, shards, tmpdir, kill_all_children
 ):
     replicas = 3
     peer_ports = {}

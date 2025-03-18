@@ -465,7 +465,8 @@ jobs:
           setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
-          docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          # Take into account in the `test-pip` the versions
+          docker build --build-arg PYDANTIC_VERSION=${{ matrix.pydantic-version }} -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)
@@ -543,7 +544,8 @@ jobs:
           setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
-          docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          # Take into account in the `test-pip` the versions
+          docker build --build-arg PYDANTIC_VERSION=${{ matrix.pydantic-version }} -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)

@@ -471,6 +471,7 @@ def assert_port_config(port_dict: Dict, name: str, port: int):
     assert port_dict['targetPort'] == port
 
 
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize('shards', [3, 1])
 @pytest.mark.parametrize(
     'uses',

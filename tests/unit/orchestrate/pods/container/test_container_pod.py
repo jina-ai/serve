@@ -154,6 +154,7 @@ def test_failing_executor(fail_start_docker_image_built):
         pod._container
 
 
+@pytest.mark.skip('jinahub not available')
 def test_pass_arbitrary_kwargs(monkeypatch, mocker):
     import docker
 

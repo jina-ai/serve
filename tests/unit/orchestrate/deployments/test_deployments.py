@@ -144,6 +144,7 @@ def test_uses_before_after(pod_args, shards):
         assert pod.num_pods == 5 if shards == 2 else 1
 
 
+@pytest.mark.skip('jinahub not available')
 def test_mermaid_str_no_secret(pod_args):
     pod_args.replicas = 3
     pod_args.shards = 3
@@ -576,6 +577,7 @@ def test_pod_remote_pod_replicas_host(num_shards, num_replicas):
                 assert replica_arg.host == __default_host__
 
 
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize(
     'uses',
     ['jinahub+docker://DummyHubExecutor', 'jinaai+docker://jina-ai/DummyHubExecutor'],

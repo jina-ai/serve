@@ -438,6 +438,7 @@ def test_default_workspace(tmpdir):
     assert result_workspace == os.path.join(__cache_path__, 'WorkspaceExec', '0')
 
 
+@pytest.mark.skip('Hub not available')
 @pytest.mark.parametrize(
     'exec_type',
     [Executor.StandaloneExecutorType.EXTERNAL, Executor.StandaloneExecutorType.SHARED],

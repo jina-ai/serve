@@ -376,8 +376,9 @@ class DummyExecutor(Executor):
     def foo(self, docs, **kwargs): ...
 
 
+
 @pytest.mark.parametrize(
-    'uses', [DummyExecutor, 'jinahub+docker://DummyHubExecutor', 'executor.yml']
+    'uses', [DummyExecutor, 'executor.yml']
 )
 def test_deployment_uses(uses):
     depl = Deployment(uses=uses)

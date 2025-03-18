@@ -1,6 +1,6 @@
 set -ex
 
-docker build --build-arg PIP_TAG="[devel]" --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+docker build --build-arg PIP_TAG="[devel]" --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
 docker build -f tests/jinahub/hub_mwu/Dockerfile tests/jinahub/hub_mwu -t hubpod:test
 docker build -f tests/jinahub/Dockerfile tests/jinahub/ -t jinaai/test_hubapp_hubpods
 

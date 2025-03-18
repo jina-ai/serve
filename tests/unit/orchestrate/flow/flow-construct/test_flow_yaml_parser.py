@@ -65,7 +65,7 @@ def test_load_dump_load(tmpdir):
     f2 = Flow.load_config('yaml/flow-v1.0-syntax.yml')
     f2.save_config(str(Path(tmpdir) / 'a1.yml'))
 
-
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize(
     'yaml_file', ['yaml/flow-gateway.yml', 'yaml/flow-gateway-api.yml']
 )

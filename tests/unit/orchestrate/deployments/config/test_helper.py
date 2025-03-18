@@ -42,6 +42,7 @@ def test_to_compatible_name():
     assert to_compatible_name('executor/hey-ha_HO') == 'executor-hey-ha-ho'
 
 
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize('uses', ['jinaai://jina-ai/DummyExecutor'])
 def test_get_image_name(mocker, monkeypatch, uses):
     mock = mocker.Mock()

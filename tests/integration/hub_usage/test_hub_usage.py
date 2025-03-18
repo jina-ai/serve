@@ -11,7 +11,7 @@ from jina.serve.executors import BaseExecutor
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
-
+@pytest.mark.skip('jinahub not available')
 def test_simple_use_abs_import_shall_fail():
     with pytest.raises(ModuleNotFoundError):
         from .dummyhub_abs import DummyHubExecutorAbs
@@ -22,7 +22,7 @@ def test_simple_use_abs_import_shall_fail():
         with Flow().add(uses='DummyHubExecutorAbs'):
             pass
 
-
+@pytest.mark.skip('jinahub not available')
 def test_simple_use_relative_import():
     from .dummyhub import DummyHubExecutor
 
@@ -31,18 +31,18 @@ def test_simple_use_relative_import():
     with Flow().add(uses='DummyHubExecutor'):
         pass
 
-
+@pytest.mark.skip('jinahub not available')
 def test_use_from_local_dir_exe_level():
     with BaseExecutor.load_config('dummyhub/config.yml'):
         pass
 
-
+@pytest.mark.skip('jinahub not available')
 def test_use_from_local_dir_deployment_level():
     a = set_deployment_parser().parse_args(['--uses', 'dummyhub/config.yml'])
     with Deployment(a):
         pass
 
-
+@pytest.mark.skip('jinahub not available')
 def test_use_from_local_dir_flow_level():
     with Flow().add(uses='dummyhub/config.yml'):
         pass
@@ -61,7 +61,7 @@ def local_hub_executor(tmpdir):
         Path(tmpdir) / 'dummy_test.zip', HubExecutor(uuid='hello', tag='v0')
     )
 
-
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize('uses', ['jinahub://hello', 'jinaai://jina-ai/hello'])
 def test_use_from_local_hub_deployment_level(
     mocker, monkeypatch, local_hub_executor, uses
@@ -94,7 +94,7 @@ def test_use_from_local_hub_deployment_level(
     with Deployment(a):
         pass
 
-
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize('uses', ['jinahub://hello', 'jinaai://jina-ai/hello'])
 def test_use_from_local_hub_flow_level(mocker, monkeypatch, local_hub_executor, uses):
     from hubble.executor.hubio import HubExecutor, HubIO

@@ -438,6 +438,7 @@ def test_docker_compose_gateway(
         )
 
 
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize('shards', [3, 1])
 @pytest.mark.parametrize('replicas', [3, 1])
 @pytest.mark.parametrize(

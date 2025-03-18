@@ -45,6 +45,7 @@ jobs:
       - run: |
           pip install . --no-cache-dir
           pip install docarray==0.21.0 # only valid for this version. I think we should remove this schema loading
+          pip install docarray==1.10.3
           JINA_VERSION=$(sed -n '/^__version__/p' ./jina/__init__.py | cut -d \' -f2)-master
           echo "JINA_VERSION=${JINA_VERSION}" >> $GITHUB_ENV
           cd schema
@@ -482,12 +483,13 @@ jobs:
           setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)
           pip install "$WHEEL_FILE[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           pip install grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           jina
           export JINA_LOG_LEVEL="ERROR"
@@ -617,11 +619,12 @@ jobs:
           python-version: "3.10"
       - name: Prepare enviroment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install ".[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           jina
           export JINA_LOG_LEVEL="ERROR"
           curl -LO https://dl.k8s.io/release/v1.21.1/bin/linux/amd64/kubectl
@@ -659,11 +662,12 @@ jobs:
           python-version: "3.10"
       - name: Prepare enviroment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install ".[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           jina
           export JINA_LOG_LEVEL="ERROR"
           curl -LO https://dl.k8s.io/release/v1.21.1/bin/linux/amd64/kubectl
@@ -701,11 +705,12 @@ jobs:
           python-version: "3.10"
       - name: Prepare enviroment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install ".[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           jina
           export JINA_LOG_LEVEL="ERROR"
           curl -LO https://dl.k8s.io/release/v1.21.1/bin/linux/amd64/kubectl
@@ -743,11 +748,12 @@ jobs:
           python-version: "3.10"
       - name: Prepare enviroment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install ".[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           jina
           export JINA_LOG_LEVEL="ERROR"
           curl -LO https://dl.k8s.io/release/v1.21.1/bin/linux/amd64/kubectl
@@ -786,11 +792,12 @@ jobs:
           python-version: "3.10"
       - name: Prepare enviroment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install ".[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           jina
           export JINA_LOG_LEVEL="ERROR"
           curl -LO https://dl.k8s.io/release/v1.21.1/bin/linux/amd64/kubectl
@@ -826,11 +833,12 @@ jobs:
           python-version: "3.10"
       - name: Prepare enviroment
         run: |
-          docker build --build-arg DOCARRAY_VERSION="0.21.0" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg DOCARRAY_VERSION="0.21.0" --build-arg PYDANTIC_VERSION="==1.10.3" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install ".[all]" --no-cache-dir
           pip install docarray==0.21.0
+          pip install pydantic==1.10.3
           jina
           export JINA_LOG_LEVEL="ERROR"
         env:

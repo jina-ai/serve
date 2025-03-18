@@ -108,6 +108,7 @@ jobs:
       matrix:
         python-version: ["3.10"]
         protobuf-version: ['==3.19.6', '']
+        pydantic-version: ['==1.10.3', '<3.0.0']
     steps:
       - uses: actions/checkout@v2.5.0
       - name: Set up Python ${{ matrix.python-version }}
@@ -118,6 +119,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.19.5
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -130,7 +132,8 @@ jobs:
           setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
-          docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          # Take into account in the `test-pip` the versions
+          docker build --build-arg PYDANTIC_VERSION=${{ matrix.pydantic-version }} -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)
@@ -140,6 +143,7 @@ jobs:
           else
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
+          pip install -U pydantic${{ matrix.pydantic-version }}
           jina
           export JINA_LOG_LEVEL="ERROR"
       - name: Test
@@ -165,12 +169,13 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov
           flags: ${{ steps.test.outputs.codecov_flag }}
           fail_ci_if_error: false
+
 
   stateful-docarray-v-two-test:
     needs: prep-testbed
@@ -182,6 +187,7 @@ jobs:
       matrix:
         python-version: ["3.10"]
         protobuf-version: ['==3.19.6', '']
+        pydantic-version: ['==1.10.3', '<3.0.0']
     steps:
       - uses: actions/checkout@v2.5.0
       - name: Set up Python ${{ matrix.python-version }}
@@ -205,7 +211,8 @@ jobs:
           setuptools-golang-build-manylinux-wheels --pythons cp310-cp310
       - name: Prepare environment
         run: |
-          docker build -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          # Take into account in the `test-pip` the versions
+          docker build --build-arg PYDANTIC_VERSION=${{ matrix.pydantic-version }} -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)
@@ -215,6 +222,7 @@ jobs:
           else
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
+          pip install -U pydantic${{ matrix.pydantic-version }}
           jina
           export JINA_LOG_LEVEL="ERROR"
       - name: Test stateful
@@ -233,7 +241,7 @@ jobs:
           files: "coverage.xml"
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.8'
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.10'
         with:
           file: coverage.xml
           name: ${{ matrix.test-path }}-codecov

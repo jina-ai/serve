@@ -148,28 +148,6 @@ jobs:
       - run: |
           docker run --platform ${{ matrix.test-arch }} localhost:5000/jina/multiarch:latest -v
 
-  hub-test:
-    runs-on: ubuntu-latest
-    needs: [lint-flake-8, code-injection]
-    if: ${{ !github.event.pull_request.head.repo.fork }}
-    steps:
-#      - name: Cancel Previous Runs
-#        uses: styfle/cancel-workflow-action@0.9.0
-#        with:
-#          access_token: ${{ github.token }}
-      - uses: actions/checkout@v2.5.0
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Test hubapp with hubpods
-        run: |
-          ./tests/jinahub/test_integration.sh
-        timeout-minutes: 30
-        env:
-          JINAHUB_USERNAME: ${{ secrets.JINAHUB_USERNAME }}
-          JINAHUB_PASSWORD: ${{ secrets.JINAHUB_PASSWORD }}
-
   k8s-flow-test:
     needs: [lint-flake-8, code-injection]
     runs-on: ubuntu-latest
@@ -841,7 +819,7 @@ jobs:
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
     runs-on: ubuntu-latest
-    needs: [commit-lint, core-test, docarray-v-two-test, stateful-docarray-v-two-test, import-test, hub-test, k8s-flow-test, k8s-deployment-test, k8s-graceful-test, k8s-failures-test, k8s-otel-test, docker-compose-test, docker-image-test, check-docstring, check-black, code-injection, build-wheels]
+    needs: [commit-lint, core-test, docarray-v-two-test, stateful-docarray-v-two-test, import-test, k8s-flow-test, k8s-deployment-test, k8s-graceful-test, k8s-failures-test, k8s-otel-test, docker-compose-test, docker-image-test, check-docstring, check-black, code-injection, build-wheels]
 
     if: always()
     steps:

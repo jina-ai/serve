@@ -31,17 +31,23 @@ if docarray_v2:
         async def foo(
             self, docs: DocList[InputTestDoc], **kwargs
         ) -> DocList[OutputTestDoc]:
+            ret = DocList[OutputTestDoc]()
             for doc in docs:
-                doc.text += f'return foo {os.getpid()}'
-                doc.tags['pid'] = os.getpid()
+                new_doc = OutputTestDoc(text=doc.text + f'return foo {os.getpid()}', tags=doc.tags)
+                new_doc.tags['pid'] = str(os.getpid())
+                ret.append(new_doc)
+            return ret
 
         @requests(on='/bar')
         async def bar(
             self, docs: DocList[InputTestDoc], **kwargs
         ) -> DocList[OutputTestDoc]:
+            ret = DocList[OutputTestDoc]()
             for doc in docs:
-                doc.text += f'return bar {os.getpid()}'
-                doc.tags['pid'] = os.getpid()
+                new_doc = OutputTestDoc(text=doc.text + f'return bar {os.getpid()}', tags=doc.tags)
+                new_doc.tags['pid'] = str(os.getpid())
+                ret.append(new_doc)
+            return ret
 
         @requests(on='/error')
         async def raise_error(
@@ -50,15 +56,14 @@ if docarray_v2:
             raise Exception('Raised exception in request')
 
         @requests(on='/parameters')
-        async def return_parameters(self, docs: DocList[InputTestDoc], **kwargs):
+        async def return_parameters(self, docs: DocList[InputTestDoc], **kwargs) -> DocList[InputTestDoc]:
             return {'pid': os.getpid()}
 
         @requests(on='/docsparams')
         async def docs_with_params(
             self, docs: DocList[InputTestDoc], parameters, **kwargs
         ) -> DocList[OutputTestDoc]:
-            for doc in docs:
-                doc.text = parameters['key']
+            return DocList[OutputTestDoc]([OutputTestDoc(text=parameters['key'])])
 
 
 @pytest.mark.parametrize('replicas', [1, 3])

@@ -391,17 +391,20 @@ def test_dynamic_class_creation_multiple_doclist_nested():
     class SearchResult(BaseDoc):
         results: DocList[QuoteFile] = None
 
-    textlist = DocList[MyTextDoc]([MyTextDoc(text='hey')])
     models_created_by_name = {}
     SearchResult_aux = create_pure_python_type_model(SearchResult)
-    _ = create_base_doc_from_schema(
+    m = create_base_doc_from_schema(
         SearchResult_aux.schema(), 'SearchResult', models_created_by_name
     )
+    print(f'm {m.schema()}')
     QuoteFile_reconstructed_in_gateway_from_Search_results = models_created_by_name[
         'QuoteFile'
     ]
+    textlist = DocList[models_created_by_name['MyTextDoc']](
+        [models_created_by_name['MyTextDoc'](text='hey')]
+    )
 
     reconstructed_in_gateway_from_Search_results = (
-        QuoteFile_reconstructed_in_gateway_from_Search_results(texts=textlist, id='hey')
+        QuoteFile_reconstructed_in_gateway_from_Search_results(id='hey', texts=textlist)
     )
     assert reconstructed_in_gateway_from_Search_results.texts[0].text == 'hey'

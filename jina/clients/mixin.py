@@ -20,9 +20,7 @@ from jina._docarray import Document, DocumentArray, docarray_v2
 if docarray_v2:
     from docarray.utils._internal._typing import safe_issubclass
 else:
-    def safe_issubclass(a, b):
-        return issubclass(a, b)
-
+    safe_issubclass = issubclass
 
 
 def _include_results_field_in_param(parameters: Optional['Dict']) -> 'Dict':

@@ -450,7 +450,7 @@ jobs:
       - name: Prepare environment
         run: |
           # Take into account in the `test-pip` the versions
-          docker build --build-arg PYDANTIC_VERSION=${{ matrix.pydantic-version }} -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg PYDANTIC_VERSION="${{ matrix.pydantic-version }}" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)
@@ -529,7 +529,7 @@ jobs:
       - name: Prepare environment
         run: |
           # Take into account in the `test-pip` the versions
-          docker build --build-arg PYDANTIC_VERSION=${{ matrix.pydantic-version }} -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
+          docker build --build-arg PYDANTIC_VERSION="${{ matrix.pydantic-version }}" -f Dockerfiles/test-pip.Dockerfile -t jinaai/jina:test-pip .
           python -m pip install --upgrade pip
           python -m pip install wheel
           WHEEL_FILE=$(ls dist/*whl)

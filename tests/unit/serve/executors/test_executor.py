@@ -77,6 +77,7 @@ def served_exec(request: FixtureRequest, exposed_port):
     t.join()
 
 
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize('uses', ['jinaai://jina-ai/DummyHubExecutor'])
 def test_executor_load_from_hub(uses):
     exec = Executor.from_hub(uses, uses_metas={'name': 'hello123'})
@@ -86,6 +87,7 @@ def test_executor_load_from_hub(uses):
     assert exec.metas.name == 'hello123'
 
 
+@pytest.mark.skip('jinahub not available')
 def test_executor_import_with_external_dependencies(capsys):
     ex = Executor.load_config('../../hubble-executor/config.yml')
     assert ex.bar == 123
@@ -488,6 +490,7 @@ def test_to_k8s_yaml(tmpdir, exec_type, uses):
             assert gateway_args[gateway_args.index('--port') + 1] == '8080'
 
 
+@pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize(
     'exec_type',
     [Executor.StandaloneExecutorType.EXTERNAL, Executor.StandaloneExecutorType.SHARED],

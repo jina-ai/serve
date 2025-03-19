@@ -40,6 +40,7 @@ def test_cli_help():
     subprocess.check_call(['jina', 'help', 'deployment'])
 
 
+@pytest.mark.skip("jinahub not available")
 @pytest.mark.parametrize('uses', ['jinaai://jina-ai/DummyHubExecutor'])
 def test_cli_hub(uses):
     subprocess.check_call(['jina', 'hub', '--help'])

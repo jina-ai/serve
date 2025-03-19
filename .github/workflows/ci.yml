@@ -460,7 +460,7 @@ jobs:
           else
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
-          pip install -U pydantic${{ matrix.pydantic-version }}
+          pip install pydantic"${{ matrix.pydantic-version }}"
           jina
           export JINA_LOG_LEVEL="ERROR"
       - name: Test
@@ -539,7 +539,7 @@ jobs:
           else
             pip install -U protobuf${{ matrix.protobuf-version }} grpcio==1.65.5 grpcio-reflection==1.65.5 grpcio-health-checking==1.65.5
           fi
-          pip install -U pydantic${{ matrix.pydantic-version }}
+          pip install pydantic"${{ matrix.pydantic-version }}"
           jina
           export JINA_LOG_LEVEL="ERROR"
       - name: Test stateful

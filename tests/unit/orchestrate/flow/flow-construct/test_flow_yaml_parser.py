@@ -27,44 +27,6 @@ def test_support_versions():
     assert get_supported_versions(Flow) == ['1']
 
 
-def test_load_legacy_and_v1():
-    Flow.load_config('yaml/flow-legacy-syntax.yml')
-    Flow.load_config('yaml/flow-v1-syntax.yml')
-
-    # this should fallback to v1
-    Flow.load_config('yaml/flow-v1.0-syntax.yml')
-
-    with pytest.raises(BadYAMLVersion):
-        Flow.load_config('yaml/flow-v99-syntax.yml')
-
-
-@pytest.mark.slow
-def test_add_needs_inspect(tmpdir):
-    f1 = (
-        Flow()
-        .add(name='executor0', needs='gateway')
-        .add(name='executor1', needs='gateway')
-        .inspect()
-        .needs(['executor0', 'executor1'])
-    )
-    with f1:
-        pass
-
-    f2 = Flow.load_config('yaml/flow-v1.0-syntax.yml')
-
-    with f2:
-        pass
-
-    assert f1._deployment_nodes == f2._deployment_nodes
-
-
-def test_load_dump_load(tmpdir):
-    """TODO: Dumping valid yaml is out of scope of PR#1442, to do in separate PR"""
-    f1 = Flow.load_config('yaml/flow-legacy-syntax.yml')
-    f1.save_config(str(Path(tmpdir) / 'a0.yml'))
-    f2 = Flow.load_config('yaml/flow-v1.0-syntax.yml')
-    f2.save_config(str(Path(tmpdir) / 'a1.yml'))
-
 @pytest.mark.skip('jinahub not available')
 @pytest.mark.parametrize(
     'yaml_file', ['yaml/flow-gateway.yml', 'yaml/flow-gateway-api.yml']

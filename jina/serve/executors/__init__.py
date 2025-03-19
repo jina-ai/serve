@@ -55,10 +55,7 @@ if docarray_v2:
     from jina._docarray import LegacyDocumentJina
     from docarray.utils._internal._typing import safe_issubclass
 else:
-
-    def safe_issubclass(a, b):
-        return issubclass(a, b)
-
+    safe_issubclass = issubclass
 
 if TYPE_CHECKING:  # pragma: no cover
     from opentelemetry.context.context import Context
@@ -71,7 +68,7 @@ __all__ = ['BaseExecutor', __dry_run_endpoint__]
 def is_pydantic_model(annotation: Type) -> bool:
     """Method to detect if parameter annotation corresponds to a Pydantic model
 
-    :param annotation: The annotation from which to extract PydantiModel.
+    :param annotation: The annotation from which to extract PydanticModel.
     :return: boolean indicating if a Pydantic model is inside the annotation
     """
     try:

@@ -15,8 +15,7 @@ from jina.types.request.data import DataRequest
 if docarray_v2:
     from docarray.utils._internal._typing import safe_issubclass
 else:
-    def safe_issubclass(a, b):
-        return issubclass(a, b)
+    safe_issubclass = issubclass
 
 if TYPE_CHECKING:  # pragma: no cover
     from jina.clients.base import CallbackFnType, InputType

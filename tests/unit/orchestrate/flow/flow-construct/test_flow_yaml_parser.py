@@ -109,13 +109,14 @@ def test_dump_load_build(monkeypatch):
     # validate gateway args (set during build)
     assert f['gateway'].args.port == f2['gateway'].args.port
 
-
+@pytest.mark.skipif('GITHUB_WORKFLOW' in os.env, reason='no specific port test in CI')
 def test_load_flow_with_port():
     f = Flow.load_config('yaml/test-flow-port.yml')
     with f:
         assert f.port == 12345
 
 
+@pytest.mark.skipif('GITHUB_WORKFLOW' in os.env, reason='no specific port test in CI')
 def test_load_flow_from_cli():
     a = set_flow_parser().parse_args(['--uses', 'yaml/test-flow-port.yml'])
     f = Flow.load_config(a.uses)

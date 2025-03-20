@@ -10,6 +10,9 @@ if TYPE_CHECKING:
 
 if docarray_v2:
     from docarray import BaseDoc, DocList
+    from docarray.utils._internal._typing import safe_issubclass
+else:
+    safe_issubclass = issubclass
 
 
 def get_fastapi_app(
@@ -157,7 +160,6 @@ def get_fastapi_app(
                         detail='Invalid CSV input. Please check your input.',
                     )
 
-
                 def construct_model_from_line(model: Type[BaseModel], line: List[str]) -> BaseModel:
                     origin = get_origin(model)
                     # If the model is of type Optional[X], unwrap it to get X
@@ -171,7 +173,7 @@ def get_fastapi_app(
                     model_fields = model.__fields__
 
                     for idx, (field_name, field_info) in enumerate(model_fields.items()):
-                        field_type = field_info.type_
+                        field_type = field_info.outer_type_
                         field_str = line[idx]  # Corresponding value from the row
 
                         try:
@@ -196,15 +198,22 @@ def get_fastapi_app(
                                         continue
 
                             # Handle list of nested models (e.g., List[Item])
-                            elif get_origin(field_type) is list:
+                            elif origin is list:
                                 list_item_type = get_args(field_type)[0]
                                 if field_str:
                                     parsed_list = json.loads(field_str)
-                                    if issubclass(list_item_type, BaseModel):
+                                    if safe_issubclass(list_item_type, BaseModel): # TODO: use safe issubclass
                                         parsed_fields[field_name] = parse_obj_as(List[list_item_type], parsed_list)
                                     else:
                                         parsed_fields[field_name] = parsed_list
-
+                            elif safe_issubclass(field_type, DocList):
+                                list_item_type = field_type.doc_type
+                                if field_str:
+                                    parsed_list = json.loads(field_str)
+                                    if safe_issubclass(list_item_type, BaseDoc): # TODO: use safe issubclass
+                                        parsed_fields[field_name] = parse_obj_as(DocList[list_item_type], parsed_list)
+                                    else:
+                                        parsed_fields[field_name] = parsed_list
                             # Handle other general types
                             else:
                                 if field_str:
@@ -222,7 +231,7 @@ def get_fastapi_app(
                                     else:
                                         # General case: try converting to the target type
                                         try:
-                                            parsed_fields[field_name] = field_type(field_str)
+                                            parsed_fields[field_name] = DocList[field_type](field_str)
                                         except (ValueError, TypeError):
                                             # Fallback to parse_obj_as when type is more complex, e., AnyUrl or ImageBytes
                                             parsed_fields[field_name] = parse_obj_as(field_type, field_str)
@@ -253,14 +262,15 @@ def get_fastapi_app(
                 ):
                     if first_row:
                         first_row = False
-                        if len(line) > 1 and line[1] == 'params_row':  # Check if it's a parameters row by examining the 2nd text in the first line
+                        if len(line) > 1 and line[
+                            1] == 'params_row':  # Check if it's a parameters row by examining the 2nd text in the first line
                             parameters = construct_model_from_line(parameters_model, line[2:])
                         else:
                             if len(line) != len(field_names):
                                 raise HTTPException(
                                     status_code=http_status.HTTP_400_BAD_REQUEST,
                                     detail=f'Invalid CSV format. Line {line} doesn\'t match '
-                                        f'the expected field order {field_names}.',
+                                           f'the expected field order {field_names}.',
                                 )
                             data.append(construct_model_from_line(input_doc_list_model, line))
                     else:
@@ -269,7 +279,7 @@ def get_fastapi_app(
                             raise HTTPException(
                                 status_code=http_status.HTTP_400_BAD_REQUEST,
                                 detail=f'Invalid CSV format. Line {line} doesn\'t match '
-                                    f'the expected field order {field_names}.',
+                                       f'the expected field order {field_names}.',
                             )
                         data.append(construct_model_from_line(input_doc_list_model, line))
 

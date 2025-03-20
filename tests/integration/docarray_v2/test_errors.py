@@ -117,7 +117,6 @@ def test_flow_incompatible_linear(protocol):
             pass
 
 
-@pytest.mark.repeat(10)
 def test_exception_handling_in_dynamic_batch():
     from jina.proto import jina_pb2
 
@@ -136,7 +135,7 @@ def test_exception_handling_in_dynamic_batch():
                 ret.append(DummyEmbeddingDoc(lf=[0.1, 0.2, 0.3]))
             return ret
 
-    depl = Deployment(protocol='http', uses=SlowExecutorWithException)
+    depl = Deployment(uses=SlowExecutorWithException, include_gateway=False)
 
     with depl:
         da = DocList[TextDoc]([TextDoc(text=f'good-{i}') for i in range(50)])

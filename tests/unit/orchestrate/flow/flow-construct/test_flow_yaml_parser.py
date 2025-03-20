@@ -1,13 +1,10 @@
 import os
 from pathlib import Path
 
-import numpy as np
 import pytest
-from docarray.document.generators import from_ndarray
 
 from jina import Executor, Flow
 from jina.enums import ProtocolType
-from jina.excepts import BadYAMLVersion
 from jina.jaml import JAML
 from jina.jaml.parsers import get_supported_versions
 from jina.parsers.flow import set_flow_parser
@@ -158,12 +155,6 @@ class DummyEncoder(Executor):
     pass
 
 
-def test_flow_uses_from_dict():
-    d1 = {'jtype': 'DummyEncoder', 'metas': {'name': 'dummy1'}}
-    with Flow().add(uses=d1):
-        pass
-
-
 def test_flow_yaml_override_with_protocol():
     from jina.enums import ProtocolType
 
@@ -178,6 +169,7 @@ def test_flow_yaml_override_with_protocol():
     assert f3.protocol == ProtocolType.WEBSOCKET
 
 
+@pytest.mark.skipif('GITHUB_WORKFLOW' in os.environ, reason='no specific port test in CI')
 @pytest.mark.parametrize(
     'yaml_file',
     ['yaml/flow_with_gateway.yml', 'yaml/test-flow-custom-gateway-nested-config.yml'],

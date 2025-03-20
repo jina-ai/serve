@@ -11,8 +11,6 @@ if TYPE_CHECKING:
 if docarray_v2:
     from docarray import BaseDoc, DocList
     from docarray.utils._internal._typing import safe_issubclass
-else:
-    safe_issubclass = issubclass
 
 
 def get_fastapi_app(
@@ -160,6 +158,83 @@ def get_fastapi_app(
                         detail='Invalid CSV input. Please check your input.',
                     )
 
+                def recursive_parse(origin, field_name, field_type, field_str, parsed_fields):
+                    if origin is Literal:
+                        literal_values = get_args(field_type)
+                        if field_str not in literal_values:
+                            raise HTTPException(
+                                status_code=http_status.HTTP_400_BAD_REQUEST,
+                                detail=f"Invalid value '{field_str}' for field '{field_name}'. Expected one of: {literal_values}"
+                            )
+                        parsed_fields[field_name] = field_str
+
+                    # Handle Union types (e.g., Optional[int, str])
+                    elif origin is Union:
+                        for possible_type in get_args(field_type):
+                            possible_origin = get_origin(possible_type)
+                            try:
+                                recursive_parse(origin=possible_origin,
+                                                field_name=field_name,
+                                                field_type=possible_type,
+                                                field_str=field_str,
+                                                parsed_fields=parsed_fields)
+                                success = True
+                                break
+                            except (ValueError, TypeError, ValidationError):
+                                continue
+
+                        if not success and field_str:  # Only raise if there's a value to parse
+                            raise ValueError(
+                                f"Could not parse '{field_str}' as any of the possible types for '{field_name}'"
+                            )
+                    elif origin is list:
+                        # TODO: this may need to be also recursive
+                        list_item_type = get_args(field_type)[0]
+                        if field_str:
+                            parsed_list = json.loads(field_str)
+                            if safe_issubclass(list_item_type, BaseModel):
+                                if is_pydantic_v2:
+                                    parsed_fields[field_name] = [list_item_type.model_validate(item) for item in
+                                                                 parsed_list]
+                                else:
+                                    parsed_fields[field_name] = parse_obj_as(List[list_item_type], parsed_list)
+                            else:
+                                parsed_fields[field_name] = parsed_list
+                    elif safe_issubclass(field_type, DocList):
+                        list_item_type = field_type.doc_type
+                        if field_str:
+                            parsed_list = json.loads(field_str)
+                            if safe_issubclass(list_item_type, BaseDoc):
+                                if is_pydantic_v2:
+                                    parsed_fields[field_name] = DocList[list_item_type](
+                                        [list_item_type.model_validate(item) for item in parsed_list])
+                                else:
+                                    parsed_fields[field_name] = parse_obj_as(DocList[list_item_type],
+                                                                             parsed_list)
+                            else:
+                                parsed_fields[field_name] = parsed_list
+                    # Handle other general types
+                    else:
+                        if field_str:
+                            if field_type == bool:
+                                # Special case: handle "false" and "true" as booleans
+                                if field_str.lower() == "false":
+                                    parsed_fields[field_name] = False
+                                elif field_str.lower() == "true":
+                                    parsed_fields[field_name] = True
+                                else:
+                                    raise HTTPException(
+                                        status_code=http_status.HTTP_400_BAD_REQUEST,
+                                        detail=f"Invalid value '{field_str}' for boolean field '{field_name}'. Expected 'true' or 'false'."
+                                    )
+                            else:
+                                # General case: try converting to the target type
+                                try:
+                                    parsed_fields[field_name] = DocList[field_type](field_str)
+                                except (ValueError, TypeError):
+                                    # Fallback to parse_obj_as when type is more complex, e., AnyUrl or ImageBytes
+                                    parsed_fields[field_name] = parse_obj_as(field_type, field_str)
+
                 def construct_model_from_line(model: Type[BaseModel], line: List[str]) -> BaseModel:
                     origin = get_origin(model)
                     # If the model is of type Optional[X], unwrap it to get X
@@ -170,72 +245,25 @@ def get_fastapi_app(
                             model = args[0]
 
                     parsed_fields = {}
-                    model_fields = model.__fields__
+                    if is_pydantic_v2:
+                        model_fields = model.model_fields
+                    else:
+                        model_fields = model.__fields__
 
                     for idx, (field_name, field_info) in enumerate(model_fields.items()):
-                        field_type = field_info.outer_type_
+                        if is_pydantic_v2:
+                            field_type = field_info.annotation
+                        else:
+                            field_type = field_info.outer_type_
                         field_str = line[idx]  # Corresponding value from the row
-
+                        # Handle Literal types (e.g., Optional[Literal["value1", "value2"]])
+                        origin = get_origin(field_type)
                         try:
-                            # Handle Literal types (e.g., Optional[Literal["value1", "value2"]])
-                            origin = get_origin(field_type)
-                            if origin is Literal:
-                                literal_values = get_args(field_type)
-                                if field_str not in literal_values:
-                                    raise HTTPException(
-                                        status_code=http_status.HTTP_400_BAD_REQUEST,
-                                        detail=f"Invalid value '{field_str}' for field '{field_name}'. Expected one of: {literal_values}"
-                                    )
-                                parsed_fields[field_name] = field_str
-
-                            # Handle Union types (e.g., Optional[int, str])
-                            elif origin is Union:
-                                for possible_type in get_args(field_type):
-                                    try:
-                                        parsed_fields[field_name] = parse_obj_as(possible_type, field_str)
-                                        break
-                                    except (ValueError, TypeError, ValidationError):
-                                        continue
-
-                            # Handle list of nested models (e.g., List[Item])
-                            elif origin is list:
-                                list_item_type = get_args(field_type)[0]
-                                if field_str:
-                                    parsed_list = json.loads(field_str)
-                                    if safe_issubclass(list_item_type, BaseModel): # TODO: use safe issubclass
-                                        parsed_fields[field_name] = parse_obj_as(List[list_item_type], parsed_list)
-                                    else:
-                                        parsed_fields[field_name] = parsed_list
-                            elif safe_issubclass(field_type, DocList):
-                                list_item_type = field_type.doc_type
-                                if field_str:
-                                    parsed_list = json.loads(field_str)
-                                    if safe_issubclass(list_item_type, BaseDoc): # TODO: use safe issubclass
-                                        parsed_fields[field_name] = parse_obj_as(DocList[list_item_type], parsed_list)
-                                    else:
-                                        parsed_fields[field_name] = parsed_list
-                            # Handle other general types
-                            else:
-                                if field_str:
-                                    if field_type == bool:
-                                        # Special case: handle "false" and "true" as booleans
-                                        if field_str.lower() == "false":
-                                            parsed_fields[field_name] = False
-                                        elif field_str.lower() == "true":
-                                            parsed_fields[field_name] = True
-                                        else:
-                                            raise HTTPException(
-                                                status_code=http_status.HTTP_400_BAD_REQUEST,
-                                                detail=f"Invalid value '{field_str}' for boolean field '{field_name}'. Expected 'true' or 'false'."
-                                            )
-                                    else:
-                                        # General case: try converting to the target type
-                                        try:
-                                            parsed_fields[field_name] = DocList[field_type](field_str)
-                                        except (ValueError, TypeError):
-                                            # Fallback to parse_obj_as when type is more complex, e., AnyUrl or ImageBytes
-                                            parsed_fields[field_name] = parse_obj_as(field_type, field_str)
-
+                            recursive_parse(origin=origin,
+                                            field_name=field_name,
+                                            field_type=field_type,
+                                            field_str=field_str,
+                                            parsed_fields=parsed_fields)
                         except Exception as e:
                             raise HTTPException(
                                 status_code=http_status.HTTP_400_BAD_REQUEST,

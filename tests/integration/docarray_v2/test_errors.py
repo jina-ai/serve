@@ -1,8 +1,9 @@
 import pytest
-from docarray import DocList
+from typing import List
 from docarray.documents import ImageDoc, TextDoc
+from docarray import BaseDoc, DocList
 
-from jina import Deployment, Executor, Flow, requests
+from jina import Deployment, Executor, Flow, requests, dynamic_batching
 from jina.excepts import RuntimeFailToStart
 
 
@@ -95,3 +96,63 @@ def test_flow_incompatible_bifurcation(protocol):
     with pytest.raises(RuntimeFailToStart):
         with f:
             pass
+
+
+@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+def test_flow_incompatible_linear(protocol):
+    class First(Executor):
+        @requests
+        def foo(self, docs: DocList[TextDoc], **kwargs) -> DocList[TextDoc]:
+            pass
+
+    class Second(Executor):
+        @requests
+        def foo(self, docs: DocList[ImageDoc], **kwargs) -> DocList[ImageDoc]:
+            pass
+
+    f = Flow(protocol=protocol).add(uses=First).add(uses=Second)
+
+    with pytest.raises(RuntimeFailToStart):
+        with f:
+            pass
+
+
+@pytest.mark.repeat(10)
+def test_exception_handling_in_dynamic_batch():
+    from jina.proto import jina_pb2
+
+    class DummyEmbeddingDoc(BaseDoc):
+        lf: List[float] = []
+
+    class SlowExecutorWithException(Executor):
+
+        @dynamic_batching(preferred_batch_size=3, timeout=1000)
+        @requests(on='/foo')
+        def foo(self, docs: DocList[TextDoc], **kwargs) -> DocList[DummyEmbeddingDoc]:
+            ret = DocList[DummyEmbeddingDoc]()
+            for doc in docs:
+                if doc.text == 'fail':
+                    raise Exception('Fail is in the Batch')
+                ret.append(DummyEmbeddingDoc(lf=[0.1, 0.2, 0.3]))
+            return ret
+
+    depl = Deployment(uses=SlowExecutorWithException)
+
+    with depl:
+        da = DocList[TextDoc]([TextDoc(text=f'good-{i}') for i in range(50)])
+        da[4].text = 'fail'
+        responses = depl.post(
+            on='/foo',
+            inputs=da,
+            request_size=1,
+            return_responses=True,
+            continue_on_error=True,
+            results_in_order=True,
+        )
+        assert len(responses) == 50  # 1 request per input
+        num_failed_requests = 0
+        for r in responses:
+            if r.header.status.code == jina_pb2.StatusProto.StatusCode.ERROR:
+                num_failed_requests += 1
+
+        assert 1 <= num_failed_requests <= 3  # 3 requests in the dynamic batch failing

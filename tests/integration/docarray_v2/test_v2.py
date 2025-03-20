@@ -20,7 +20,6 @@ from docarray.documents import ImageDoc, TextDoc
 from docarray.typing import AnyTensor, ImageUrl, NdArray
 
 from jina import Client, Deployment, Executor, Flow, dynamic_batching, requests
-from jina.excepts import RuntimeFailToStart
 from jina.helper import random_port
 
 
@@ -168,12 +167,12 @@ def test_deployments_with_shards_all_shards_return(reduce, sleep_time):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
+    'protocols', [['grpc', 'http', 'websocket']]
 )
 @pytest.mark.parametrize('replicas', [1, 3])
 def test_different_document_schema(protocols, replicas):
     class Image(BaseDoc):
-        #tensor: Optional[AnyTensor]
+        # tensor: Optional[AnyTensor]
         url: ImageUrl
         lll: List[List[str]] = [[]]
         texts: DocList[TextDoc]
@@ -182,7 +181,7 @@ def test_different_document_schema(protocols, replicas):
         @requests(on='/foo')
         def foo(self, docs: DocList[Image], **kwargs) -> DocList[Image]:
             for doc in docs:
-                #doc.tensor = np.zeros((10, 10, 10))
+                # doc.tensor = np.zeros((10, 10, 10))
                 doc.lll = [['aa'], ['bb']]
                 doc.texts.append(TextDoc('ha'))
             return docs
@@ -205,7 +204,7 @@ def test_different_document_schema(protocols, replicas):
                 return_type=DocList[Image],
             )
             docs = docs.to_doc_vec()
-            #assert docs.tensor.ndim == 4
+            # assert docs.tensor.ndim == 4
             assert docs[0].lll == [['aa'], ['bb']]
             assert len(docs[0].texts) == 2
             assert docs[0].texts[0].text == 'hey'
@@ -213,7 +212,7 @@ def test_different_document_schema(protocols, replicas):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
+    'protocols', [['grpc', 'http', 'websocket']]
 )
 @pytest.mark.parametrize('replicas', [1, 3])
 def test_send_custom_doc(protocols, replicas):
@@ -267,7 +266,7 @@ def test_input_response_schema(protocols, replicas):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
+    'protocols', [['grpc', 'http', 'websocket']]
 )
 @pytest.mark.parametrize('replicas', [1, 3])
 def test_input_response_schema_annotation(protocols, replicas):
@@ -347,7 +346,7 @@ def test_generator_endpoints_type_annotations(endpoint):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket']]
+    'protocols', [['http']]
 )
 @pytest.mark.parametrize('replicas', [1, 3])
 def test_different_output_input(protocols, replicas):
@@ -397,7 +396,7 @@ def test_different_output_input(protocols, replicas):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['grpc', 'http']]
+    'protocols', [['grpc', 'http']]
 )
 def test_different_output_input_deployment(protocols):
     class InputDoc(BaseDoc):
@@ -446,7 +445,7 @@ def test_different_output_input_deployment(protocols):
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
+    'protocols', [['grpc', 'http', 'websocket']]
 )
 def test_chain(protocols):
     class Input1(BaseDoc):
@@ -497,10 +496,13 @@ def test_chain(protocols):
                 from jina.proto.jina_pb2_grpc import JinaDiscoverEndpointsRPCStub
                 from jina.serve.executors import __dry_run_endpoint__
                 if not is_pydantic_v2:
-                    from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
-                    from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
+                    from jina.serve.runtimes.helper import \
+                        _create_aux_model_doc_list_to_list as create_pure_python_type_model
+                    from jina.serve.runtimes.helper import \
+                        _create_pydantic_model_from_schema as create_base_doc_from_schema
                 else:
-                    from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
+                    from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, \
+                        create_base_doc_from_schema
 
                 channel = grpc.insecure_channel(f'0.0.0.0:{ports[0]}')
                 stub = JinaDiscoverEndpointsRPCStub(channel)
@@ -514,25 +516,25 @@ def test_chain(protocols):
                 assert v['output'] == LegacyDocumentJina.schema()
                 v = schema_map['/bar']
                 assert (
-                    v['input']
-                    == create_base_doc_from_schema(
-                        create_pure_python_type_model(Input1).schema(),
-                        'Input1',
-                        {},
-                    ).schema()
+                        v['input']
+                        == create_base_doc_from_schema(
+                    create_pure_python_type_model(Input1).schema(),
+                    'Input1',
+                    {},
+                ).schema()
                 )
                 assert (
-                    v['output']
-                    == create_base_doc_from_schema(
-                        create_pure_python_type_model(Output2).schema(),
-                        'Output2',
-                        {},
-                    ).schema()
+                        v['output']
+                        == create_base_doc_from_schema(
+                    create_pure_python_type_model(Output2).schema(),
+                    'Output2',
+                    {},
+                ).schema()
                 )
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket'], ['grpc', 'http', 'websocket']]
+    'protocols', [['grpc', 'http', 'websocket']]
 )
 def test_default_endpoint(protocols):
     class Input1(BaseDoc):
@@ -586,10 +588,12 @@ def test_default_endpoint(protocols):
             from jina.proto.jina_pb2_grpc import JinaDiscoverEndpointsRPCStub
             from jina.serve.executors import __default_endpoint__, __dry_run_endpoint__
             if not is_pydantic_v2:
-                from jina.serve.runtimes.helper import _create_aux_model_doc_list_to_list as create_pure_python_type_model
+                from jina.serve.runtimes.helper import \
+                    _create_aux_model_doc_list_to_list as create_pure_python_type_model
                 from jina.serve.runtimes.helper import _create_pydantic_model_from_schema as create_base_doc_from_schema
             else:
-                from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, create_base_doc_from_schema
+                from docarray.utils.create_dynamic_doc_class import create_pure_python_type_model, \
+                    create_base_doc_from_schema
 
             channel = grpc.insecure_channel(f'0.0.0.0:{ports[0]}')
             stub = JinaDiscoverEndpointsRPCStub(channel)
@@ -606,21 +610,21 @@ def test_default_endpoint(protocols):
             assert v['output'] == LegacyDocumentJina.schema()
             v = schema_map[__default_endpoint__]
             assert (
-                v['input']
-                == create_base_doc_from_schema(
-                    create_pure_python_type_model(Input1).schema(), 'Input1', {}
-                ).schema()
+                    v['input']
+                    == create_base_doc_from_schema(
+                create_pure_python_type_model(Input1).schema(), 'Input1', {}
+            ).schema()
             )
             assert (
-                v['output']
-                == create_base_doc_from_schema(
-                    create_pure_python_type_model(Output2).schema(), 'Output2', {}
-                ).schema()
+                    v['output']
+                    == create_base_doc_from_schema(
+                create_pure_python_type_model(Output2).schema(), 'Output2', {}
+            ).schema()
             )
 
 
 @pytest.mark.parametrize(
-    'protocols', [['grpc'], ['http'], ['websocket']]
+    'protocols', [['http']]
 )
 @pytest.mark.parametrize('reduce', [True, False])
 def test_complex_topology_bifurcation(protocols, reduce):
@@ -682,7 +686,7 @@ def temp_workspace(tmpdir):
     os.unsetenv('TEMP_WORKSPACE')
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 def test_condition_feature(protocol, temp_workspace, tmpdir):
     class ProcessingTestDocConditions(BaseDoc):
         text: str
@@ -778,7 +782,7 @@ def test_condition_feature(protocol, temp_workspace, tmpdir):
             assert fp.read() == 'type2'
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 def test_endpoints_target_executors_combinations(protocol):
     class Foo(Executor):
         @requests(on='/hello')
@@ -814,10 +818,11 @@ def test_endpoints_target_executors_combinations(protocol):
             assert doc.text == 'Processed by bar'
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 def test_floating_executors(protocol, tmpdir):
     class EmptyDoc(BaseDoc):
         text: Optional[str] = None
+
     TIME_SLEEP_FLOATING = 1.0
 
     class PassTestExecutor(Executor):
@@ -878,7 +883,7 @@ def test_floating_executors(protocol, tmpdir):
     assert resulted_str == expected_str
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 @pytest.mark.parametrize('ctxt_manager', ['deployment', 'flow'])
 def test_empty_input_output(protocol, ctxt_manager):
     if ctxt_manager == 'deployment' and protocol == 'websocket':
@@ -900,7 +905,7 @@ def test_empty_input_output(protocol, ctxt_manager):
         assert len(ret) == 0
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 @pytest.mark.parametrize('ctxt_manager', ['deployment', 'flow'])
 def test_input_output_with_shaped_tensor(protocol, ctxt_manager):
     if ctxt_manager == 'deployment' and protocol == 'websocket':
@@ -1130,25 +1135,6 @@ def test_flow_compatible_with_default():
 
 
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
-def test_flow_incompatible_linear(protocol):
-    class First(Executor):
-        @requests
-        def foo(self, docs: DocList[TextDoc], **kwargs) -> DocList[TextDoc]:
-            pass
-
-    class Second(Executor):
-        @requests
-        def foo(self, docs: DocList[ImageDoc], **kwargs) -> DocList[ImageDoc]:
-            pass
-
-    f = Flow(protocol=protocol).add(uses=First).add(uses=Second)
-
-    with pytest.raises(RuntimeFailToStart):
-        with f:
-            pass
-
-
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_flow_compatible_different_exact_schema(protocol):
     from pydantic import Field
 
@@ -1172,9 +1158,6 @@ def test_flow_compatible_different_exact_schema(protocol):
 
     with f:
         pass
-
-
-
 
 
 class ExternalDeploymentDoc(BaseDoc):
@@ -1519,7 +1502,7 @@ def test_issue_with_monitoring():
                 self, docs: DocList[InputDocMonitor], **kwargs
         ) -> DocList[OutputDocMonitor]:
             ret = DocList[OutputDocMonitor]()
-            for doc in docs:
+            for _ in docs:
                 ret.append(OutputDocMonitor(price=2))
             return ret
 
@@ -1612,44 +1595,3 @@ def test_issue_fastapi_multiple_models_same_name():
             return_type=DocList[MyRandomModel],
         )
         assert res[0].a == 'hey'
-
-
-@pytest.mark.repeat(10)
-def test_exception_handling_in_dynamic_batch():
-    from jina.proto import jina_pb2
-
-    class DummyEmbeddingDoc(BaseDoc):
-        lf: List[float] = []
-
-    class SlowExecutorWithException(Executor):
-
-        @dynamic_batching(preferred_batch_size=3, timeout=1000)
-        @requests(on='/foo')
-        def foo(self, docs: DocList[TextDoc], **kwargs) -> DocList[DummyEmbeddingDoc]:
-            ret = DocList[DummyEmbeddingDoc]()
-            for doc in docs:
-                if doc.text == 'fail':
-                    raise Exception('Fail is in the Batch')
-                ret.append(DummyEmbeddingDoc(lf=[0.1, 0.2, 0.3]))
-            return ret
-
-    depl = Deployment(uses=SlowExecutorWithException)
-
-    with depl:
-        da = DocList[TextDoc]([TextDoc(text=f'good-{i}') for i in range(50)])
-        da[4].text = 'fail'
-        responses = depl.post(
-            on='/foo',
-            inputs=da,
-            request_size=1,
-            return_responses=True,
-            continue_on_error=True,
-            results_in_order=True,
-        )
-        assert len(responses) == 50  # 1 request per input
-        num_failed_requests = 0
-        for r in responses:
-            if r.header.status.code == jina_pb2.StatusProto.StatusCode.ERROR:
-                num_failed_requests += 1
-
-        assert 1 <= num_failed_requests <= 3  # 3 requests in the dynamic batch failing

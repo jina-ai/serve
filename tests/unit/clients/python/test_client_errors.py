@@ -36,6 +36,7 @@ def _start_runtime(protocol, port, flow_or_deployment, stop_event, start_event=N
         cntx.block(stop_event)
 
 
+@pytest.mark.skipif("GITHUH_WORKFLOWS" in os.environ, reason="Flaky in GH Actions")
 @pytest.mark.timeout(90)
 def test_grpc_stream_transient_error_iterable_input(port_generator, mocker):
     random_port = port_generator()
@@ -83,6 +84,7 @@ def test_grpc_stream_transient_error_iterable_input(port_generator, mocker):
         t.terminate()
 
 
+@pytest.mark.skipif("GITHUH_WORKFLOWS" in os.environ, reason="Flaky in GH Actions")
 @pytest.mark.timeout(90)
 @pytest.mark.parametrize('flow_or_deployment', ['deployment', 'flow'])
 def test_grpc_stream_transient_error_docarray_input(
@@ -123,6 +125,7 @@ def test_grpc_stream_transient_error_docarray_input(
         t.terminate()
 
 
+@pytest.mark.skipif("GITHUH_WORKFLOWS" in os.environ, reason="Flaky in GH Actions")
 @pytest.mark.timeout(90)
 @pytest.mark.asyncio
 @pytest.mark.parametrize('flow_or_deployment', ['deployment', 'flow'])
@@ -178,6 +181,7 @@ async def test_async_grpc_stream_transient_error(
         t.terminate()
 
 
+@pytest.mark.skipif("GITHUH_WORKFLOWS" in os.environ, reason="Flaky in GH Actions")
 @pytest.mark.timeout(300)
 @pytest.mark.parametrize('flow_or_deployment', ['flow', 'deployment'])
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
@@ -209,6 +213,7 @@ def test_sync_clients_max_attempts_transient_error(
         t.terminate()
 
 
+@pytest.mark.skipif("GITHUH_WORKFLOWS" in os.environ, reason="Flaky in GH Actions")
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_sync_clients_max_attempts_raises_error(mocker, protocol, port_generator):

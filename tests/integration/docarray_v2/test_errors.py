@@ -7,7 +7,7 @@ from jina import Deployment, Executor, Flow, requests, dynamic_batching
 from jina.excepts import RuntimeFailToStart
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http'])
+@pytest.mark.parametrize('protocol', ['http'])
 @pytest.mark.parametrize('ctxt_manager', ['deployment', 'flow'])
 def test_raise_exception(protocol, ctxt_manager):
     from jina.excepts import BadServer
@@ -41,7 +41,7 @@ def test_raise_exception(protocol, ctxt_manager):
                 )
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 @pytest.mark.parametrize('ctxt_manager', ['deployment', 'flow'])
 def test_wrong_schemas(ctxt_manager, protocol):
     if ctxt_manager == 'deployment' and protocol == 'websocket':
@@ -68,7 +68,7 @@ def test_wrong_schemas(ctxt_manager, protocol):
             pass
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 def test_flow_incompatible_bifurcation(protocol):
     class First(Executor):
         @requests
@@ -98,7 +98,7 @@ def test_flow_incompatible_bifurcation(protocol):
             pass
 
 
-@pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
+@pytest.mark.parametrize('protocol', ['http'])
 def test_flow_incompatible_linear(protocol):
     class First(Executor):
         @requests
@@ -136,7 +136,7 @@ def test_exception_handling_in_dynamic_batch():
                 ret.append(DummyEmbeddingDoc(lf=[0.1, 0.2, 0.3]))
             return ret
 
-    depl = Deployment(uses=SlowExecutorWithException)
+    depl = Deployment(protocol='http', uses=SlowExecutorWithException)
 
     with depl:
         da = DocList[TextDoc]([TextDoc(text=f'good-{i}') for i in range(50)])

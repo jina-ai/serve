@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from jina import Flow, Executor
+from jina import Deployment, Executor
 
 
 class SlowExecutor(Executor):
@@ -17,9 +17,9 @@ class SlowExecutor(Executor):
 
 @pytest.mark.slow
 def test_slow_executor_close(tmpdir):
-    with Flow().add(
-        uses={'jtype': 'SlowExecutor', 'with': {}, 'metas': {'workspace': str(tmpdir)}}
-    ) as f:
+    with Deployment(protocol='http',
+        uses={'jtype': 'SlowExecutor', 'with': {}, 'metas': {'workspace': str(tmpdir)}}, include_gateway=False,
+    ):
         pass
 
     assert os.path.exists(os.path.join(tmpdir, 'test'))

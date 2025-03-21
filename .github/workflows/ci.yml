@@ -763,7 +763,7 @@ jobs:
       matrix:
         core: ['', 'true']
         perf: ['', 'true']
-        python-env: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         exclude:
           - core: 'true'
             perf: 'true'
@@ -778,6 +778,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install --no-cache-dir .
+          pip list
         env:
           JINA_PIP_INSTALL_CORE: ${{ matrix.core }}
           JINA_PIP_INSTALL_PERF: ${{ matrix.perf }}

@@ -213,7 +213,7 @@ def test_stateful_index_search_restore(
 
 
 @pytest.mark.skipif(not docarray_v2, reason='tests support for docarray>=0.30')
-@pytest.mark.parametrize('shards', [1, 2])
+@pytest.mark.parametrize('shards', [2, 1])
 def test_stateful_index_search_container(
     shards, tmpdir, stateful_exec_docker_image_built
 ):

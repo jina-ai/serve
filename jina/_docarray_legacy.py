@@ -1,13 +1,13 @@
 from __future__ import annotations
-
+import os
 from docarray import BaseDoc
 from docarray import DocList
 
-docarray_v2 = True
-
+from pydantic import Field
 from typing import Any, Dict, Optional, List, Union
 
-from docarray.typing import AnyEmbedding, AnyTensor
+from docarray.typing import ID, AnyEmbedding, AnyTensor
+docarray_v2 = True
 
 
 class LegacyDocumentJina(BaseDoc):
@@ -37,6 +37,10 @@ class LegacyDocumentJina(BaseDoc):
     ```
 
     """
+    id: Optional[ID] = Field(
+        description='The ID of the BaseDoc. This is useful for indexing in vector stores. If not set by user, it will automatically be assigned a random value',
+        default_factory=lambda: ID(os.urandom(16).hex()),
+    )
 
     tensor: Optional[AnyTensor] = None
     chunks: Optional[Union[DocList[LegacyDocumentJina], List[LegacyDocumentJina]]] = None

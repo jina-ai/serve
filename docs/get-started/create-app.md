@@ -1,4 +1,4 @@
-# {fas}`folder-plus` Create First Project
+# {fas}`folder-plus` Create Your First Project
 
 Let's build a toy application with Jina-serve. To start, use Jina-serve CLI to make a new Deployment or a Flow: 
 
@@ -79,9 +79,9 @@ hello-jina/
 - `config.yml` is the configuration file for the Executor. It stores metadata for your Executor, as well as dependencies.
 - `client.py` is the entrypoint of your Jina-serve project. You can run it via `python app.py`.
 
-There are some other files like `README.md` and `requirements.txt` to provide extra metadata about that Executor. More information {ref}`can be found here<create-executor>`.
+Other files such as `README.md` and `requirements.txt` provide additional metadata about that Executor. More information {ref}`can be found here<create-executor>`.
 
-Now run it and observe the output of the server and client:
+Once everything is set up, run the command to start the server. You'll see server and client output logs in your terminal.
 
 ## Launch Flow
 
@@ -114,7 +114,7 @@ jina-serve flow --uses flow.yml
 
 ````
 
-Deployments and Flows share many common ways of doing things. We'll go into those below.
+Deployments and Flows have many similarities in how they are configured and used. The following sections will highlight these common practices.
 
 ## Connect with Client
 
@@ -156,7 +156,7 @@ class MyExecutor(Executor):
             doc.tensor = torch.tensor(np.random.random([10, 2]))
 ```
 
-Kill the last server with `Ctrl-C` and restart the server with `jina flow --uses deployment.yml`.
+Stop the last server with `Ctrl-C` and restart it using `jina flow --uses deployment.yml`.
 
 ## Call `/crunch-number` endpoint
 
@@ -209,14 +209,19 @@ JCloud offers free CPU and GPU instances to host Jina projects.
 
 ```{admonition} Deployments on JCloud
 :class: important
-At present, JCloud is only available for Flows. We are currently working on supporting Deployments.
+Currently, JCloud is only available for Flows. We are working on supporting Deployments in the future.
 ```
+
+To deploy your Flow to JCloud, follow these steps:
+
+1. Log in to JCloud:
 
 ```bash
 jina-serve auth login
 ```
+Log in with your GitHub, Google or Email account.
 
-Log in with your GitHub, Google or Email account:
+2. Deploy the Flow:
 
 ```bash
 jina cloud flow deploy ./
@@ -227,7 +232,7 @@ jina cloud flow deploy ./
 
 Deploying a Flow to the cloud is fully automatic and takes a few minutes.
 
-After it is done, you should see the following message in the terminal.
+Once the process is complete, you should see the following message in the terminal:
 
 
 ```text
@@ -239,7 +244,9 @@ After it is done, you should see the following message in the terminal.
 ╰───────────────────────────────────────────────────╯
 ```
 
-Now change the Client's code to use the deployed endpoint shown above:
+3. Update the Client code:
+
+   Now, modify the Client code to use the deployed endpoint shown above.
 
 ```{code-block} python
 ---
@@ -258,6 +265,8 @@ if __name__ == '__main__':
 ```{tip}
 The very first request can be a bit slow because the server is starting up.
 ```
+
+The output will look something like this:
 
 ```text
 tensor([[[0.4254, 0.4305],
@@ -295,4 +304,4 @@ jina cloud flow remove 1655d050ad
 Successfully removed Flow 1655d050ad.
 ```
 
-You've just finished your first toy Jina-serve project, congratulations! You can now start your own project.
+Congratulations! You've just finished your first toy Jina-serve project. Now, you're ready to start building your own projects using Jina.
